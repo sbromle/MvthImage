@@ -1,0 +1,7 @@
+* MVTH -- Machine Vision Test Harness
+*************************************
+This purpose of this software is to provide
+a single test harness for the evaluation
+of machine vision filters and stereo
+algorithms while providing a graphical
+display of the results.

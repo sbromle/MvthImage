@@ -1,0 +1,3 @@
+This directory contains a small library and header file
+that other plugins can use to gain access to the images
+stored in the image context within this (mvthImage) plugin.
