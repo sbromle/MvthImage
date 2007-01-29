@@ -219,13 +219,13 @@ image_t *readimage(char *filename)
 		ni->data[i]=(float)val/(float)maxval;
 	}
 
-  	/* delete the image */
-  	dlilDeleteImages(1,&imageid);
+  /* delete the image */
+  dlilDeleteImages(1,&imageid);
 
 	/* shutdown DevIL and free all memory */
 	dlilShutDown();
 
-  	dlclose(handle);
+  dlclose(handle);
 
 	free(tmpdata);
 

@@ -104,7 +104,6 @@ green2gray/green2gray_fltr.c \
 astereo/astereo_fltr.c \
 astereo/astereo_fltr.h \
 gaussian/gaussian_fltr.c \
-feature_extract/feature_extract_fltr.c \
 optical_flow/opticalFlow_fltr.c \
 open/readimages.c \
 open/readimages.h \
@@ -117,10 +116,10 @@ zoom/zoom_fltr.c
 PLUGINSOURCES= \
 preserve_plugin_state.c \
 register_plugin.c \
+base/images_context.c \
+base/images_context.h \
 base/mmap_handler.h \
 base/mmap_handler.c \
-base/images_context.h \
-base/images_context.c \
 dmap/dmap_draw_cmd.c \
 write_image/writeframe_cmd.c \
 rectify/rectify_cmd.c \
