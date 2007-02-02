@@ -64,6 +64,8 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"invert",invertimage_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
+	Tcl_CreateObjCommand(interp,"isometric",isometric_cmd,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"kmeans",kmeans_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 #if 0

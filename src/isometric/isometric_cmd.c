@@ -13,52 +13,54 @@
 #  include <config.h>
 #endif
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <popt.h>
-#include <mvthPlugin.h>
-#include "base/images_context.h"
+#include <assert.h>
+#include <tcl.h>
+#include <tclArgv.h>
+#include "dynamic_load.h"
+#include "base/mvthimagestate.h"
 #include "utils/timestamp.h"
 
-extern int poptPrintHelpMvth(poptContext con, FILE *f, int flags);
-
-extern void isometric_fltr(image_t *img,double theta);
-
-MvthReplyCode isometric_cmd(Command *cmd)
+int isometric_cmd(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
 {
-	char *iname;
 	image_t *img; /* must find this */
-
+	MvthImage *mimg=NULL;
+	void *libhandle=NULL;
+	void (*isometric_fltr)(image_t *img, double theta)=NULL;
 	double theta=30;
+	Tcl_Obj **remObjv=NULL;
 
-	POPT_START_OPTIONS
-		{"theta",'t',POPT_ARG_DOUBLE,&theta,0,
-			"set angle of projection",NULL},
-		POPT_END_OPTIONS;
+	Tcl_ArgvInfo argTable[] = {
+		{"-theta",TCL_ARGV_FLOAT,NULL,&theta,
+			"angle of projection in degrees"},
+		TCL_ARGV_AUTO_HELP,
+		TCL_ARGV_TABLE_END
+	};
 
-	POPT_START("isometric","[options] <img name>");
-	POPT_PARSE_OPTIONS;
-	/* get the last argument */
-	POPT_GET_STRING(iname);
-	POPT_FINISH;
-
-	/* get image */
-	if ((img=get_image_var(iname))==NULL)
+	if (Tcl_ParseArgsObjv(interp,&objc,objv,&remObjv,argTable)!=TCL_OK)
 	{
-		free(iname);
-		return S_NOEXIST;
+		if (remObjv!=NULL) free(remObjv);
+		return TCL_ERROR;
 	}
 
-	/* register it with the undo substructure */
-	register_image_undo_var(iname);
+	if (objc!=2) {
+		Tcl_WrongNumArgs(interp,1,objv,"img ?-theta projection_angle_in_degrees?");
+		return TCL_ERROR;
+	}
 
-	/* do the filter */
+	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	img=mimg->img;
+
+	/* load any symbols that we need */
+	isometric_fltr=load_symbol(MVTHIMAGELIB,"isometric_fltr",&libhandle);
+	assert(isometric_fltr!=NULL);
+
 	isometric_fltr(img,theta);
-	stamp_image_t(img);
-	
 
-	free(iname);
-	return S_SUCCESS;
+	release_handle(&libhandle);
+	
+	return TCL_OK;
 }

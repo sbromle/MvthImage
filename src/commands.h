@@ -29,6 +29,8 @@ extern int grayscale_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int invertimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
+extern int isometric_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int kmeans_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 #if 0
