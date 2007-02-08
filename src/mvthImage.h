@@ -42,12 +42,12 @@ extern int getJetRGB(double v, double vmin, double vmax, float *rgb);
 /* plot an image based on arrays of doubles */
 #include <mvthimage/plot_imagescale.h>
 /* draw a line */
-extern void drawLine(float *img, int w, int h, int bands,
+extern void drawLine(float *img, int w, int h, int bands, int pitch,
 		int x, int y, int dx, int dy,
 		float *rgb);
 extern void drawCircle(image_t *img,int cx, int cy, int r, float *rgb);
 /* Draw a multi-segment line */
-extern void drawPolyLine(float *img, int w, int h, int bands,
+extern void drawPolyLine(float *img, int w, int h, int bands, int pitch,
 		int x[], int y[], int n,
 		float *rgb);
 /* plot a multisegment line within a viewport */

@@ -19,14 +19,17 @@
 /* simple square drawing routine */
 
 extern void drawLine(float *img, int w, int h, int bands,
+		int pitch, /* distance between rows in image */
 		int x, int y, int dx, int dy,
 		float *rgb);
 /* Draw a multi-segment line */
 extern void drawPolyLine(float *img, int w, int h, int bands,
+		int pitch, /* distance between rows in image */
 		int x[], int y[], int n,
 		float *rgb);
 /* Plot data points as single pixels */
 extern void drawDots(float *img, int w, int h, int bands,
+		int pitch, /* distance between rows in image */
 		int x[], int y[], int n,
 		float *rgb);
 #endif

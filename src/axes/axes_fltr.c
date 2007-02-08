@@ -21,7 +21,7 @@
 #include "utils/drawLine.h"
 
 #define DRAWLINE(x1,y1,x2,y2) \
-	drawLine(img->data,w,h,bands,(x1),(y1),(x2)-(x1),(y2)-(y1),rgb)
+	drawLine(img->data,w,h,bands,w*bands,(x1),(y1),(x2)-(x1),(y2)-(y1),rgb)
 	
 #define UP   0
 #define DOWN 1

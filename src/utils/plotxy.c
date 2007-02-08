@@ -22,35 +22,56 @@ int plotxy(float *img, int w, int h, int bands,
 	int *ix=NULL, *iy=NULL;
 	double xscale,yscale; /* scale from data to image coords */
 	double xmin,ymin;
+	double xmax,ymax;
 	int xlow,ylow;
 	int xhigh,yhigh;
+	int subregion_width, subregion_height;
 	int i;
 	if (x==NULL || y==NULL || len==0 || img==NULL || viewport==NULL) return -1;
 
+
 	xmin=viewport->x_axis.min;
 	ymin=viewport->y_axis.min;
-	xscale=w*(viewport->xmax-viewport->xmin)/(viewport->x_axis.max-viewport->x_axis.min);
-	yscale=h*(viewport->ymax-viewport->ymin)/(viewport->y_axis.max-viewport->y_axis.min);
+	xmax=viewport->x_axis.max;
+	ymax=viewport->y_axis.max;
 	xlow=(int)(w*viewport->xmin);
-	ylow=(int)(h*viewport->ymin);
 	xhigh=(int)(w*viewport->xmax);
+	ylow=(int)(h*viewport->ymin);
 	yhigh=(int)(h*viewport->ymax);
+
+	if (xlow>=w || xhigh<0 || yhigh<0 || ylow>=h) return -1;
+	if (xlow<0) xlow=0;
+	if (ylow<0) ylow=0;
+	if (xhigh<xlow) return -2;
+	if (yhigh<ylow) return -2;
+
+	xscale=(xhigh-xlow)/(xmax-xmin);
+	yscale=(yhigh-ylow)/(ymax-ymin);
+
+	subregion_width=xhigh-xlow+1;
+	subregion_height=yhigh-ylow+1;
 
 	/* allocate memory for the drawPolyline arrays */
 	ix=(int*)malloc(len*sizeof(int));
 	iy=(int*)malloc(len*sizeof(int));
 	for (i=0;i<len;i++)
 	{
-		int xtmp=(int)(xlow+(x[i]-xmin)*xscale+0.5);
-		int ytmp=(int)(ylow+(y[i]-ymin)*yscale+0.5);
+		int xtmp=(int)((x[i]-xmin)*xscale+0.5);
+		int ytmp=(int)((y[i]-ymin)*yscale+0.5);
+		/* Lines are clipped later. Don't mess with data here.
 		if (xtmp<xlow) xtmp=xlow;
 		if (xtmp>xhigh) xtmp=xhigh;
 		if (ytmp<ylow) ytmp=ylow;
 		if (ytmp>yhigh) ytmp=yhigh;
+		*/
 		ix[i]=xtmp;
-		iy[i]=h-ytmp;
+		iy[i]=(subregion_height-1)-ytmp; /* invert y */
 	}
-	drawPolyLine(img,w,h,bands,ix,iy,len,rgb);
+	float *subimage=img+bands*(w*(h-1-yhigh)+xlow);
+	int pitch=bands*w;
+	drawPolyLine(subimage,
+			subregion_width, subregion_height,bands,pitch,
+			ix,iy,len,rgb);
 	free(ix);
 	free(iy);
 
@@ -64,35 +85,54 @@ int plotxydots(float *img, int w, int h, int bands,
 	int *ix=NULL, *iy=NULL;
 	double xscale,yscale; /* scale from data to image coords */
 	double xmin,ymin;
+	double xmax,ymax;
 	int xlow,ylow;
 	int xhigh,yhigh;
+	int subregion_width, subregion_height;
 	int i;
 	if (x==NULL || y==NULL || len==0 || img==NULL || viewport==NULL) return -1;
 
 	xmin=viewport->x_axis.min;
 	ymin=viewport->y_axis.min;
-	xscale=w*(viewport->xmax-viewport->xmin)/(viewport->x_axis.max-viewport->x_axis.min);
-	yscale=h*(viewport->ymax-viewport->ymin)/(viewport->y_axis.max-viewport->y_axis.min);
+	xmax=viewport->x_axis.max;
+	ymax=viewport->y_axis.max;
 	xlow=(int)(w*viewport->xmin);
-	ylow=(int)(h*viewport->ymin);
 	xhigh=(int)(w*viewport->xmax);
+	ylow=(int)(h*viewport->ymin);
 	yhigh=(int)(h*viewport->ymax);
+
+	if (xlow>=w || xhigh<0 || yhigh<0 || ylow>=h) return -1;
+	if (xlow<0) xlow=0;
+	if (ylow<0) ylow=0;
+	if (xhigh<xlow) return -2;
+	if (yhigh<ylow) return -2;
+
+	xscale=(xhigh-xlow)/(xmax-xmin);
+	yscale=(yhigh-ylow)/(ymax-ymin);
+
+	subregion_width=xhigh-xlow+1;
+	subregion_height=yhigh-ylow+1;
 
 	/* allocate memory for the drawPolyline arrays */
 	ix=(int*)malloc(len*sizeof(int));
 	iy=(int*)malloc(len*sizeof(int));
 	for (i=0;i<len;i++)
 	{
-		int xtmp=(int)(xlow+(x[i]-xmin)*xscale+0.5);
-		int ytmp=(int)(ylow+(y[i]-ymin)*yscale+0.5);
+		int xtmp=(int)((x[i]-xmin)*xscale+0.5);
+		int ytmp=(int)((y[i]-ymin)*yscale+0.5);
+		/*
 		if (xtmp<xlow) xtmp=xlow;
 		if (xtmp>xhigh) xtmp=xhigh;
 		if (ytmp<ylow) ytmp=ylow;
 		if (ytmp>yhigh) ytmp=yhigh;
+		*/
 		ix[i]=xtmp;
-		iy[i]=h-ytmp;
+		iy[i]=(subregion_height-1)-ytmp; /* invert y */
 	}
-	drawDots(img,w,h,bands,ix,iy,len,rgb);
+	float *subimage=img+bands*(w*(h-1-yhigh)+xlow);
+	int pitch=bands*w;
+	drawDots(subimage,subregion_width,subregion_height,bands,pitch,
+			ix,iy,len,rgb);
 	free(ix);
 	free(iy);
 
