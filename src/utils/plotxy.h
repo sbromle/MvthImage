@@ -14,8 +14,11 @@
 
 #include "base/images_types.h"
 
-int plotxy(float *img, int w, int h, int bands,
+extern int plotxy(float *img, int w, int h, int bands,
 		double x[], double y[], size_t len, float *rgb,
 		ViewPort_t *viewport);
 
+extern int plotxydots(float *img, int w, int h, int bands,
+		double x[], double y[], size_t len, float *rgb,
+		ViewPort_t *viewport);
 #endif

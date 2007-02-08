@@ -54,6 +54,9 @@ extern void drawPolyLine(float *img, int w, int h, int bands,
 extern int plotxy(float *img, int w, int h, int bands,
 		double x[], double y[], size_t len, float *rgb,
 		ViewPort_t *viewport);
+extern int plotxydots(float *img, int w, int h, int bands,
+		double x[], double y[], size_t len, float *rgb,
+		ViewPort_t *viewport);
 int plotpoly(image_t *img, ViewPort_t *viewport,
 		int order, double *coefs, float *rgb);
 extern void drawPDot(float *img, int w, int h, int bands,

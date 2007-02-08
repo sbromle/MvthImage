@@ -141,7 +141,6 @@ radial/radial_cmd.c \
 resize/resize_cmd.c \
 rotate/rotate_cmd.c \
 swap/swap_cmd.c \
-isometric/isometric_cmd.c \
 verbose/verbose_cmd.c \
 green2gray/green2gray_cmd.c \
 open_locked/openlockedimage_cmd.c \
@@ -184,6 +183,7 @@ fillimage/fillimage_cmd.c \
 flushimage/flushimage_cmd.c \
 gaussian/gaussian_cmd.c \
 invert/invert_cmd.c \
+isometric/isometric_cmd.c \
 kmeans/kmeans_cmd.c \
 paste/paste_cmd.c \
 grayscale2rgb/grayscale2rgb_cmd.c \

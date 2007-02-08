@@ -261,3 +261,18 @@ static int clipLine(int *xi, int *yi, int *dxi, int *dyi, int w, int h)
 
 	return CLIPPED;
 }
+
+/* draw dots at specified locations */
+void drawDots(float *img, int w, int h, int bands,
+		int x[], int y[], int n,
+		float *rgb)
+{
+	int i,k;
+	for (i=0;i<n;i++)
+	{
+		if (x[i]<0 || x[i]>=w || y[i]<0 || y[i]>=h) continue;
+		for (k=0;k<bands;k++)
+			img[bands*(y[i]*w+x[i])+k]=rgb[k];
+	}
+	return;
+}

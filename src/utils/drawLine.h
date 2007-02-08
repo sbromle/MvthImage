@@ -25,4 +25,8 @@ extern void drawLine(float *img, int w, int h, int bands,
 extern void drawPolyLine(float *img, int w, int h, int bands,
 		int x[], int y[], int n,
 		float *rgb);
+/* Plot data points as single pixels */
+extern void drawDots(float *img, int w, int h, int bands,
+		int x[], int y[], int n,
+		float *rgb);
 #endif
