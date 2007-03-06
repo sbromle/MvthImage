@@ -122,12 +122,16 @@ AC_ARG_ENABLE(mvthplugin,AS_HELP_STRING([--enable-mvthplugin],[build mvth plugin
 AC_CACHE_CHECK([whether to build mvth plugin] , [ac_cv_enable_mvthplugin], [ac_cv_enable_mvthplugin=yes])
 AM_CONDITIONAL([COND_MVTHPLUGIN],[test "x$ac_cv_enable_mvthplugin" = "xyes"])
 
-AC_ARG_WITH(memutils,AS_HELP_STRING([--with-memutils],[specify where memUtils library and header are installed (default is /usr/local/mvth)]),[ac_with_memutils=$withval],[ac_with_memutils="/usr/local/mvth"])
-AC_CACHE_CHECK([location of memUtils] , [ac_with_memutils], [ac_with_memutils="/usr/local/mvth"])
+AC_ARG_WITH(memutils,AS_HELP_STRING([--with-memutils],[specify where memUtils library is installed (default is /usr/local/lib/memutils)]),[ac_with_memutils=$withval],[ac_with_memutils="/usr/local/lib/memutils"])
+AC_CACHE_CHECK([location of memUtils] , [ac_with_memutils], [ac_with_memutils="/usr/local/lib/memutils"])
 AC_SUBST(memutils,["$ac_with_memutils"])
 
-AC_ARG_WITH(mvth,AS_HELP_STRING([--with-mvth],[specify where mvth libraries and headers are installed (default is /usr/local/mvth)]),[ac_with_mvth=$withval],[ac_with_mvth="/usr/local/mvth"])
-AC_CACHE_CHECK([location of mvth] , [ac_with_mvth], [ac_with_mvth="/usr/local/mvth"])
+AC_ARG_WITH(tclargv,AS_HELP_STRING([--with-tclargv],[specify where tclArgv library is installed (default is /usr/local/lib/tclargv)]),[ac_with_tclargv=$withval],[ac_with_tclargv="/usr/local/lib/tclargv"])
+AC_CACHE_CHECK([location of tclArgv] , [ac_with_tclargv], [ac_with_tclargv="/usr/local/lib/tclargv"])
+AC_SUBST(tclargv,["$ac_with_tclargv"])
+
+AC_ARG_WITH(mvth,AS_HELP_STRING([--with-mvth],[specify where mvth libraries are installed (default is /usr/local/lib/mvth)]),[ac_with_mvth=$withval],[ac_with_mvth="/usr/local/lib/mvth"])
+AC_CACHE_CHECK([location of mvth] , [ac_with_mvth], [ac_with_mvth="/usr/local/lib/mvth"])
 AC_SUBST(mvth,["$ac_with_mvth"])
 
 AC_CONFIG_FILES([Makefile

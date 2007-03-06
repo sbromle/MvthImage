@@ -1,2 +1,1 @@
-pkglib_SCRIPTS = pkgIndex.tcl
-libexec_SCRIPTS = viewimage.tcl
+pkglib_SCRIPTS = pkgIndex.tcl viewimage.tcl

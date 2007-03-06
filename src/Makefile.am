@@ -1,16 +1,18 @@
 AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src \
--I@memutils@/include -I@mvth@/include \
+-I@memutils@/../../include/memutils -I@mvth@/../../include/mvth \
+-I@tclargv@/../../include/tclargv \
 $(FT2_CFLAGS) $(PANGO_CFLAGS) \
 -I/usr/include/tcl8.4 \
--DTCLSCRIPTDIR=\"@libexecdir@\"
+-DTCLSCRIPTDIR=\"@pkglibdir@\"
 
 SUBDIRS = utils interface
 
+pkglib_LTLIBRARIES = libMvthImage.la
+
 if COND_MVTHPLUGIN
-pkglib_LTLIBRARIES = mvthimage.la viewimage.la
+pkglib_LTLIBRARIES += mvthimage.la viewimage.la
 endif
 
-lib_LTLIBRARIES = libMvthImage.la
 
 pkginclude_HEADERS = \
 mvthImage.h \
@@ -198,7 +200,7 @@ libMvthImage_la_SOURCES = $(CORESOURCES)
 libMvthImage_la_LDFLAGS = -export-dynamic $(MPEGLIBS) $(MNGLIBS) $(FT2_LIBS) $(PANGO_LIBS) 
 libMvthImage_la_LIBADD = utils/libutils.la
 
-mvthimage_la_LDFLAGS = -module -export-dynamic @TCL_LIB_SPEC@ -L@memutils@/lib -lMemUtils -lTclParseArgv
+mvthimage_la_LDFLAGS = -module -export-dynamic @TCL_LIB_SPEC@ -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
 
-viewimage_la_LDFLAGS = -module -export-dynamic @TCL_LIB_SPEC@ -L@memutils@/lib -lMemUtils -lTclParseArgv
+viewimage_la_LDFLAGS = -module -export-dynamic @TCL_LIB_SPEC@ -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
 

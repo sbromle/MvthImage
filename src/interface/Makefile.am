@@ -1,7 +1,7 @@
 AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src -I$(top_srcdir)/src/base  \
--I@memutils@/include -I@mvth@/include  -I$(top_srcdir)/utils
+-I@memutils@/../../include/memutils -I@mvth@/../../include/mvth  -I$(top_srcdir)/utils
 
-lib_LTLIBRARIES = libMvthImagePluginIface.la
+pkglib_LTLIBRARIES = libMvthImagePluginIface.la
 extra_DIST = README
 
 libMvthImagePluginIface_la_SOURCES = \
@@ -16,4 +16,4 @@ mvth_image_interface.h \
 
 libMvthImagePluginIface_la_LDFLAGS = -export-dynamic
 
-include_HEADERS = mvth_image_interface.h
+pkginclude_HEADERS = mvth_image_interface.h
