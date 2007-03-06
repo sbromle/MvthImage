@@ -3,7 +3,8 @@ AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src \
 -I@tclargv@/../../include/tclargv \
 $(FT2_CFLAGS) $(PANGO_CFLAGS) \
 -I/usr/include/tcl8.4 \
--DTCLSCRIPTDIR=\"$(pkglibdir)\"
+-DTCLSCRIPTDIR=\"$(pkglibdir)\" \
+-DMVTHIMAGELIB=\"$(pkglibdir)/libMvthImage.so\" 
 
 SUBDIRS = utils interface
 
