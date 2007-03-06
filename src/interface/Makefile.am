@@ -1,5 +1,7 @@
 AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src -I$(top_srcdir)/src/base  \
--I@memutils@/../../include/memutils -I@mvth@/../../include/mvth  -I$(top_srcdir)/utils
+-I@memutils@/../../include/memutils \
+-I@mvth@/../../include/mvth \
+-I$(top_srcdir)/utils
 
 pkglib_LTLIBRARIES = libMvthImagePluginIface.la
 extra_DIST = README

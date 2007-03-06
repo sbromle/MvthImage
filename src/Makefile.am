@@ -1,5 +1,6 @@
 AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src \
--I@memutils@/../../include/memutils -I@mvth@/../../include/mvth \
+-I@memutils@/../../include/memutils \
+-I@mvth@/../../include/mvth \
 -I@tclargv@/../../include/tclargv \
 $(FT2_CFLAGS) $(PANGO_CFLAGS) \
 -I/usr/include/tcl8.4 \
