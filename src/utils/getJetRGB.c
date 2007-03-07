@@ -34,7 +34,14 @@ static int initJETlookup(void)
 	int i;
 	for (i=0;i<=255;i++)
 	{
-		if (i<=32) {
+		if (i==0) {
+			/* barely not black */
+			RJetLookup[i]=GJetLookup[i]=BJetLookup[i]=(float)(1.0/255.0);
+		} else if (i==255) {
+			/* white */
+			RJetLookup[i]=GJetLookup[i]=BJetLookup[i]=(float)(1.0);
+		}
+		else if (i<=32) {
 			RJetLookup[i]=(float)0;
 			GJetLookup[i]=(float)0;
 			BJetLookup[i]=(float)(127+4*i)/255.0;

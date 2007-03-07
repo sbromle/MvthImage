@@ -197,7 +197,7 @@ void opticalFlow_fltr(image_t *wimg1, image_t *wimg2, image_t *wimg_dst,
 		{
 			dx=dir[2*(j*w+i)];
 			dy=dir[2*(j*w+i)+1];
-			drawLine(flow,w,h,3,i,j,dx,dy,rgb);
+			drawLine(flow,w,h,3,3*w,i,j,dx,dy,rgb);
 			/* make a red dot to show tail of arrow */
 			flow[3*(j*w+i)]=1.0;
 			flow[3*(j*w+i)+1]=0;

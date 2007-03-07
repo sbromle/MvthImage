@@ -18,7 +18,9 @@
 #define ALL_OUTSIDE -1
 static int clipLine(int *x, int *y, int *dx, int *dy, int w, int h);
 
-void drawLine(float *img, int w, int h, int bands,
+void drawLine(float *img, /* pointer to start of image region to draw to */
+		int w, int h, int bands, /* with height, and bands of region */
+		int pitch, /* distance between rows in image */
 		int x, int y, int dx, int dy,
 		float *rgb)
 {
@@ -37,7 +39,7 @@ void drawLine(float *img, int w, int h, int bands,
 		if (ret==ALL_OUTSIDE) return;
 	}
 
-	p=&img[bands*(y*w+x)];
+	p=&img[pitch*y+bands*x];
 
 	if (dx>=0) xinc=bands;
 	else 
@@ -46,10 +48,10 @@ void drawLine(float *img, int w, int h, int bands,
 		dx=-dx;
 	}
 
-	if (dy>=0) yinc=w*bands;
+	if (dy>=0) yinc=pitch;
 	else
 	{
-		yinc=-w*bands;
+		yinc=-pitch;
 		dy=-dy;
 	}
 
@@ -89,6 +91,7 @@ void drawLine(float *img, int w, int h, int bands,
 }
 
 void drawPolyLine(float *img, int w, int h, int bands,
+		int pitch, /* memory distance between rows */
 		int x[], int y[], int n,
 		float *rgb)
 {
@@ -100,7 +103,7 @@ void drawPolyLine(float *img, int w, int h, int bands,
 	{
 		dx=x[i+1]-x[i];
 		dy=y[i+1]-y[i];
-		drawLine(img,w,h,bands,x[i],y[i],dx,dy,rgb);
+		drawLine(img,w,h,bands,pitch,x[i],y[i],dx,dy,rgb);
 	}
 	return;
 }
@@ -264,6 +267,7 @@ static int clipLine(int *xi, int *yi, int *dxi, int *dyi, int w, int h)
 
 /* draw dots at specified locations */
 void drawDots(float *img, int w, int h, int bands,
+		int pitch,
 		int x[], int y[], int n,
 		float *rgb)
 {
@@ -272,7 +276,7 @@ void drawDots(float *img, int w, int h, int bands,
 	{
 		if (x[i]<0 || x[i]>=w || y[i]<0 || y[i]>=h) continue;
 		for (k=0;k<bands;k++)
-			img[bands*(y[i]*w+x[i])+k]=rgb[k];
+			img[pitch*y[i]+bands*x[i]+k]=rgb[k];
 	}
 	return;
 }

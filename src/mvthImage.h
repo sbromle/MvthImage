@@ -12,7 +12,7 @@
  */
 
 #include <stdio.h>
-#include <mvthimage/images_types.h>
+#include <images_types.h>
 
 /* create a new image_t structure */
 extern image_t *new_image_t(int w, int h, int bands);
@@ -40,14 +40,14 @@ extern void stamp_image_t(image_t *img);
 
 extern int getJetRGB(double v, double vmin, double vmax, float *rgb);
 /* plot an image based on arrays of doubles */
-#include <mvthimage/plot_imagescale.h>
+#include <plot_imagescale.h>
 /* draw a line */
-extern void drawLine(float *img, int w, int h, int bands,
+extern void drawLine(float *img, int w, int h, int bands, int pitch,
 		int x, int y, int dx, int dy,
 		float *rgb);
 extern void drawCircle(image_t *img,int cx, int cy, int r, float *rgb);
 /* Draw a multi-segment line */
-extern void drawPolyLine(float *img, int w, int h, int bands,
+extern void drawPolyLine(float *img, int w, int h, int bands, int pitch,
 		int x[], int y[], int n,
 		float *rgb);
 /* plot a multisegment line within a viewport */

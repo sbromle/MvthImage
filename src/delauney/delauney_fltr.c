@@ -123,11 +123,11 @@ void delauney_fltr(image_t *img,SContext_t *sc)
 		x3=coords[2*vertices[3*i+2]];
 		y3=coords[2*vertices[3*i+2]+1];
 		getDisparityColor(dmap[y1*w+x1],rgb);
-		drawLine(img->data,img->w,img->h,img->bands,x1,y1,x2-x1,y2-y1,rgb);
+		drawLine(img->data,img->w,img->h,img->bands,img->w*img->bands,x1,y1,x2-x1,y2-y1,rgb);
 		getDisparityColor(dmap[y2*w+x2],rgb);
-		drawLine(img->data,img->w,img->h,img->bands,x2,y2,x3-x2,y3-y2,rgb);
+		drawLine(img->data,img->w,img->h,img->bands,img->w*img->bands,x2,y2,x3-x2,y3-y2,rgb);
 		getDisparityColor(dmap[y3*w+x3],rgb);
-		drawLine(img->data,img->w,img->h,img->bands,x3,y3,x1-x3,y1-y3,rgb);
+		drawLine(img->data,img->w,img->h,img->bands,img->w*img->bands,x3,y3,x1-x3,y1-y3,rgb);
 	}
 
 	free(coords);

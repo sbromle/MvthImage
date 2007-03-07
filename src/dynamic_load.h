@@ -5,8 +5,10 @@
 #include <string.h>
 #include <dlfcn.h>
 
-#define BTCOMMONLIB "libBTCommon.so"
-#define MVTHIMAGELIB "libMvthImage.so"
+#ifndef MVTHIMAGELIB
+#error "MVTHIMAGELIB not defined!"
+/* this should be defined in Makefile.am */
+#endif
 
 extern void *load_symbol(char *libname,char *symbname, void *handle);
 extern void release_handle(void *handle);
