@@ -14,5 +14,7 @@
 
 extern const float mvth_colors[][3];
 extern const int mvth_num_colors;
+extern const float mvth_grays[][3];
+extern const int mvth_num_grays;
 
 #endif
