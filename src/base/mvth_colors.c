@@ -29,4 +29,4 @@ const float mvth_colors[][3]={
 	{1.0,185/255.0,158/255.0}, /* peach */
 };
 
-const int mvth_num_colors=sizeof(mvth_colors)/3;
+const int mvth_num_colors=sizeof(mvth_colors)/(3*sizeof(float));
