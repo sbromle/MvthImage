@@ -21,5 +21,6 @@ extern int cimg2simg(unsigned char* src, short int *dst, int w, int h,
 extern int simg2cimg(short int* src, unsigned char *dst, int w, int h, int lw);
 extern int cimg2dimg(unsigned char* src, double *dst, int w, int h, int dp, double norm);
 extern int dimg2cimg(double *src, unsigned char *dst, int w, int h, int dp, double norm);
+extern float fimg2simg(float *src, short int *dst, int w, int h, int dp, int lw);
 
 #endif

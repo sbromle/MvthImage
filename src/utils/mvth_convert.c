@@ -136,6 +136,29 @@ int cimg2simg(unsigned char* src, short int *dst, int w, int h, int dp, int lw)
 	return (int)max;
 }
 
+/* convert a floating point (possibly multibanded) image to a single band
+ * short int (16 bit) intensity image */
+float fimg2simg(float *src, short int *dst, int w, int h, int dp, int lw)
+{
+	int i,j,k;
+	float tmp,max;
+	max=0;
+	for (j=0;j<h;j++)
+	{
+		for (i=0;i<w;i++)
+		{
+			tmp=0.0;
+			for (k=0;k<dp;k++) tmp+=src[j*lw+i*dp+k];
+			if (max<tmp) max=tmp;
+			if (tmp>1.0) tmp=1.0;
+			if (tmp<0.0) tmp=0.0;
+			dst[j*w+i]=(short)(tmp*(1<<15));
+		}
+	}
+	fprintf(stdout,"fimg2iimg: fmax = %f\n",max);
+	return max;
+}
+
 /* convert a signed short integer image to a single band unsigned char
  * intensity image */
 int simg2cimg(short int* src, unsigned char *dst, int w, int h, int lw)

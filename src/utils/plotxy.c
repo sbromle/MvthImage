@@ -54,7 +54,7 @@ int plotxy(float *img, int w, int h, int bands,
 	/* allocate memory for the drawPolyline arrays */
 	ix=(int*)malloc(len*sizeof(int));
 	iy=(int*)malloc(len*sizeof(int));
-	for (i=0;i<len;i++)
+	for (i=0;i<(int)len;i++)
 	{
 		int xtmp=(int)((x[i]-xmin)*xscale+0.5);
 		int ytmp=(int)((y[i]-ymin)*yscale+0.5);
@@ -116,7 +116,7 @@ int plotxydots(float *img, int w, int h, int bands,
 	/* allocate memory for the drawPolyline arrays */
 	ix=(int*)malloc(len*sizeof(int));
 	iy=(int*)malloc(len*sizeof(int));
-	for (i=0;i<len;i++)
+	for (i=0;i<(int)len;i++)
 	{
 		int xtmp=(int)((x[i]-xmin)*xscale+0.5);
 		int ytmp=(int)((y[i]-ymin)*yscale+0.5);
