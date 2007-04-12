@@ -33,14 +33,16 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 	int (*axes_fltr)(image_t *img,ViewPort_t *viewport, float rgb[4])=NULL;
 
 	ViewPort_t axes= {
-		{1.0,9,0,1.0,"%lg",AXIS_LINEAR,"a",0},
-		{1.0,9,0,1.0,"%lg",AXIS_LINEAR,"a",0},
-		{1.0,9,0,1.0,"%lg",AXIS_LINEAR,"a",0},
+		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
+		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
+		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
 		0.1,0.9,
 		0.1,0.9
 	};
 	char *xfmt=NULL;
 	char *yfmt=NULL;
+	char *xlabel=NULL;
+	char *ylabel=NULL;
 	int xlog=0;
 	int ylog=0;
 
@@ -70,8 +72,10 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 			"set number of minor ticks for y axes"},
 		{"-xlog",TCL_ARGV_CONSTANT,(void*)1,&xlog, "set x axes as logarithmic"},
 		{"-ylog",TCL_ARGV_CONSTANT,(void*)1,&ylog, "set x axes as logarithmic"},
-		{"-xfmt",TCL_ARGV_STRING,NULL,&xfmt, "set x format string for labels"},
-		{"-yfmt",TCL_ARGV_STRING,NULL,&yfmt, "set y format string for labels"},
+		{"-xfmt",TCL_ARGV_STRING,NULL,&xfmt, "set x format string for tick labels"},
+		{"-yfmt",TCL_ARGV_STRING,NULL,&yfmt, "set y format string for tick labels"},
+		{"-xlabel",TCL_ARGV_STRING,NULL,&xlabel, "set x label"},
+		{"-ylabel",TCL_ARGV_STRING,NULL,&ylabel, "set y label"},
 		{"-i",TCL_ARGV_FLOAT,NULL,&axes.xmin,
 			"set left x margin (fraction) of image"},
 		{"-I",TCL_ARGV_FLOAT,NULL,&axes.xmax,
@@ -119,9 +123,14 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	/* get format strings */
 	if (xfmt!=NULL)
-		strncpy(axes.x_axis.format,xfmt,31);
+		strncpy(axes.x_axis.format,xfmt,32);
 	if (yfmt!=NULL)
-		strncpy(axes.y_axis.format,yfmt,31);
+		strncpy(axes.y_axis.format,yfmt,32);
+
+	if (xlabel!=NULL)
+		strncpy(axes.x_axis.label,xlabel,256);
+	if (ylabel!=NULL)
+		strncpy(axes.y_axis.label,ylabel,256);
 
 	/* get option strings*/
 	if(xopt==NULL)

@@ -45,9 +45,9 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	int order=1; /* default to a line plot */
 	double *coefs=NULL; /* coefficients of polynomial */
 	ViewPort_t viewport= {
-		{10,5,0,100,"%6.3lg",AXIS_LINEAR,"",0}, /* x axes */
-		{1.0,5,0,1.0,"%6.3lg",AXIS_LINEAR,"",0}, /* y axes */
-		{1.0,5,0,1.0,"%6.3lg",AXIS_LINEAR,"",0}, /* z axes */
+		{10,5,0,100,"%6.3lg","",AXIS_LINEAR,"",0}, /* x axes */
+		{1.0,5,0,1.0,"%6.3lg","",AXIS_LINEAR,"",0}, /* y axes */
+		{1.0,5,0,1.0,"%6.3lg","",AXIS_LINEAR,"",0}, /* z axes */
 		0.05,0.95, /* x pixel range */
 		0.05,0.95 /* y pixel range */ };
 	Tcl_ArgvInfo argTable[] = {

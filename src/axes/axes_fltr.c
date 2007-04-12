@@ -47,6 +47,11 @@ if ((D)==LEFT) {\
 else \
 	DRAWLINE((X),(Y),(X)-(S),(Y))
 
+/* rotate filter declaration */
+extern void rotate_90_fltr(image_t *img, int index);
+extern void rotatemask_90_fltr(unsigned char *mask, int w, int h, int index);
+
+
 /* axes are drawn *at* the boundaries of the viewport,
  * thus, if you want the text to be visable, the viewport
  * should be smaller than the image size.
@@ -77,10 +82,14 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 	unsigned char *mask=NULL; /* mask for pasting strImg into another image */
 	char text[50];
 	int strImg_h, strImg_w;
+
+	/* strings for x and y labels */
+	char xlabel[256]="";
+	char ylabel[256]="";
 	
 	/*string label formating parameters*/
-	char xformat[50] = "";
-	char yformat[50] = "";
+	char xformat[32] = "";
+	char yformat[32] = "";
 	char *ftok = NULL;
 	char tmpstr[250];
 	char exp_s[10] = "";
@@ -88,9 +97,13 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 
 	if (img==NULL || img->data==NULL || viewport==NULL) return -1;
 
+	/* get local aliases for x and y labels */
+	strncpy(xlabel,viewport->x_axis.label,256);
+	strncpy(ylabel,viewport->y_axis.label,256);
+
 	/* get local aliases for size of each axis */
-	strncpy(xformat,viewport->x_axis.format,50);
-	strncpy(yformat,viewport->y_axis.format,50);
+	strncpy(xformat,viewport->x_axis.format,32);
+	strncpy(yformat,viewport->y_axis.format,32);
 	xmin=viewport->x_axis.min;
 	xmax=viewport->x_axis.max;
 	xinc=viewport->x_axis.inc_major;
@@ -143,6 +156,33 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 	double xx;
 	double xtmp;
 	double lx,lxmin;
+
+	/* write the x and y lables if non-empty */
+	if (strlen(xlabel)>0) {
+		strImg = text_pango_fltr(xlabel,rgb,10,&mask);
+		strImg_h = strImg->h;
+		strImg_w = strImg->w;
+		paste_with_mask_fltr(strImg,img,
+				(ixhigh+ixlow)/2 - strImg_w/2,
+				(int)(h-1-iylow+1.5*strImg_h),mask);
+		free(strImg->data);
+		free(strImg);
+		free(mask);
+	}
+	if (strlen(ylabel)>0) {
+		strImg = text_pango_fltr(ylabel,rgb,10,&mask);
+		/* rotate the image 90 degrees counter-clockwise */
+		rotatemask_90_fltr(mask,strImg->w,strImg->h,1);
+		rotate_90_fltr(strImg,1);
+		strImg_h = strImg->h;
+		strImg_w = strImg->w;
+		paste_with_mask_fltr(strImg,img,
+				(int)(ixlow - 2.5*strImg_w),
+				h-1-(iyhigh+iylow)/2-strImg_h/2,mask);
+		free(strImg->data);
+		free(strImg);
+		free(mask);
+	}
 
 	/*determine if x tick labels will be written
 	 * in exponential form*/

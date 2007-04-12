@@ -379,10 +379,10 @@ int MvthImageOpen(Tcl_Interp *interp, MvthImageState *statePtr,
 int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr)
 {
 	Tcl_DeleteHashEntry(entryPtr);
-	if (iPtr->widthPtr!=NULL) Tcl_DecrRefCount(iPtr->widthPtr);
-	if (iPtr->heightPtr!=NULL) Tcl_DecrRefCount(iPtr->heightPtr);
-	if (iPtr->depthPtr!=NULL) Tcl_DecrRefCount(iPtr->depthPtr);
-	if (iPtr->img!=NULL) free_image_t(iPtr->img);
+	if (iPtr->widthPtr!=NULL) {Tcl_DecrRefCount(iPtr->widthPtr);}
+	if (iPtr->heightPtr!=NULL) {Tcl_DecrRefCount(iPtr->heightPtr);}
+	if (iPtr->depthPtr!=NULL) {Tcl_DecrRefCount(iPtr->depthPtr);}
+	if (iPtr->img!=NULL) {free_image_t(iPtr->img);}
 	Tcl_Free((char*)iPtr);
 	return TCL_OK;
 }
@@ -423,8 +423,9 @@ int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 				if (iPtr->img->w!=w) {
 					free_image_t(iPtr->img);
 					iPtr->img=new_image_t(w,h,d);
-					if (iPtr->widthPtr!=NULL)
+					if (iPtr->widthPtr!=NULL) {
 						Tcl_DecrRefCount(iPtr->widthPtr);
+					}
 					iPtr->widthPtr=objPtr;
 					Tcl_IncrRefCount(objPtr);
 				}
@@ -435,7 +436,9 @@ int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 					free_image_t(iPtr->img);
 					iPtr->img=new_image_t(w,h,d);
 					if (iPtr->heightPtr!=NULL)
+					{
 						Tcl_DecrRefCount(iPtr->heightPtr);
+					}
 					iPtr->heightPtr=objPtr;
 					Tcl_IncrRefCount(objPtr);
 				}
@@ -446,7 +449,9 @@ int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 					free_image_t(iPtr->img);
 					iPtr->img=new_image_t(w,h,d);
 					if (iPtr->depthPtr!=NULL)
+					{
 						Tcl_DecrRefCount(iPtr->depthPtr);
+					}
 					iPtr->depthPtr=objPtr;
 					Tcl_IncrRefCount(objPtr);
 				}

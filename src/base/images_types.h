@@ -86,6 +86,7 @@ typedef struct AXES_param_s {
 	int nminor;      /* number of minor ticks between major ticks */
 	double min, max; /* min and max axis values*/
 	char format[32]; /* format string */
+	char label[256]; /* label for axes */
 	int type; /* set to either AXIS_LINEAR, AXIS_LOGARITHMIC, or AXIS_INVERSE */
 	char opt[32]; /* options string */
 	int drawzero; /* set to 1 if user wishes to draw an axis through zero */
@@ -100,8 +101,8 @@ typedef struct ViewPort_s {
 } ViewPort_t;
 
 #define DEFAULTVIEWPORT {{1,0,0,1,"%lg",AXIS_LINEAR,"",0},\
-	{1,0,0,1,"%lg",AXIS_LINEAR,"",0},\
-	{1,0,0,0,"%lg",AXIS_LINEAR,"",0},\
+	{1,0,0,1,"%lg","",AXIS_LINEAR,"",0},\
+	{1,0,0,0,"%lg","",AXIS_LINEAR,"",0},\
 	0,1,0,1}
 
 #endif
