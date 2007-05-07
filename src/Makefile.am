@@ -118,39 +118,6 @@ v_plotpoly/v_plotpoly_fltr.c \
 v_plotpoly/v_plotpoly_fltr.h \
 zoom/zoom_fltr.c
 
-PLUGINSOURCES= \
-preserve_plugin_state.c \
-register_plugin.c \
-base/mmap_handler.h \
-base/mmap_handler.c \
-base/images_context.h \
-base/images_context.c \
-dmap/dmap_draw_cmd.c \
-write_image/writeframe_cmd.c \
-rectify/rectify_cmd.c \
-rwarp/rwarp_cmd.c \
-diffdmap/diffdmap_cmd.c \
-noise/noise_cmd.c \
-stats/stats_cmd.c \
-video/video_cmd.c \
-roberts/roberts_cmd.c \
-temporal_dmap/tdmap_cmd.c \
-faugeras/faugeras_stereo_cmd.c \
-filldmap/filldmap_cmd.c \
-pyramid_stereo/pyramid_stereo_cmd.c \
-moravec/moravec_cmd.c \
-LoGaussian/LoG_cmd.c \
-mkpair/mkpair_cmd.c \
-radial/radial_cmd.c \
-resize/resize_cmd.c \
-rotate/rotate_cmd.c \
-swap/swap_cmd.c \
-verbose/verbose_cmd.c \
-green2gray/green2gray_cmd.c \
-open_locked/openlockedimage_cmd.c \
-optical_flow/opticalFlow_cmd.c \
-zoom/zoom_cmd.c
-
 viewimage_la_SOURCES= \
 viewimage_Init.c \
 dynamic_load.c \
