@@ -27,20 +27,38 @@ typedef struct MvthImageState {
 
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
+
+int mvthImageExists0(Tcl_Interp *interp,
+		MvthImageState *statePtr,
+		Tcl_Obj *CONST name)
+{
+	Tcl_HashEntry *entryPtr=NULL;
+	if (name==NULL) return 0;
+	entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(name));
+	if (entryPtr==NULL) return 0;
+	return 1;
+}
+
 int mvthImageExists(Tcl_Interp *interp, Tcl_Obj *CONST name)
 {
 	MvthImageState *statePtr=NULL;
-	Tcl_HashEntry *entryPtr=NULL;
-	if (name==NULL) {
-		return 0;
-	}
+	if (name==NULL) return 0;
 	statePtr=(MvthImageState*)Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL);
 
-	entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(name));
-	if (entryPtr==NULL) {
-		return 0;
+	return mvthImageExists0(interp,statePtr,name);
+}
+
+int mvthImageExistsTcl(Tcl_Interp *interp,
+		MvthImageState *statePtr,
+		Tcl_Obj *CONST name)
+{
+	if (mvthImageExists0(interp,statePtr,name))
+	{
+		Tcl_SetObjResult(interp,Tcl_NewIntObj(1));
+		return TCL_OK;
 	}
-	return 1;
+	Tcl_SetObjResult(interp,Tcl_NewIntObj(0));
+	return TCL_OK;
 }
 
 int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
@@ -149,9 +167,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	 * the subcommand.
 	 */
 	CONST char *subCmds[] = {
-		"create","delete","duplicate","open", "width","height","depth","names",NULL};
+		"create","delete","duplicate","exists","open", "width","height","depth","names",NULL};
 	enum MvthImageIx {
-		CreateIx, DeleteIx, DuplicateIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,};
+		CreateIx, DeleteIx, DuplicateIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,};
 	int index;
 
 	if (objc==1 || objc>=6) {
@@ -163,6 +181,10 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		return TCL_ERROR;
 
 	switch (index) {
+		case ExistsIx:
+			if (objc!=3) goto err;
+			return mvthImageExistsTcl(interp,statePtr,objv[2]);
+			break;
 		case NamesIx:
 			if (objc>2) goto err;
 			return MvthImageNames(interp,statePtr);
