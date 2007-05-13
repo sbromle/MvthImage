@@ -119,6 +119,8 @@ int MvthImageState_Init(Tcl_Interp *interp) {
 	statePtr->uid=0;
 	Tcl_CreateObjCommand(interp,"mvthimage", MvthImageCmd,
 			(ClientData)statePtr,MvthImageCleanup);
+	Tcl_CreateObjCommand(interp,"mi", MvthImageCmd,
+			(ClientData)statePtr,MvthImageCleanup);
 	return TCL_OK;
 }
 
