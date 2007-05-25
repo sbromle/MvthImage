@@ -19,19 +19,19 @@
 
 #define PSIZE 3
 /* simple square drawing routine */
-extern void drawPDot(unsigned char *img, int w, int h, int bands,
+extern void drawPDot(float *img, int w, int h, int bands,
 		int x, int y, int s, /* position and size of square */
-		unsigned char *rgb); /* rgb colour */
+		float *rgb); /* rgb colour */
 
-extern void drawPDotZbuffer(unsigned char *img, int w, int h, int bands,
+extern void drawPDotZbuffer(float *img, int w, int h, int bands,
 		int x, int y, int s,
-		unsigned char *rgb, float *zbuffer, float depth);
+		float *rgb, float *zbuffer, float depth);
 
-extern void drawRect(unsigned char *img, int w, int h, int bands,
+extern void drawRect(float *img, int w, int h, int bands,
 		int x1, int y1, int x2, int y2,
-		unsigned char *rgb);
+		float *rgb);
 
-extern void fillRect(unsigned char *img, int w, int h, int bands,
+extern void fillRect(float *img, int w, int h, int bands,
 		Rect_t rect,
-		unsigned char *rgb);
+		float *rgb);
 #endif

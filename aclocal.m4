@@ -16,6 +16,11 @@ m4_if(m4_PACKAGE_VERSION, [2.61],,
 You have another version of autoconf.  If you want to use that,
 you should regenerate the build system entirely.], [63])])
 
+m4_if(m4_PACKAGE_VERSION, [2.61],,
+[m4_fatal([this file was generated for autoconf 2.61.
+You have another version of autoconf.  If you want to use that,
+you should regenerate the build system entirely.], [63])])
+
 # Configure paths for FreeType2
 # Marcelo Magallon 2001-10-26, based on gtk.m4 by Owen Taylor
 #

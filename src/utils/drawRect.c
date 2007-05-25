@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include "drawRect.h"
 
-void drawPDot(unsigned char *img, int w, int h, int bands,
+void drawPDot(float *img, int w, int h, int bands,
 		int x, int y, int s,
-		unsigned char *rgb)
+		float *rgb)
 {
 	int i,j,k;
 	int so2;
@@ -39,9 +39,9 @@ void drawPDot(unsigned char *img, int w, int h, int bands,
 	return;
 }
 
-void drawPDotZbuffer(unsigned char *img, int w, int h, int bands,
+void drawPDotZbuffer(float *img, int w, int h, int bands,
 		int x, int y, int s,
-		unsigned char *rgb, float *zbuffer, float depth)
+		float *rgb, float *zbuffer, float depth)
 {
 	int i,j,k;
 	int so2;
@@ -66,9 +66,9 @@ void drawPDotZbuffer(unsigned char *img, int w, int h, int bands,
 	return;
 }
 
-void drawRect(unsigned char *img, int w, int h, int bands,
+void drawRect(float *img, int w, int h, int bands,
 		int x1, int y1, int x2, int y2,
-		unsigned char *rgb)
+		float *rgb)
 {
 	int i,j,k;
 	int offset1, offset2;
@@ -103,12 +103,12 @@ void drawRect(unsigned char *img, int w, int h, int bands,
 	return;
 }
 
-void fillRect(unsigned char *img, int w, int h, int bands,
+void fillRect(float *img, int w, int h, int bands,
 		Rect_t rect,
-		unsigned char *rgb)
+		float *rgb)
 {
 	int i,j,k;
-	unsigned char *ptr;
+	float *ptr;
 	unsigned long offset;
 	int x1,x2,y1,y2;
 
