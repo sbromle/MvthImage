@@ -33,7 +33,6 @@ extern int verbose;
 void moravec_fltr(image_t *img, int winsize)
 {
 	float *orig;
-	//unsigned char *ptr; /* pointer for convenience */
 	float *mvec[4]; /* resulting values from the morevec operator */
 	float *mvecmin; /* min resulting values from the morevec operator */
 	int i,j;

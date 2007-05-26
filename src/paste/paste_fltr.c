@@ -204,7 +204,7 @@ void paste_with_mask_fltr(image_t *src, image_t *dst,int xoff, int yoff, unsigne
 				float val;
 				val=0;
 				for (k=0;k<sbands;k++) val+=simg[sbands*(voff*sw+hoff)+k];
-				dimg[(j*w+i)]=(unsigned char)(val/3.0);
+				dimg[(j*w+i)]=(val/3.0);
 			} else {
 				fprintf(stderr,"Invalid bands mismatch detected!\n");
 				return;

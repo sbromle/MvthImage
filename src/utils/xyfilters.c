@@ -197,7 +197,6 @@ int do_y_filter16(short *src, short *dst,
 	return 1;
 }
 
-/* note, no guarantee yet that values will fit in unsigned char */
 void do_2D_filterF(float *src,
 		float *dst,
 		int w, int h, float **fmask, int mw, float fnorm)
@@ -223,8 +222,8 @@ void do_2D_filterF(float *src,
 				}
 			}
 
-			dst[offset+w*(mw>>1)+(mw>>1)]=(unsigned char)(0.5*sum+0.5); /* fmask already normalized */
-			//dst[offset]=(unsigned char)(sum/fnorm);
+			dst[offset+w*(mw>>1)+(mw>>1)]=(0.5*sum+0.5); /* fmask already normalized */
+			//dst[offset]=(sum/fnorm);
 		}
 	}
 	return;
