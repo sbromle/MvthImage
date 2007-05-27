@@ -7,13 +7,14 @@
 
 /* data is a double* array of nrec*reclen values */
 
-#define P2D_NONE       (0)
-#define P2D_LANDSCAPE  (1)
-#define P2D_CLIP       (1<<1)
-#define P2D_NOBILINEAR (1<<2)
-#define P2D_FLIPY      (1<<3)
-#define P2D_GRAYSCALE  (1<<4)
-
+typedef enum PLOT_FLAGS {
+	PFLAG_NONE = 0,
+	PFLAG_LANDSCAPE = 1,
+	PFLAG_CLIP = (1<<1),
+	PFLAG_NOBILINEAR = (1<<2),
+	PFLAG_FLIPY = (1<<3),
+	PFLAG_GRAYSCALE = (1<<4)
+} PLOT_FLAG;
 
 /* lower level plotting routine that doesn't use image_t structure */
 extern int plot_imagescale_vLLL(
@@ -56,7 +57,7 @@ extern int plot_imagescale_v(
 		int tlow, int thigh,  /* starting and ending index within each record */
 		int rlow, int rhigh,  /* records within data to plot */
 		double vmin, double vmax,    /* data range to use for color coding */
-		int flags);               /* OR'ed P2D flags as above */
+		int flags);               /* OR'ed PLOT_FLAGS as above */
 
 extern int plot_imagescale_v2(
 		image_t *img,         /* image to draw to */
@@ -68,5 +69,5 @@ extern int plot_imagescale_v2(
 		int tlow, int thigh,  /* starting and ending index within each record */
 		int rlow, int rhigh,  /* records within data to plot */
 		double vmin, double vmax,    /* data range to use for color coding */
-		int flags);               /* OR'ed P2D flags as above */
+		int flags);               /* OR'ed PLOT_FLAGS as above */
 #endif

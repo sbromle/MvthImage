@@ -55,7 +55,7 @@ static void blit_data_to_image(
 		int dw, int dh,        /* width and height of data region to be drawn */
 		int dpitch,            /* distance to next row in data */
 		double vmin, double vmax,    /* range to scale values for colouring */
-		int flags,             /* how to plot the data (OR'ed P2D_* masks )*/
+		int flags,             /* how to plot the data (OR'ed PLOT_FLAGS masks )*/
 		int (*colorSpace)(double,double,double,float *) /* pointer to CS func*/
 		)
 {
@@ -77,7 +77,7 @@ static void blit_data_to_image(
 			di=(int)(ix2dx*i);
 			if (di<0 || di>=dw) continue;
 			val=data[dj*dpitch+di];
-			if (!(flags&P2D_NOBILINEAR))
+			if (!(flags&PFLAG_NOBILINEAR))
 			{
 				/* then interpolate the value */
 				double difrac=ix2dx*i-di; /* get the fractional overshots */
@@ -94,10 +94,10 @@ static void blit_data_to_image(
 					val=data[dj*dpitch+di]*(1.0-djfrac)
 						+data[(dj-1)*dpitch+di]*djfrac;
 			}
-			if (bands==1 || (flags&P2D_GRAYSCALE))
+			if (bands==1 || (flags&PFLAG_GRAYSCALE))
 			{
 				colour=vscale*val+voffset;
-				if (flags&P2D_CLIP && (val<vmin || val>vmax)) 
+				if (flags&PFLAG_CLIP && (val<vmin || val>vmax)) 
 				{
 					if (val<vmin) colour=1.0/255.0;
 					else colour=1.0;
@@ -106,7 +106,7 @@ static void blit_data_to_image(
 				else if (colour>1.0) colour=1.0;
 				for (k=0;k<bands;k++) pixels[j*pitch+i*bands+k]=(float)colour;
 			} else {
-				if (flags&P2D_CLIP && (val<vmin || val>vmax))
+				if (flags&PFLAG_CLIP && (val<vmin || val>vmax))
 				{
 					if (val<vmin) colour=1.0/255.0;
 					else colour=1.0;
@@ -189,10 +189,10 @@ int plot_imagescale_vLLL(
 	dh=(jd1-jd0);
 
 	/* and plot it */
-	int bflags=P2D_LANDSCAPE;
-	if (flags&P2D_NOBILINEAR) bflags|=P2D_NOBILINEAR;
-	if (flags&P2D_GRAYSCALE) bflags|=P2D_GRAYSCALE;
-	if (flags&P2D_CLIP) bflags|=P2D_CLIP;
+	int bflags=PFLAG_LANDSCAPE;
+	if (flags&PFLAG_NOBILINEAR) bflags|=PFLAG_NOBILINEAR;
+	if (flags&PFLAG_GRAYSCALE) bflags|=PFLAG_GRAYSCALE;
+	if (flags&PFLAG_CLIP) bflags|=PFLAG_CLIP;
 
 	blit_data_to_image(
 		pixels, /* start of image region to draw to */
@@ -231,7 +231,7 @@ int plot_imagescale_v2LL(
 	double yfrac=0,xfrac=0;
 	int yindex=0,xindex=0;
 
-	if (flags&P2D_LANDSCAPE)
+	if (flags&PFLAG_LANDSCAPE)
 	{
 		xscale=(double)(xmax-xmin+1)/(double)(h);
 		yscale=(double)(ymax-ymin+1)/(double)(w);
@@ -246,9 +246,9 @@ int plot_imagescale_v2LL(
 	for (j=0;j<w;j++)
 	{
 		int yoff=j;
-		if (flags&P2D_FLIPY) yoff=h-1-j;
+		if (flags&PFLAG_FLIPY) yoff=h-1-j;
 
-		if (flags&P2D_LANDSCAPE)
+		if (flags&PFLAG_LANDSCAPE)
 		{
 			/* then time axis is x axis, record axis is y-axis */
 			/* get the offset into the record index */
@@ -265,7 +265,7 @@ int plot_imagescale_v2LL(
 		}
 		for (i=0;i<w;i++)
 		{
-			if (flags&P2D_LANDSCAPE)
+			if (flags&PFLAG_LANDSCAPE)
 			{
 				/* get the offset into the records */
 				yfrac=yscale*(i-x0)+ymin-yoffset;
@@ -281,7 +281,7 @@ int plot_imagescale_v2LL(
 			}
 
 			/* do interpolation */
-			if (!(flags&P2D_NOBILINEAR))
+			if (!(flags&PFLAG_NOBILINEAR))
 			{
 				if (xindex+1<nrec && yindex+1<reclen)
 				{
@@ -316,7 +316,7 @@ int plot_imagescale_v2LL(
 	
 			if (bands!=1)
 			{
-				if ((flags&P2D_CLIP) && (val<vmin || val>vmax))
+				if ((flags&PFLAG_CLIP) && (val<vmin || val>vmax))
 				{
 					int k;
 					if (val<vmin) for (k=0;k<bands;k++) pixels[pitch*yoff+bands*i+k]=1.0/255.0; /* not quite black */
@@ -329,7 +329,7 @@ int plot_imagescale_v2LL(
 			}
 			else
 			{
-				if ((flags&P2D_CLIP)&& (val<vmin || val>vmax))
+				if ((flags&PFLAG_CLIP)&& (val<vmin || val>vmax))
 				{
 					if (val<vmin) pixels[pitch*yoff+i]=1.0/255.0; /*not black (so we can use transparency)*/
 					else pixels[pitch*yoff+i]=1.0; /*not black (so we can use transparency)*/
