@@ -164,15 +164,16 @@ int plot_imagescale_vLLL(
 	/* ok, so intersecting region is bounded by (xmin,ymin) to (xmax, ymax).
 	 * What does this correspond to in pixel coords? */
 
-	i0=(int)((xmin-x0)*w/(x1-x0));
-	i1=(int)((xmax-x0)*w/(x1-x0));
-	j0=(int)((ymin-y0)*h/(y1-y0));
-	j1=(int)((ymax-y0)*h/(y1-y0));
+	double wiggle=0.000001;
+	i0=(int)((xmin-x0)*w/(x1-x0)-wiggle);
+	i1=(int)((xmax-x0)*w/(x1-x0)-wiggle);
+	j0=(int)((ymin-y0)*h/(y1-y0)-wiggle);
+	j1=(int)((ymax-y0)*h/(y1-y0)-wiggle);
 
-	id0=(int)((xmin-xd0)*dw/(xd1-xd0));
-	id1=(int)((xmax-xd0)*dw/(xd1-xd0));
-	jd0=(int)((ymin-yd0)*dh/(yd1-yd0));
-	jd1=(int)((ymax-yd0)*dh/(yd1-yd0));
+	id0=(int)((xmin-xd0)*dw/(xd1-xd0)-wiggle);
+	id1=(int)((xmax-xd0)*dw/(xd1-xd0)-wiggle);
+	jd0=(int)((ymin-yd0)*dh/(yd1-yd0)-wiggle);
+	jd1=(int)((ymax-yd0)*dh/(yd1-yd0)-wiggle);
 
 #if DEBUG
 	fprintf(stderr,"Image region: (%d,%d) -> (%d,%d)\n", i0,j0,i1,j1);
@@ -182,11 +183,11 @@ int plot_imagescale_vLLL(
 #endif
 
 	pixels+=i0*bands+(h-1-j1)*pitch;
-	w=(i1-i0);
-	h=(j1-j0);
+	w=(i1-i0)+1;
+	h=(j1-j0)+1;
 	data+=id0+jd0*dpitch;
-	dw=(id1-id0);
-	dh=(jd1-jd0);
+	dw=(id1-id0)+1;
+	dh=(jd1-jd0)+1;
 
 	/* and plot it */
 	int bflags=PFLAG_LANDSCAPE;

@@ -89,7 +89,7 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 	color[0]=(float)red;
 	color[1]=(float)green;
 	color[2]=(float)blue;
-	color[3]=0.0;
+	color[3]=1.0;
 
 	if (ptsize==0.0)
 	{
