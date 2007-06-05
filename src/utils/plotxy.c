@@ -44,6 +44,8 @@ int plotxy(float *img, int w, int h, int bands,
 	if (ylow<0) ylow=0;
 	if (xhigh<xlow) return -2;
 	if (yhigh<ylow) return -2;
+	if (xhigh>w-1) xhigh=w-1;
+	if (yhigh>h-1) xhigh=h-1;
 
 	xscale=(xhigh-xlow)/(xmax-xmin);
 	yscale=(yhigh-ylow)/(ymax-ymin);
@@ -106,6 +108,8 @@ int plotxydots(float *img, int w, int h, int bands,
 	if (ylow<0) ylow=0;
 	if (xhigh<xlow) return -2;
 	if (yhigh<ylow) return -2;
+	if (xhigh>w-1) xhigh=w-1;
+	if (yhigh>h-1) yhigh=h-1;
 
 	xscale=(xhigh-xlow)/(xmax-xmin);
 	yscale=(yhigh-ylow)/(ymax-ymin);
