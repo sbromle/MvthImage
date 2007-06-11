@@ -42,12 +42,8 @@ void canny_fltr(image_t *img, float thigh, float tlow)
 	float *Jx=NULL, *Jy=NULL; /* will hold results of derivatives */
 	char *directions=NULL; /* holds directional values from 0 to 7 */
 	char dir;
-	/* sqrt table */
-	/* Jx, Jy will lie within -255 and 255 */
-	static int sqrtTable_initialized=0;
-	static double sqrtTable[256][256];
 	int w,h,bands;
-	int register i,j;
+	int register i;
 
 	if (img->bands!=1)
 	{
@@ -76,12 +72,6 @@ void canny_fltr(image_t *img, float thigh, float tlow)
 		if (directions!=NULL) free(directions);
 		return;
 	}
-
-	/* build the sqrt table */
-	if (!sqrtTable_initialized)
-		for (j=0;j<=255;j++)
-			for (i=0;i<=255;i++)
-				sqrtTable[j][i]=sqrt(i*i+j*j);
 
 	memcpy(tmp,img->data,w*h*img->bands*sizeof(float));
 
