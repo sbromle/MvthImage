@@ -159,6 +159,7 @@ kmeans/kmeans_cmd.c \
 paste/paste_cmd.c \
 grayscale2rgb/grayscale2rgb_cmd.c \
 rgb2grayscale/rgb2grayscale_cmd.c \
+roberts/roberts_cmd.c \
 hsv/rgb2hsv_cmd.c \
 text/text_cmd.c \
 utils/timestamp.c \

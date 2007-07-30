@@ -16,50 +16,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mvthPlugin.h>
-#include "base/images_context.h"
+#include <assert.h>
+#include <tcl.h>
+#include "dynamic_load.h"
+#include "base/mvthimagestate.h"
 #include "utils/timestamp.h"
 
-static void usage(void)
+int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
 {
-	mvthprint(stderr,"\nroberts edge detector syntax:\n");
-	mvthprint(stderr,"rob <image #>\n\n");
-	return;
-}
+	MvthImage *mimg=NULL;
+	image_t *img=NULL;
+	void *libhandle=NULL;
+	void (*roberts_fltr)(image_t *img)=NULL;
 
-extern void roberts_fltr(image_t *wimg);
-
-MvthReplyCode roberts_cmd(Command *cmd)
-{
-	char *iname;
-	Arg *a;
-	image_t *img; /* must find this */
-
-	if (cmd->narg==2 && strncmp(cmd->arglist->next->str,"-h",2)==0)
-	{
-		usage();
-		return S_HANDLED;
-	}
-	if (cmd->narg!=3)
-	{
-		return S_USAGE;
+	if (objc!=2) {
+		Tcl_WrongNumArgs(interp,1,objv,"imagename");
+		return TCL_ERROR;
 	}
 
-	a=cmd->arglist->next;
-	iname=a->str;
-	/* get image */
-	if ((img=get_image_var(iname))==NULL)
-	{
-		return S_NOEXIST;
-	}
+	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	img=mimg->img;
 
-	/* register it with the undo substructure */
-	register_image_undo_var(iname);
-
+	/* load the symbol */
+	roberts_fltr=load_symbol(MVTHIMAGELIB,"roberts_fltr",&libhandle);
+	assert(roberts_fltr!=NULL);
 	/* do the filter */
 	roberts_fltr(img);
-
 	stamp_image_t(img);
-
-	return S_SUCCESS;
+	release_handle(&libhandle);
+	return TCL_OK;
 }
