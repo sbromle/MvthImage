@@ -58,14 +58,14 @@ int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (alpha==0.0 && beta==0.0 && gamma==0.0) return TCL_OK;
-
-
 	if (objc!=2) {
-		Tcl_WrongNumArgs(interp,1,objv,"[options] ?imgvar?");
+		Tcl_WrongNumArgs(interp,1,objv,"imgvar ?options?");
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
+
+	if (alpha==0.0 && beta==0.0 && gamma==0.0) return TCL_OK;
+
 	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
