@@ -73,6 +73,8 @@ extern int rgb_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int roberts_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
+extern int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int hsv_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int inverse_hsv_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -145,6 +147,8 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp,"rgb",rgb_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"roberts",roberts_cmd,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
+	Tcl_CreateObjCommand(interp,"rotate",rotate_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"mvthtext",text_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);

@@ -7,7 +7,7 @@ $(FT2_CFLAGS) $(PANGO_CFLAGS) \
 -DTCLSCRIPTDIR=\"$(pkglibdir)\" \
 -DMVTHIMAGELIB=\"$(pkglibdir)/libMvthImage.so\" 
 
-SUBDIRS = utils interface
+SUBDIRS = utils 
 
 pkglib_LTLIBRARIES = libMvthImage.la
 
@@ -160,6 +160,7 @@ paste/paste_cmd.c \
 grayscale2rgb/grayscale2rgb_cmd.c \
 rgb2grayscale/rgb2grayscale_cmd.c \
 roberts/roberts_cmd.c \
+rotate/rotate_cmd.c \
 hsv/rgb2hsv_cmd.c \
 text/text_cmd.c \
 utils/timestamp.c \

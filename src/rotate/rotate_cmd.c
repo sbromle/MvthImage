@@ -17,67 +17,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <popt.h>
-#include <mvthPlugin.h>
-#include "base/images_context.h"
+#include <assert.h>
+#include <tcl.h>
+#include <tclArgv.h>
+#include "dynamic_load.h"
+#include "base/mvthimagestate.h"
 #include "utils/timestamp.h"
 
-extern int poptPrintHelpMvth(poptContext con, FILE *f, int flags);
+int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
+{
+	MvthImage *mimg=NULL;
+	void *libhandle=NULL;
 
-extern void rotate_fltr(image_t *wimg,
+	void (*rotate_fltr)(image_t *wimg,
 		const double alpha,
 		const double beta,
 		const double gamma,
-		const double x, const double y, const double z);
-
-MvthReplyCode rotate_cmd(Command *cmd)
-{
-	char *iname;
-	image_t *img; /* must find this */
+		const double x, const double y, const double z)=NULL;
 
 	double alpha=0.0, beta=0.0,gamma=0.0;
 	double x=0.0, y=0.0,z=0.0;
 
-	POPT_START_OPTIONS
-		{"alpha",'a',POPT_ARG_DOUBLE,&alpha,0,
-			"Rotation about x axis",NULL},
-		{"beta",'b',POPT_ARG_DOUBLE,&beta,0,
-			"Rotation about y axis",NULL},
-		{"gamma",'c',POPT_ARG_DOUBLE,&gamma,0,
-			"Rotation about z axis",NULL},
-		{"xtrans",'x',POPT_ARG_DOUBLE,&x,0,
-			"Translation along x axis",NULL},
-		{"ytrans",'y',POPT_ARG_DOUBLE,&y,0,
-			"Translation along y axis",NULL},
-		{"ztrans",'z',POPT_ARG_DOUBLE,&z,0,
-			"Translation along z axis",NULL},
-		POPT_END_OPTIONS;
-	POPT_START("rotate","[options] <imgvar>");
-	POPT_PARSE_OPTIONS;
-	if (alpha==0.0 && beta==0.0 && gamma==0.0
-			&& x==0.0 && y==0.0 && z==0.0)
-	{
-		mvthprint(stderr,"Invalid options specified\n");
-		return S_HANDLED;
-	}
-	/* get the last argument */
-	POPT_GET_STRING(iname);
-	POPT_FINISH;
+	Tcl_ArgvInfo argTable[] = {
+		{"-alpha"  ,TCL_ARGV_FLOAT,NULL,&alpha,"rotation about x-axis (degrees)"},
+		{"-beta"  ,TCL_ARGV_FLOAT,NULL,&beta,"rotation about y-axis (degrees)"},
+		{"-gamma",TCL_ARGV_FLOAT,NULL,&gamma,"rotation about z-axis (degrees)"},
+		{"-x" ,TCL_ARGV_FLOAT,NULL,&x,"point of rotation"},
+		{"-y" ,TCL_ARGV_FLOAT,NULL,&y,"point of rotation"},
+		{"-z" ,TCL_ARGV_FLOAT,NULL,&z,"point of rotation"},
+		TCL_ARGV_AUTO_HELP,
+		TCL_ARGV_TABLE_END
+	};
 
-	/* get image */
-	if ((img=get_image_var(iname))==NULL)
+	Tcl_Obj **remObjv=NULL;
+
+	if (Tcl_ParseArgsObjv(interp,&objc,objv,&remObjv,argTable)!=TCL_OK)
 	{
-		free(iname);
-		return S_NOEXIST;
+		if (remObjv!=NULL) free(remObjv);
+		return TCL_ERROR;
 	}
 
-	/* register it with the undo substructure */
-	register_image_undo_var(iname);
+	if (alpha==0.0 && beta==0.0 && gamma==0.0) return TCL_OK;
+
+
+	if (objc!=2) {
+		Tcl_WrongNumArgs(interp,1,objv,"[options] ?imgvar?");
+		if (remObjv!=NULL) free(remObjv);
+		return TCL_ERROR;
+	}
+	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
+	{
+		if (remObjv!=NULL) free(remObjv);
+		return TCL_ERROR;
+	}
+	if (remObjv!=NULL) free(remObjv);
+
+	/* load the symbol */
+	rotate_fltr=load_symbol(MVTHIMAGELIB,"rotate_fltr",&libhandle);
+	assert(rotate_fltr!=NULL);
 
 	/* do the filter */
-	rotate_fltr(img,alpha,beta,gamma,x,y,z);
-	stamp_image_t(img);
-	
+	rotate_fltr(mimg->img,alpha,beta,gamma,x,y,z);
 
-	return S_SUCCESS;
+	release_handle(&libhandle);
+	
+	return TCL_OK;
 }

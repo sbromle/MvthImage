@@ -21,7 +21,6 @@
 #include <values.h>
 #include <tcl.h>
 #include <memUtils.h>
-#include <mvthCore.h>
 #include "base/images_types.h"
 #include "base/images_utils.h"
 #include "utils/derivatives.h"
