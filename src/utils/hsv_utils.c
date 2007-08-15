@@ -23,23 +23,37 @@ void RGB2HSV(float r, float g, float b,
 	*v=(float)max;
 
 	delta=(float)max-(float)min;
-	if (max!=0)
-		*s=delta/(float)max;
-	else {
+	
+	if (max==0) {
 		// r=g=b=0 and so s=0, so h is undefined 
 		*s=0.0;
 		*h=0;
+		*v=0;
 		return;
 	}
+
+	if (delta==0) {
+		*h=0;
+		*v=max;
+		*s=0;
+		return;
+	}
+
+	*s=delta/(float)max;
+
 	if (r==max) 
-		*h=((float)g-(float)b)/delta; /* between yellow and magenta */
+	{
+		if (g>=b)
+			*h=((float)g-(float)b)/delta; /* between yellow and magenta */
+		else
+			*h=6+((float)g-(float)b)/delta; /* between yellow and magenta */
+	}
 	else if (g==max)
 		*h=2+((float)b-(float)r)/delta; /* between cyan and yellow */
 	else 
-		*h=4+((float)r-(float)6)/delta; /* between magenta and cyan */
+		*h=4+((float)r-(float)g)/delta; /* between magenta and cyan */
 
 	*h *= 60; /* convert to degrees. */
-	if (*h<0) *h+=360;
 	return;
 }
 
@@ -55,8 +69,8 @@ void HSV2RGB(float h, float s, float v,
 		return;
 	}
 	h/=60; /* sector 0 to 5 */
-	i=floor(h);
-	f=h-i; /* fractional part of h */
+	i=((int)floor(h))%6;
+	f=h-floor(h); /* fractional part of h */
 	p=v*(1-s);
 	q=v*(1-s*f);
 	t=v*(1-s*(1-f));
