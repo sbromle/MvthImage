@@ -32,6 +32,33 @@ extern int plot_imagescale_vLLL(
 		double vmin, double vmax,  /* data range to use for color coding */
 		int flags);
 
+typedef int (*ColorSpaceFunc)(void *datum, void *vmin, void *vmax,
+		int bands, int flags, float *rgba);
+typedef int (*InterpDataFunc)(void *datum, int dw, int dh, int dpitch,
+		double x, double y, int flags, void *result);
+/* Like plot_imagescale_vLLL but uses blit_data_to_image_expert,
+ * and thus allows multi-channel data with multiple coloring
+ * functions */
+int plot_imagescale_expert(
+		float *pixels,    /* pointer to beginning of drawable pixels */
+		int w, int h,             /* width and height of region to draw */
+		int bands,                /* number of colour bands (channels) */
+		int pitch,                /* number of bytes in one row */
+		double x0, double y0,     /* data-space coords of image boundaries. */
+		double x1, double y1,
+		unsigned char *data,      /* data to plot (a generic pointer) */
+		int dw, int dh,           /* dimensions of region of data to plot */
+		int dsize,                /* size of one data element */
+		int dpitch,               /* number of doubles in one record */
+		double xd0, double yd0,   /* coords of data boundaries */
+		double xd1, double yd1,
+		void *vmin, void *vmax,  /* data range to use for color coding */
+		int flags,
+		ColorSpaceFunc colorSpace,
+		InterpDataFunc interpDatum,
+		unsigned char *ws /* pointer to memory of size sizeof(data[0])*/
+		)
+
 extern int plot_imagescale_v2LL(
 		float *pixels,    /* pointer to beginning of drawable pixels */
 		int w, int h,             /* width and height of region to draw */

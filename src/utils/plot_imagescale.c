@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <math.h>
 #include <float.h>
 
@@ -121,6 +122,58 @@ static void blit_data_to_image(
 	return;
 }
 
+/* plot multi-channel data using a separate colorSpace call
+ * for each channel!
+ */
+static void blit_data_to_image_expert(
+		float *pixels, /* start of image region to draw to */
+		int iw, int ih,        /* width of region to draw to */
+		int bands,             /* number of colours in image */
+		int pitch,             /* distance to next row in image */
+		unsigned char *data,   /* generic pointer to data,
+															passed functions must know how to manipulate it*/
+		int dw, int dh,        /* width and height of data region to be drawn */
+		int dpitch,            /* distance to next row in data */
+		unsigned char *vmin, unsigned char *vmax, /* array of ranges to scale values. Passed
+															 functions must know how to handle them. */
+		int flags,             /* how to plot the data (OR'ed PLOT_FLAGS masks )*/
+		ColorSpaceFunc colorSpace, /* map a datum to an rgb value */
+		InterpDataFunc interpDatum,/* interpolate a data value. */
+		unsigned char *ws /* pointer to memory of size sizeof(data[0]) */
+		)
+{
+	int i,j;
+	double ix2dx, iy2dy;
+	float colour;
+	int di,dj;
+
+	assert(data!=NULL);
+	assert(vmin!=NULL);
+	assert(colorSpace!=NULL);
+	assert(interpDatum!=NULL);
+	assert(ws!=NULL);
+	assert(pixels!=NULL);
+
+	ix2dx=(double)dw/(double)iw;
+	iy2dy=(double)dh/(double)ih;
+	for (j=0;j<ih;j++)
+	{
+		dj=dh-1-(int)(iy2dy*j);
+		if (dj<0 || dj>=dh) continue;
+		for (i=0;i<iw;i++)
+		{
+			di=(int)(ix2dx*i);
+			if (di<0 || di>=dw) continue;
+
+			interpDatum(data,dw,dh,dpitch,ix2dx*i,dh-1-iy2dy*j,flags, ws);
+
+			colour=colorSpace(ws,vmin,vmax,bands,flags,&pixels[j*pitch+i*bands]);
+			if (bands==4) pixels[j*pitch+i*bands+3]=0;
+		}
+	}
+	return;
+}
+
 int plot_imagescale_vLLL(
 		float *pixels,    /* pointer to beginning of drawable pixels */
 		int w, int h,             /* width and height of region to draw */
@@ -206,6 +259,104 @@ int plot_imagescale_vLLL(
 		vmin,vmax,     /* range to scale values for colouring */
 		bflags,
 		getJetRGB);
+	return 1;
+}
+
+/* Like plot_imagescale_vLLL but uses blit_data_to_image_expert,
+ * and thus allows multi-channel data with multiple coloring
+ * functions */
+int plot_imagescale_expert(
+		float *pixels,    /* pointer to beginning of drawable pixels */
+		int w, int h,             /* width and height of region to draw */
+		int bands,                /* number of colour bands (channels) */
+		int pitch,                /* number of bytes in one row */
+		double x0, double y0,     /* data-space coords of image boundaries. */
+		double x1, double y1,
+		unsigned char *data,      /* data to plot (a generic pointer) */
+		int dw, int dh,           /* dimensions of region of data to plot */
+		int dsize,                /* size of one data element */
+		int dpitch,               /* number of doubles in one record */
+		double xd0, double yd0,   /* coords of data boundaries */
+		double xd1, double yd1,
+		void *vmin, void *vmax,  /* data range to use for color coding */
+		int flags,
+		ColorSpaceFunc colorSpace,
+		InterpDataFunc interpDatum,
+		unsigned char *ws /* pointer to memory of size sizeof(data[0])*/
+		)
+{
+	/* find the data and pixel boundaries for the intersection of the
+	 * two regions.*/
+	double xmin, ymin, xmax, ymax;
+	int i0,i1,j0,j1;
+	int id0,id1,jd0,jd1;
+
+	/* is the intersection the empty set? */
+	if (x0>xd1 || x1<xd0 || y0>yd1 || y1<yd0)
+	{
+		fprintf(stderr,"Data completely outside of viewport\n");
+		fprintf(stderr,"Viewport: (%lg,%lg) -> (%lg,%lg)\n",x0,y0,x1,y1);
+		fprintf(stderr,"Data: (%lg,%lg) -> (%lg,%lg)\n",xd0,yd0,xd1,yd1);
+		return 0;
+	}
+
+	/* find the intersecting region */
+	xmin=(x0>xd0?x0:xd0);
+	ymin=(y0>yd0?y0:yd0);
+	xmax=(x1>xd1?xd1:x1);
+	ymax=(y1>yd1?yd1:y1);
+#if DEBUG
+	fprintf(stderr,"Intersecting region : (%lg,%lg) -> (%lg,%lg)\n",
+			xmin,ymin,xmax,ymax);
+#endif
+
+	/* ok, so intersecting region is bounded by (xmin,ymin) to (xmax, ymax).
+	 * What does this correspond to in pixel coords? */
+
+	double wiggle=0.000001;
+	i0=(int)((xmin-x0)*w/(x1-x0)-wiggle);
+	i1=(int)((xmax-x0)*w/(x1-x0)-wiggle);
+	j0=(int)((ymin-y0)*h/(y1-y0)-wiggle);
+	j1=(int)((ymax-y0)*h/(y1-y0)-wiggle);
+
+	id0=(int)((xmin-xd0)*dw/(xd1-xd0)-wiggle);
+	id1=(int)((xmax-xd0)*dw/(xd1-xd0)-wiggle);
+	jd0=(int)((ymin-yd0)*dh/(yd1-yd0)-wiggle);
+	jd1=(int)((ymax-yd0)*dh/(yd1-yd0)-wiggle);
+
+#if DEBUG
+	fprintf(stderr,"Image region: (%d,%d) -> (%d,%d)\n", i0,j0,i1,j1);
+	/* fix up the offsets so we can pass it to blit_data_to_image */
+	fprintf(stderr,"Data  region: (%d,%d) -> (%d,%d)\n", id0,jd0,id1,jd1);
+	fprintf(stderr,"Image dim was %dx%d, now %dx%d\n",w,h,i1-i0,j1-j0);
+#endif
+
+	pixels+=i0*bands+(h-1-j1)*pitch;
+	w=(i1-i0)+1;
+	h=(j1-j0)+1;
+	data+=id0*dsize+jd0*dpitch;
+	dw=(id1-id0)+1;
+	dh=(jd1-jd0)+1;
+
+	/* and plot it */
+	int bflags=PFLAG_LANDSCAPE;
+	if (flags&PFLAG_NOBILINEAR) bflags|=PFLAG_NOBILINEAR;
+	if (flags&PFLAG_GRAYSCALE) bflags|=PFLAG_GRAYSCALE;
+	if (flags&PFLAG_CLIP) bflags|=PFLAG_CLIP;
+
+	blit_data_to_image_expert(
+		pixels, /* start of image region to draw to */
+		w, h,        /* width of region to draw to */
+		bands,             /* number of colours in image */
+		pitch,             /* distance to next row in image */
+		data,          /* pointer to data */
+		dw,dh,        /* width and height of data region to be drawn */
+		dpitch,            /* distance to next row in data */
+		vmin,vmax,     /* range to scale values for colouring */
+		bflags,
+		colorSpace,
+		interpDatum,
+		ws);
 	return 1;
 }
 

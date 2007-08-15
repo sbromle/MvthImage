@@ -4,6 +4,11 @@
 
 /* data is a double* array of nrec*reclen values */
 
+typedef int (*ColorSpaceFunc)(void *datum, void *vmin, void *vmax,
+		int bands, int flags, float *rgba);
+typedef int (*InterpDataFunc)(void *datum, int dw, int dh, int dpitch,
+		double x, double y, int flags, void *result);
+
 typedef enum PLOT_FLAGS {
 	PFLAG_NONE = 0,
 	PFLAG_LANDSCAPE = 1,
