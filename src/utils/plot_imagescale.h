@@ -32,10 +32,12 @@ extern int plot_imagescale_vLLL(
 		double vmin, double vmax,  /* data range to use for color coding */
 		int flags);
 
-typedef int (*ColorSpaceFunc)(void *datum, void *vmin, void *vmax,
+typedef int (*ColorSpaceFunc)(unsigned char *datum,
+		unsigned char *vmin,
+		unsigned char *vmax,
 		int bands, int flags, float *rgba);
-typedef int (*InterpDataFunc)(void *datum, int dw, int dh, int dpitch,
-		double x, double y, int flags, void *result);
+typedef int (*InterpDataFunc)(unsigned char *datum, int dw, int dh, int dpitch,
+		double x, double y, int flags, unsigned char *result);
 /* Like plot_imagescale_vLLL but uses blit_data_to_image_expert,
  * and thus allows multi-channel data with multiple coloring
  * functions */

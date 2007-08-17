@@ -165,7 +165,8 @@ static void blit_data_to_image_expert(
 			di=(int)(ix2dx*i);
 			if (di<0 || di>=dw) continue;
 
-			interpDatum(data,dw,dh,dpitch,ix2dx*i,dh-1-iy2dy*j,flags, ws);
+			if (interpDatum(data,dw,dh,dpitch,ix2dx*i,dh-1-iy2dy*j,flags, ws)!=0)
+				continue;
 
 			colour=colorSpace(ws,vmin,vmax,bands,flags,&pixels[j*pitch+i*bands]);
 			if (bands==4) pixels[j*pitch+i*bands+3]=0;
