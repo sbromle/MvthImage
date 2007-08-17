@@ -59,7 +59,7 @@ int plot_imagescale_expert(
 		ColorSpaceFunc colorSpace,
 		InterpDataFunc interpDatum,
 		unsigned char *ws /* pointer to memory of size sizeof(data[0])*/
-		)
+		);
 
 extern int plot_imagescale_v2LL(
 		float *pixels,    /* pointer to beginning of drawable pixels */
