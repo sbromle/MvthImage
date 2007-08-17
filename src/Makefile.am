@@ -19,7 +19,8 @@ endif
 pkginclude_HEADERS = \
 mvthImage.h \
 base/images_types.h \
-base/mvth_colors.h
+base/mvth_colors.h \
+utils/hsv_utils.h
 
 if COND_MPEG
 MPEGCODE = \
