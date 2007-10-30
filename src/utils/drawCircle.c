@@ -67,13 +67,13 @@ void fillCircle(image_t *img,int cx, int cy, int r, float rgb[4])
 	b=img->bands;
 	data=img->data;
 
-	for (j=-r/2;j<=r/2;j++) {
+	for (j=-r;j<=r;j++) {
 		y=cy+j;
 		if (y<0 || y>h-1) continue;
-		for (i=-r/2;i<=r/2;i++) {
+		for (i=-r;i<=r;i++) {
 			x=cx+i;
 			if (x<0 || x>w-1) continue;
-			if (j*j+i*i<r*r) {
+			if (j*j+i*i<=r*r) {
 				for (k=0;k<b;k++) data[b*(y*w+x)+k]=rgb[k];
 			}
 		}
