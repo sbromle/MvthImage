@@ -46,6 +46,7 @@ extern void drawLine(float *img, int w, int h, int bands, int pitch,
 		int x, int y, int dx, int dy,
 		float *rgb);
 extern void drawCircle(image_t *img,int cx, int cy, int r, float *rgb);
+extern void fillCircle(image_t *img,int cx, int cy, int r, float *rgb);
 /* Draw a multi-segment line */
 extern void drawPolyLine(float *img, int w, int h, int bands, int pitch,
 		int x[], int y[], int n,

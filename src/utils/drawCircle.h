@@ -18,5 +18,6 @@
 #include "base/images_context.h"
 
 extern void drawCircle(image_t *img,int cx, int cy, int r, float rgb[4]);
+extern void fillCircle(image_t *img,int cx, int cy, int r, float rgb[4]);
 
 #endif
