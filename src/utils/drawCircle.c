@@ -49,3 +49,35 @@ void drawCircle(image_t *img,int cx, int cy, int r, float rgb[4])
 
 	return;
 }
+
+void fillCircle(image_t *img,int cx, int cy, int r, float rgb[4])
+{
+	int x,y;
+	int k;
+	int w,h,b;
+	float *data=NULL;
+	int i,j;
+
+	if (r<=0) return;
+
+	if (img==NULL) return;
+
+	w=img->w;
+	h=img->h;
+	b=img->bands;
+	data=img->data;
+
+	for (j=-r;j<=r;j++) {
+		y=cy+j;
+		if (y<0 || y>h-1) continue;
+		for (i=-r;i<=r;i++) {
+			x=cx+i;
+			if (x<0 || x>w-1) continue;
+			if (j*j+i*i<=r*r) {
+				for (k=0;k<b;k++) data[b*(y*w+x)+k]=rgb[k];
+			}
+		}
+	}
+
+	return;
+}
