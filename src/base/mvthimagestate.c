@@ -169,9 +169,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	 * the subcommand.
 	 */
 	CONST char *subCmds[] = {
-		"create","delete","duplicate","exists","open", "width","height","depth","names",NULL};
+		"create","delete","duplicate","exists","open", "width","height","depth","names","size",NULL};
 	enum MvthImageIx {
-		CreateIx, DeleteIx, DuplicateIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,};
+		CreateIx, DeleteIx, DuplicateIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx};
 	int index;
 
 	if (objc==1 || objc>=6) {
@@ -198,6 +198,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case WidthIx:
 		case HeightIx:
 		case DepthIx:
+		case SizeIx:
 			if (objc!=3 && objc!=4) goto err;
 			if (objc==3) valueObjPtr=NULL;
 			else valueObjPtr=objv[3];
@@ -220,6 +221,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case WidthIx:
 		case HeightIx:
 		case DepthIx:
+		case SizeIx:
 		case DeleteIx:
 		case DuplicateIx:
 			entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[2]));
@@ -255,6 +257,8 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			return MvthImageWHD(interp,iPtr,valueObjPtr,1);
 		case DepthIx:
 			return MvthImageWHD(interp,iPtr,valueObjPtr,2);
+		case SizeIx:
+			return MvthImageWHD(interp,iPtr,valueObjPtr,3);
 		case DeleteIx:
 			return MvthImageDelete(iPtr,entryPtr);
 		case DuplicateIx:
@@ -433,55 +437,74 @@ int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr)
 int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 {
 	int w,h,d;
-	int dim;
+	int dim[3];
+	Tcl_Obj *ptr[3]={NULL,NULL,NULL};
+
+	/* what are the current image parameters ? */
+	dim[0]=w=iPtr->img->w;
+	dim[1]=h=iPtr->img->h;
+	dim[2]=d=iPtr->img->bands;
+	int len=0;
+	int j;
+
+	if (i<0 || i>3) return TCL_ERROR;
+
 	if (objPtr!=NULL) {
-		if (Tcl_GetIntFromObj(interp,objPtr,&dim)!=TCL_OK)
-			return TCL_ERROR;
-		/* what are the current image parameters ? */
-		w=iPtr->img->w;
-		h=iPtr->img->h;
-		d=iPtr->img->bands;
 		switch (i) {
-			case 0: /* width */
-				w=dim;
-				if (iPtr->img->w!=w) {
-					free_image_t(iPtr->img);
-					iPtr->img=new_image_t(w,h,d);
-					if (iPtr->widthPtr!=NULL) {
-						Tcl_DecrRefCount(iPtr->widthPtr);
-					}
-					iPtr->widthPtr=objPtr;
-					Tcl_IncrRefCount(objPtr);
-				}
-				break;
+			case 0:
 			case 1:
-				h=dim;
-				if (iPtr->img->h!=h) {
-					free_image_t(iPtr->img);
-					iPtr->img=new_image_t(w,h,d);
-					if (iPtr->heightPtr!=NULL)
-					{
-						Tcl_DecrRefCount(iPtr->heightPtr);
-					}
-					iPtr->heightPtr=objPtr;
-					Tcl_IncrRefCount(objPtr);
+			case 2:
+				/* then objPtr contains only a single value */
+				if (Tcl_GetIntFromObj(interp,objPtr,&dim[i])!=TCL_OK)
+					return TCL_ERROR;
+				ptr[i]=objPtr;
+				break;
+			case 3:
+				/* otherwise, it should be a list of 3 values */
+				if (Tcl_ListObjLength(interp,objPtr,&len)!=TCL_OK) return TCL_ERROR;
+				if (len!=3) {
+					Tcl_AppendResult(interp,"List must contain 3 elements.\n",NULL);
+					return TCL_ERROR;
+				}
+				for (j=0;j<3;j++) {
+					if (Tcl_ListObjIndex(interp,objPtr,j,&ptr[j])!=TCL_OK) return TCL_ERROR;
+					if (Tcl_GetIntFromObj(interp,ptr[j],&dim[j])!=TCL_OK) return TCL_ERROR;
 				}
 				break;
-			case 2:
-				d=dim;
-				if (iPtr->img->bands!=d) {
-					free_image_t(iPtr->img);
-					iPtr->img=new_image_t(w,h,d);
-					if (iPtr->depthPtr!=NULL)
-					{
-						Tcl_DecrRefCount(iPtr->depthPtr);
-					}
-					iPtr->depthPtr=objPtr;
-					Tcl_IncrRefCount(objPtr);
-				}
+			default:
 				break;
 		}
-	} else {
+
+		if (dim[0]!=w || dim[1]!=h || dim[2]!=d) {
+			/* then some dimension has changed */
+			free_image_t(iPtr->img);
+			iPtr->img=new_image_t(dim[0],dim[1],dim[2]);
+		}
+		if (dim[0]!=w) {
+			if (iPtr->widthPtr!=NULL) {
+				Tcl_DecrRefCount(iPtr->widthPtr);
+			}
+			iPtr->widthPtr=ptr[0];
+			Tcl_IncrRefCount(ptr[0]);
+		}
+		if (dim[1]!=h) {
+			if (iPtr->heightPtr!=NULL) {
+				Tcl_DecrRefCount(iPtr->heightPtr);
+			}
+			iPtr->heightPtr=ptr[1];
+			Tcl_IncrRefCount(ptr[1]);
+		}
+		if (dim[2]!=d) {
+			if (iPtr->depthPtr!=NULL) {
+				Tcl_DecrRefCount(iPtr->depthPtr);
+			}
+			iPtr->depthPtr=ptr[2];
+			Tcl_IncrRefCount(ptr[2]);
+		}
+	}
+	else  /* if objPtr is NULL, we are just requesting information */
+	{
+		Tcl_Obj *result=NULL;
 		switch (i) {
 			case 0:
 				Tcl_SetObjResult(interp,iPtr->widthPtr);
@@ -491,6 +514,18 @@ int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 				break;
 			case 2:
 				Tcl_SetObjResult(interp,iPtr->depthPtr);
+				break;
+			case 3:
+				result=Tcl_NewListObj(0,NULL);
+				if (Tcl_ListObjAppendElement(interp,result,iPtr->widthPtr)!=TCL_OK)
+					return TCL_ERROR;
+				if (Tcl_ListObjAppendElement(interp,result,iPtr->heightPtr)!=TCL_OK)
+					return TCL_ERROR;
+				if (Tcl_ListObjAppendElement(interp,result,iPtr->depthPtr)!=TCL_OK)
+					return TCL_ERROR;
+				Tcl_SetObjResult(interp,result);
+				break;
+			default:
 				break;
 		}
 	}
