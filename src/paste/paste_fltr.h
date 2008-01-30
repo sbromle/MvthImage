@@ -13,7 +13,7 @@
  */
 #include "base/images_types.h"
 
-extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt);
+extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float rgb[6], float alpha);
 extern void paste_with_mask_fltr(image_t *src, image_t *dst,int xoff, int yoff, unsigned char *mask);
 
 #endif

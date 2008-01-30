@@ -77,7 +77,7 @@ extern void fillRect(float *img, int w, int h, int bands,
 /******* SOME FILTERS and their helper functions ************/
 extern int axes_fltr(image_t *img,ViewPort_t *viewport, float *rgb);
 /* paste one image on top of another */
-extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, int t);
+extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float rgb[6], float alpha);
 /* zoom a region of an image */
 extern image_t *zoom_fltr(image_t *src, int x0, int y0, int x1, int y1, int w, int h);
 /* project an image into an isometric view */

@@ -18,7 +18,7 @@
 #include "base/images_context.h"
 #include "utils/timestamp.h"
 
-extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, int t);
+extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float rgb[6], float alpha);
 
 /* for now just make it simple */
 extern image_t * zoom_fltr(image_t *img,
@@ -32,6 +32,7 @@ MvthReplyCode zoom_cmd(Command *cmd)
 	char *iname;
 	int x0,y0,x1,y1;
 	image_t *img=NULL;
+	float rgb[6]={0,0,0,0,0,0};
 
 	/* build the options table */
 	POPT_START_OPTIONS
@@ -62,7 +63,7 @@ MvthReplyCode zoom_cmd(Command *cmd)
 	image_t *newimage=zoom_fltr(img,x0,y0,x1,y1,img->w,img->h);
 	/* register with the undo substructure */
 	register_image_undo_var(iname);
-	paste_fltr(newimage,img,0,0,-1);
+	paste_fltr(newimage,img,0,0,rgb,1.0);
 	stamp_image_t(img);
 	
 	free(newimage->data);

@@ -19,7 +19,9 @@
 #include <limits.h>
 #include "base/images_types.h"
 
-void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt)
+#define ABLEND(x,y,a) ((x)*(1.0-(a))+(a)*(y))
+
+void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float RGB[6], float alpha)
 {
 	int xmin,xmax,ymin,ymax;
 	int xskip,yskip; /* needed in case xoff < 0 or yoff < 0 */
@@ -27,6 +29,9 @@ void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt
 	int w,h,bands;
 	int sw,sh,sbands;
 	float *simg,*dimg;
+
+	if (alpha<0) alpha=0;
+	else if (alpha>1.0) alpha=1.0;
 
 	simg=src->data;
 	dimg=dst->data;
@@ -80,21 +85,23 @@ void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt
 			{
 				if (bands==1)
 				{
-					if (simg[voff*sw+hoff]<t || simg[voff*sw+hoff]>t+dt)
-						dimg[(j*w+i)]=simg[(voff*sw+hoff)];
+					if (simg[voff*sw+hoff]<RGB[0] || simg[voff*sw+hoff]>RGB[0]+RGB[3])
+						dimg[(j*w+i)]=ABLEND(dimg[(j*w+i)],simg[(voff*sw+hoff)],alpha);
 				}
 				else
 				{
-					float val=0;
+					int transparent=1;
 					for (k=0;k<bands;k++)
 					{
-						val+=simg[bands*(voff*sw+hoff)+k];
+						if (simg[bands*(voff*sw+hoff)+k]<RGB[k]
+								|| simg[sbands*(voff*sw+hoff)+k]>RGB[k]+RGB[k+3])
+							transparent=0;
 					}
-					if (val/3.0<t || val/3.0 >t+dt)
-					{
+					if (!transparent) {
 						for (k=0;k<bands;k++)
 						{
-							dimg[bands*(j*w+i)+k]=simg[bands*(voff*sw+hoff)+k];
+							dimg[bands*(j*w+i)+k] =
+								ABLEND(dimg[bands*(j*w+i)+k],simg[sbands*(voff*sw+hoff)+k],alpha);
 						}
 					}
 				}
@@ -102,11 +109,12 @@ void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt
 			else if (bands==3 && sbands==1)
 			{
 				/* then we must replicate the grays */
-				if (simg[(voff*sw+hoff)]<t || simg[voff*sw+hoff]>t+dt)
+				if (simg[(voff*sw+hoff)]<RGB[0] || simg[voff*sw+hoff]>RGB[0]+RGB[3])
 				{
 					for (k=0;k<bands;k++)
 					{
-						dimg[bands*(j*w+i)+k]=simg[(voff*sw+hoff)];
+						dimg[bands*(j*w+i)+k] =
+								ABLEND(dimg[bands*(j*w+i)+k],simg[voff*sw+hoff],alpha);
 					}
 				}
 			}
@@ -115,9 +123,18 @@ void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt
 				/* then we must average the intensities */
 				float val;
 				val=0;
-				for (k=0;k<sbands;k++) val+=simg[sbands*(voff*sw+hoff)+k];
+				int transparent=1;
+				for (k=0;k<bands;k++)
+				{
+					val+=simg[sbands*(voff*sw+hoff)+k];
+					if (simg[sbands*(voff*sw+hoff)+k]<RGB[k]
+							|| simg[sbands*(voff*sw+hoff)+k]>RGB[k]+RGB[k+3])
+						transparent=0;
+				}
 				val/=3.0;
-				if (val<t || val>t+dt) dimg[(j*w+i)]=val;
+				if (!transparent) {
+					dimg[(j*w+i)]=ABLEND(dimg[j*w+i],val,alpha);
+				}
 			}
 			else
 			{

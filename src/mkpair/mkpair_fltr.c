@@ -27,7 +27,7 @@
 */
 #include "base/stereo_context_t.h"
 
-extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, int t);
+extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float rgb[6], float alpha);
 
 extern int verbose;
 
@@ -37,13 +37,14 @@ void mkpair_fltr(image_t *img1, image_t *img2,
 		int d, int x, int y, int ow, int oh)
 {
 	image_t spritet;
+	float rgb[6]={0,0,0,0,0,0};
 
 	/* make the object we will draw */
 	spritet=mksprite(ow,oh);
 		
 	/* paste the object to the images */
-	paste_fltr(&spritet,img1,x,y,0);
-	paste_fltr(&spritet,img2,x-d,y,0);
+	paste_fltr(&spritet,img1,x,y,rgb,1.0);
+	paste_fltr(&spritet,img2,x-d,y,rgb,1.0);
 }
 
 image_t mksprite(int ow, int oh)

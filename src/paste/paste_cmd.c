@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <tcl.h>
+#include <tclArgv.h>
 #include <assert.h>
 #include "dynamic_load.h"
 #include "base/mvthimagestate.h"
@@ -28,27 +29,65 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	MvthImage *smimg=NULL;
 	MvthImage *dmimg=NULL;
-	int xoff,yoff;
-	double t=0, dt=0;
+	int xoff=0,yoff=0;
+	Tcl_Obj *RGBtranslist=NULL;
+	double alpha=1.0; /* alpha value alpha \in [0,1] for alpha blending */
+	float RGB[6]; /* RGB and dR dG dB values for color-wise transparency */
 	image_t *src_img=NULL;
 	image_t *dst_img=NULL;
 	void *libhandle=NULL;
-	void (*paste_fltr)(image_t *src, image_t *dst,int xoff, int yoff, float t, float dt)=NULL;
+	void (*paste_fltr)(image_t *src, image_t *dst,int xoff, int yoff, float RGB[6], float alpha)=NULL;
 
-	if (objc!=5 && objc!=7)
+	Tcl_Obj **remObjv=NULL;
+	Tcl_ArgvInfo argTable[] = {
+		{"-alpha",TCL_ARGV_FLOAT,NULL,&alpha,
+			"alpha value to use for blending"},
+		{"-rgbtrans",TCL_ARGV_OBJ,NULL,&RGBtranslist,
+			"6-tuple of R G B values and dR dG dB range for color-based transparency."},
+		TCL_ARGV_AUTO_HELP,
+		TCL_ARGV_TABLE_END
+	};
+
+	if (Tcl_ParseArgsObjv(interp,&objc,objv,&remObjv,argTable)!=TCL_OK)
 	{
-		Tcl_WrongNumArgs(interp,1,objv,"?srcname? ?dstname? ?xoffset? ?yoffset? [?t dt?]");
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&smimg)!=TCL_OK) return TCL_ERROR;
-	if (getMvthImageFromObj(interp,objv[2],&dmimg)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_GetIntFromObj(interp,objv[3],&xoff)==TCL_ERROR) return TCL_ERROR;
-	if (Tcl_GetIntFromObj(interp,objv[4],&yoff)==TCL_ERROR) return TCL_ERROR;
-	if (objc==7)
+	if (objc!=3 && objc!=5)
 	{
-		if (Tcl_GetDoubleFromObj(interp,objv[5],&t)==TCL_ERROR) return TCL_ERROR;
-		if (Tcl_GetDoubleFromObj(interp,objv[6],&dt)==TCL_ERROR) return TCL_ERROR;
+		Tcl_WrongNumArgs(interp,1,objv,"srcname dstname ?xoffset yoffset?");
+		return TCL_ERROR;
+	}
+
+	if (getMvthImageFromObj(interp,remObjv[1],&smimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,remObjv[2],&dmimg)!=TCL_OK) return TCL_ERROR;
+	if (objc==5) {
+		if (Tcl_GetIntFromObj(interp,remObjv[3],&xoff)==TCL_ERROR) return TCL_ERROR;
+		if (Tcl_GetIntFromObj(interp,remObjv[4],&yoff)==TCL_ERROR) return TCL_ERROR;
+	}
+	if (remObjv!=NULL) free(remObjv);
+
+	if (alpha<0 || alpha>1.0) {
+		Tcl_AppendResult(interp,"alpha must be between 0 and 1.0 ",NULL);
+		return TCL_ERROR;
+	}
+
+	if (RGBtranslist!=NULL) {
+		/* get the RGB values for color-based transparencey */
+		int len;
+		if (Tcl_ListObjLength(interp,RGBtranslist,&len)!=TCL_OK) return TCL_ERROR;
+		if (len!=6) {
+			Tcl_AppendResult(interp,"RGB transparency list must contain 6 elements. ",NULL);
+			return TCL_ERROR;
+		}
+		for (len=0;len<6;len++) {
+			Tcl_Obj *ptr=NULL;
+			double rgb;
+			if (Tcl_ListObjIndex(interp,RGBtranslist,len,&ptr)!=TCL_OK) return TCL_ERROR;
+			if (Tcl_GetDoubleFromObj(interp,ptr,&rgb)!=TCL_OK) return TCL_ERROR;
+			RGB[len]=(float)rgb;
+		}
 	}
 
 	src_img=smimg->img;
@@ -58,7 +97,7 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	paste_fltr=load_symbol(MVTHIMAGELIB,"paste_fltr",&libhandle);
 	assert(paste_fltr!=NULL);
-	paste_fltr(src_img,dst_img,xoff,yoff,t,dt);
+	paste_fltr(src_img,dst_img,xoff,yoff,RGB,(float)alpha);
 	stamp_image_t(dst_img);
 
 	Tcl_ResetResult(interp);
