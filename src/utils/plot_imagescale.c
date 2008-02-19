@@ -47,79 +47,87 @@
 							+xfrac*data[(yindex+1)*xdim+xdim-1]; \
 					}
 
-static void blit_data_to_image(
-		float *pixels, /* start of image region to draw to */
-		int iw, int ih,        /* width of region to draw to */
-		int bands,             /* number of colours in image */
-		int pitch,             /* distance to next row in image */
-		double *data,          /* pointer to data */
-		int dw, int dh,        /* width and height of data region to be drawn */
-		int dpitch,            /* distance to next row in data */
-		double vmin, double vmax,    /* range to scale values for colouring */
-		int flags,             /* how to plot the data (OR'ed PLOT_FLAGS masks )*/
-		int (*colorSpace)(double,double,double,float *) /* pointer to CS func*/
-		)
+/* default interpolation routine for handling arrays of type double */
+static int
+default_interp(unsigned char *data, int dw, int dh, int dpitch,
+		double x, double y, int flags, unsigned char *result)
 {
-	int i,j,k;
-	double ix2dx, iy2dy;
-	double vscale=1.0/(vmax-vmin);
-	double voffset=-vmin*vscale;
-	double val;
-	float colour;
 	int di,dj;
-	ix2dx=(double)dw/(double)iw;
-	iy2dy=(double)dh/(double)ih;
-	for (j=0;j<ih;j++)
+	double *d=(double*)data;
+	double *r=(double*)result;
+	double val;
+
+	dj=(int)(y+0.5); /* the +0.5 here accounts for the way y is calculated */
+	di=(int)x; /* the same is not done for x */
+	if (di<0 || di>=dw || dj<0 || dj>=dh)
 	{
-		dj=dh-1-(int)(iy2dy*j);
-		if (dj<0 || dj>=dh) continue;
-		for (i=0;i<iw;i++)
+		*r=0;
+		return -1;
+	}
+	val=d[dj*dpitch+di];
+	if ((flags&PFLAG_NOBILINEAR)==0)
+	{
+		/* then interpolate the value */
+		double difrac=x-di; /* get the fractional overshots */
+		double djfrac=dj-y;
+		if (di<dw-1 && dj>0)
 		{
-			di=(int)(ix2dx*i);
-			if (di<0 || di>=dw) continue;
-			val=data[dj*dpitch+di];
-			if (!(flags&PFLAG_NOBILINEAR))
-			{
-				/* then interpolate the value */
-				double difrac=ix2dx*i-di; /* get the fractional overshots */
-				double djfrac=dj-(dh-1-iy2dy*j);
-				if (di<dw-1 && dj>0)
-					val=data[dj*dpitch+di]*(1.0-difrac)*(1.0-djfrac)
-						+data[dj*dpitch+di+1]*difrac*(1.0-djfrac)
-						+data[(dj-1)*dpitch+di+1]*difrac*djfrac
-						+data[(dj-1)*dpitch+di]*(1.0-difrac)*djfrac;
-				else if (di<dw-1) 
-					val=data[dj*dpitch+di]*(1.0-difrac)
-						+data[dj*dpitch+di+1]*difrac;
-				else if (dj>0)
-					val=data[dj*dpitch+di]*(1.0-djfrac)
-						+data[(dj-1)*dpitch+di]*djfrac;
-			}
-			if (bands==1 || (flags&PFLAG_GRAYSCALE))
-			{
-				colour=vscale*val+voffset;
-				if (flags&PFLAG_CLIP && (val<vmin || val>vmax)) 
-				{
-					if (val<vmin) colour=1.0/255.0;
-					else colour=1.0;
-				}
-				if (colour<=0) colour=1.0/255.0;
-				else if (colour>1.0) colour=1.0;
-				for (k=0;k<bands;k++) pixels[j*pitch+i*bands+k]=(float)colour;
-			} else {
-				if (flags&PFLAG_CLIP && (val<vmin || val>vmax))
-				{
-					if (val<vmin) colour=1.0/255.0;
-					else colour=1.0;
-					for (k=0;k<bands;k++) pixels[j*pitch+i*bands+k]=(float)colour;
-				} else {
-					colorSpace(val,vmin,vmax,&pixels[j*pitch+i*bands]);
-				}
-			}
-			if (bands==4) pixels[j*pitch+i*bands+3]=0;
+			val=d[dj*dpitch+di]*(1.0-difrac)*(1.0-djfrac)
+				+d[dj*dpitch+di+1]*difrac*(1.0-djfrac)
+				+d[(dj-1)*dpitch+di+1]*difrac*djfrac
+				+d[(dj-1)*dpitch+di]*(1.0-difrac)*djfrac;
+		}
+		else if (di<dw-1) 
+		{
+			val=d[dj*dpitch+di]*(1.0-difrac)
+				+d[dj*dpitch+di+1]*difrac;
+		}
+		else if (dj>0)
+		{
+			val=d[dj*dpitch+di]*(1.0-djfrac)
+				+d[(dj-1)*dpitch+di]*djfrac;
 		}
 	}
-	return;
+	*r=val;
+	return 0;
+}
+
+/* default colourSpace function for handling data of type double */
+static int default_colorSpace(void *datum, void *vmin_in, void *vmax_in,
+		int bands, int flags, float *rgba)
+{
+	double v=*(double*)datum;
+	double vmin=*(double*)vmin_in;
+	double vmax=*(double*)vmax_in;
+	double vscale=1.0/(vmax-vmin);
+	double voffset=-vmin*vscale;
+	float c[4]={0.0,0.0,0.0,0.0};
+	int k;
+
+	if (bands==1 || (flags&PFLAG_GRAYSCALE))
+	{
+		c[0]=vscale*v+voffset;
+		if (flags&PFLAG_CLIP && (v<vmin || v>vmax)) 
+		{
+			if (v<vmin) c[0]=1.0/255.0;
+			else c[0]=1.0;
+		}
+		if (c[0]<=0) c[0]=1.0/255.0;
+		else if (c[0]>1.0) c[0]=1.0;
+		c[0]=log10(c[0]+1)/log10(2);/* humans percive log grayscale as linear */
+	} else {
+		if (flags&PFLAG_CLIP && (v<vmin || v>vmax))
+		{
+			if (v<vmin) for (k=0;k<bands;k++) c[k]=1.0/255.0;
+			else for (k=0;k<bands;k++) c[k]=1.0;
+		} else {
+			getJetRGB(v,vmin,vmax,c);
+		}
+	}
+
+	for (k=0;k<bands;k++) rgba[k]=c[k];
+	if (bands==4) rgba[3]=0.0;
+	return 0;
 }
 
 /* plot multi-channel data using a separate colorSpace call
@@ -172,6 +180,28 @@ static void blit_data_to_image_expert(
 			if (bands==4) pixels[j*pitch+i*bands+3]=0;
 		}
 	}
+	return;
+}
+
+static void blit_data_to_image(
+		float *pixels, /* start of image region to draw to */
+		int iw, int ih,        /* width of region to draw to */
+		int bands,             /* number of colours in image */
+		int pitch,             /* distance to next row in image */
+		double *data,          /* pointer to data */
+		int dw, int dh,        /* width and height of data region to be drawn */
+		int dpitch,            /* distance to next row in data */
+		double vmin, double vmax,    /* range to scale values for colouring */
+		int flags              /* how to plot the data (OR'ed PLOT_FLAGS masks )*/
+		)
+{
+	double workspace;
+	blit_data_to_image_expert(pixels,iw,ih,bands,pitch,
+			(unsigned char*)data,dw,dh,dpitch,
+			(unsigned char*)&vmin,(unsigned char*)&vmax,
+			flags,
+			default_colorSpace,(InterpDataFunc)default_interp,
+			(unsigned char*)&workspace);
 	return;
 }
 
@@ -258,8 +288,7 @@ int plot_imagescale_vLLL(
 		dw,dh,        /* width and height of data region to be drawn */
 		dpitch,            /* distance to next row in data */
 		vmin,vmax,     /* range to scale values for colouring */
-		bflags,
-		getJetRGB);
+		bflags);
 	return 1;
 }
 
