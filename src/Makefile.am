@@ -3,7 +3,7 @@ AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src \
 -I@mvth@/../../include/mvth \
 -I@tclargv@/../../include/tclargv \
 $(FT2_CFLAGS) $(PANGO_CFLAGS) \
--I/usr/include/tcl8.4 \
+$(TCL_INCLUDES) \
 -DTCLSCRIPTDIR=\"$(pkglibdir)\" \
 -DMVTHIMAGELIB=\"$(pkglibdir)/libMvthImage.so\" 
 

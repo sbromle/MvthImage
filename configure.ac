@@ -83,10 +83,34 @@ if test "x$sdllibs" != "x"; then
 fi
 
 # Tcl libraries
+# Use the TEA (Tcl Extention Architecture) macros (in tcl.m4).
+TEA_INIT([3.6])
+# Load the tclConfig.sh file
+# adds the --with-tcl configure option.
+TEA_PATH_TCLCONFIG
+TEA_LOAD_TCLCONFIG
+# Load the tkConfig.sh file
+# adds the --with-tk configure option.
+TEA_PATH_TKCONFIG
+TEA_LOAD_TKCONFIG
+# Define path to Tcl/Tk headers
+# adds the --with-tclincludes configure option.
+# and defines TCL_INCLUDES
+TEA_PUBLIC_TCL_HEADERS
+# If Tcl was compiles with threads, the following line enables threads here.
+TEA_ENABLE_THREADS
+# We should be using the Tcl/Tk stubs libraries. Look into this later.
+#AC_DEFINE(USE_TCL_STUBS, 1, [Use Tcl stubs])
+#AC_DEFINE(USE_TK_STUBS, 1, [Use Tk stubs])
+
+if 0; then
+# Don't use these /usr/share/aclocal/tcl.m4 macros;
 SC_PATH_TCLCONFIG
-SC_LOAD_TCLCONFIG
+SC_LOAD_TCLCONFIG_WITH_INCLUDES
+#SC_LOAD_TCLCONFIG
 SC_PATH_TKCONFIG
 SC_LOAD_TKCONFIG
+fi
 
 # Checks for header files.
 AC_HEADER_DIRENT

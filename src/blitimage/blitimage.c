@@ -40,7 +40,7 @@ int blitImage(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* ok, we now have a handle on the photo */
-	Tk_PhotoSetSize(photo,img->w,img->h);
+	Tk_PhotoSetSize(interp,photo,img->w,img->h);
 	Tk_PhotoGetImage(photo,&dst);
 	/* Try to just overwrite the exiting data */
 	if (dst.pixelPtr==NULL) {
@@ -82,7 +82,7 @@ int blitImage(ClientData clientData, Tcl_Interp *interp,
 			dst.pixelPtr[j*dst.pitch+i*dst.pixelSize+dst.offset[3]]=255;
 		}
 	}
-	Tk_PhotoPutBlock(photo,&dst,0,0,img->w,img->h,TK_PHOTO_COMPOSITE_SET);
+	Tk_PhotoPutBlock(interp,photo,&dst,0,0,img->w,img->h,TK_PHOTO_COMPOSITE_SET);
 	return TCL_OK;
 }
 

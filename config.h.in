@@ -188,6 +188,9 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
+/* Are we building against Mac OS X TkAqua? */
+#undef MAC_OSX_TK
+
 /* Name of package */
 #undef PACKAGE
 
@@ -221,11 +224,26 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Are we building with threads enabled? */
+#undef TCL_THREADS
+
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME
 
+/* Do we want to use the threaded memory allocator? */
+#undef USE_THREAD_ALLOC
+
 /* Version number of package */
 #undef VERSION
+
+/* Do we really want to follow the standard? Yes we do! */
+#undef _POSIX_PTHREAD_SEMANTICS
+
+/* Do we want the reentrant OS API? */
+#undef _REENTRANT
+
+/* Do we want the thread-safe OS API? */
+#undef _THREAD_SAFE
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
