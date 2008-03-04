@@ -169,11 +169,17 @@ utils/timestamp.h \
 v_plotpoly/v_plotpoly_cmd.c \
 write_image/writeimage_cmd.c
 
+if COND_TCLSTUBS
+MY_TCL_LIBS = @TCL_STUB_LIB_SPEC@
+else
+MY_TCL_LIBS = @TCL_LIB_SPEC@
+endif
+
 libMvthImage_la_SOURCES = $(CORESOURCES)
 libMvthImage_la_LDFLAGS = -export-dynamic $(MPEGLIBS) $(MNGLIBS) $(FT2_LIBS) $(PANGO_LIBS) 
 libMvthImage_la_LIBADD = utils/libutils.la
 
-mvthimage_la_LDFLAGS = -module -export-dynamic @TCL_LIB_SPEC@ -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
+mvthimage_la_LDFLAGS = -module -export-dynamic $(MY_TCL_LIBS) -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
 
-viewimage_la_LDFLAGS = -module -export-dynamic @TCL_LIB_SPEC@ -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
+viewimage_la_LDFLAGS = -module -export-dynamic $(MY_TCL_LIBS) -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
 

@@ -230,8 +230,14 @@
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME
 
+/* Use Tcl stubs */
+#undef USE_TCL_STUBS
+
 /* Do we want to use the threaded memory allocator? */
 #undef USE_THREAD_ALLOC
+
+/* Use Tk stubs */
+#undef USE_TK_STUBS
 
 /* Version number of package */
 #undef VERSION

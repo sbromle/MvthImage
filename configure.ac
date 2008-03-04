@@ -99,11 +99,24 @@ TEA_LOAD_TKCONFIG
 TEA_PUBLIC_TCL_HEADERS
 # If Tcl was compiles with threads, the following line enables threads here.
 TEA_ENABLE_THREADS
-# We should be using the Tcl/Tk stubs libraries. Look into this later.
-#AC_DEFINE(USE_TCL_STUBS, 1, [Use Tcl stubs])
-#AC_DEFINE(USE_TK_STUBS, 1, [Use Tk stubs])
+# We should be using the Tcl/Tk stubs libraries.
+AC_ARG_ENABLE([tclstubs],
+ AS_HELP_STRING([--enable-tclstubs],[use Tcl stubs interface (default is YES)]),
+ [case "${enableval}" in
+   yes) ac_cv_enable_tclstubs=$enableval;;
+	 no)  ac_cv_enable_tclstubs=$enableval;;
+	 *) AC_MSG_ERROR([bad value ${enableval} for --enable-tclstubs]);;
+	esac],[ac_cv_enable_tclstubs=yes])
+AC_CACHE_CHECK([whether to use Tcl stubs],
+               [ac_cv_enable_tclstubs],
+							 [ac_cv_enable_tclstubs=yes])
+AM_CONDITIONAL([COND_TCLSTUBS],[test "x$ac_cv_enable_tclstubs" = "xyes"])
+if test "x${ac_cv_enable_tclstubs}" = "xyes"; then
+	AC_DEFINE(USE_TCL_STUBS,1,[Use Tcl stubs])
+	AC_DEFINE(USE_TK_STUBS,1,[Use Tk stubs])
+fi
 
-if 0; then
+if test "x" = "y" ; then
 # Don't use these /usr/share/aclocal/tcl.m4 macros;
 SC_PATH_TCLCONFIG
 SC_LOAD_TCLCONFIG_WITH_INCLUDES
