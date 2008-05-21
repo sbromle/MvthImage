@@ -15,7 +15,6 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
-#include "dynamic_load.h"
 #include "images_types.h"
 #include "images_utils.h"
 #include "mvthimagestate.h"
@@ -121,6 +120,7 @@ int MvthImageState_Init(Tcl_Interp *interp) {
 			(ClientData)statePtr,MvthImageCleanup);
 	Tcl_VarEval(interp,
 			"interp alias {} mvthimage {} mi;",
+			"interp alias {} copyimage {} mi copy;",
 			NULL);
 	return TCL_OK;
 }
@@ -149,6 +149,7 @@ void MvthImageCleanup(ClientData data) {
  * This implements the MvthImage command, which has these subcommands:
  * 	create width height depth
  * 	duplicate name
+ * 	copy srcname dstname
  * 	open filename ?name?
  * 	names ?pattern?
  * 	width name ?value?
@@ -170,9 +171,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	 * the subcommand.
 	 */
 	CONST char *subCmds[] = {
-		"create","delete","duplicate","exists","open", "width","height","depth","names","size",NULL};
+		"create","delete","duplicate","copy","exists","open", "width","height","depth","names","size",NULL};
 	enum MvthImageIx {
-		CreateIx, DeleteIx, DuplicateIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx};
+		CreateIx, DeleteIx, DuplicateIx,CopyIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx};
 	int index;
 
 	if (objc==1 || objc>=6) {
@@ -208,6 +209,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			break;
 		case DuplicateIx:
 			return MvthImageDuplicate((ClientData)statePtr,interp,objc-1,objv+1);
+			break;
+		case CopyIx:
+			return MvthImageCopy((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
 		case OpenIx:
 			if (objc!=3 && objc!=4) goto err;
@@ -298,9 +302,6 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	image_t *dimg=NULL;
 	MvthImage *smimg=NULL;
 	MvthImage *dmimg=NULL;
-	void *libhandle=NULL;
-	int (*copy_image_t)(image_t *src, image_t *dst)=NULL;
-	image_t * (*new_image_t)(int w, int h, int bands)=NULL;
 
 	if (objc!=3)
 	{
@@ -317,14 +318,6 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	//if (dimg!=NULL) register_image_undo_var(dstname);
-
-	/* load the helper functions */
-	new_image_t=load_symbol(MVTHIMAGELIB,"new_image_t",&libhandle);
-	assert(new_image_t!=NULL);
-	copy_image_t=load_symbol(MVTHIMAGELIB,"copy_image_t",&libhandle);
-	assert(copy_image_t!=NULL);
-
 	/* make a copy */
 	dimg=new_image_t(simg->w,simg->h,simg->bands);
 	assert(dimg!=NULL);
@@ -336,7 +329,6 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 
 	Tcl_SetObjResult(interp,objv[2]);
 
-	release_handle(&libhandle);
 	return TCL_OK;
 }
 
@@ -481,11 +473,6 @@ int MvthImageOpen(Tcl_Interp *interp, MvthImageState *statePtr,
 	image_t *img=NULL;
 	char *filename=NULL;
 
-	/* first try to load the file */
-	void *libhandle=NULL;
-	image_t * (*readimage)(char *filename)=NULL;
-	readimage=load_symbol(MVTHIMAGELIB,"readimage",&libhandle);
-	assert(readimage!=NULL);
 	/* read the image */
 	img=readimage(filename=Tcl_GetStringFromObj(fileObjPtr,NULL));
 	if (img==NULL || img->data==NULL) {
