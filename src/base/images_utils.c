@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "images_context.h"
+#include "images_types.h"
 
 /* We need a way to create new images */
 image_t *new_image_t(int w, int h, int bands) 

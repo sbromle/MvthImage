@@ -15,7 +15,7 @@
 #  include <config.h>
 #endif
 
-#include "base/images_context.h"
+#include "base/images_types.h"
 
 extern void drawCircle(image_t *img,int cx, int cy, int r, float rgb[4]);
 extern void fillCircle(image_t *img,int cx, int cy, int r, float rgb[4]);

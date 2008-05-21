@@ -18,7 +18,6 @@
 #include <string.h>
 #include <popt.h>
 #include <mvthPlugin.h>
-#include "base/images_context.h"
 #include "base/images_types.h"
 #include "utils/timestamp.h"
 #include "rwarp_fltr.h"

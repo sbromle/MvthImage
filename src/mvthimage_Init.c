@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <tcl.h>
 #include <tk.h>
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "base/mvthimagestate.h"
 
 int verbose=0;
@@ -153,10 +153,6 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 
 	/* initialize the new, alternative image context handling code */
 	MvthImageState_Init(interp);
-
-	Tcl_VarEval(interp,
-			"interp alias {} copyimage {} mvthimage copy;",
-			NULL);
 
 	/* Initialize the state preserving commands */
 	char buff[1024];

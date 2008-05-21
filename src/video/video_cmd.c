@@ -19,7 +19,7 @@
 #include <assert.h>
 #include <mvthPlugin.h>
 #include "utils/timestamp.h"
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "base/images_utils.h"
 #ifdef HAVE_LIBMPEG2
 #include "mpeg_utils2.h"

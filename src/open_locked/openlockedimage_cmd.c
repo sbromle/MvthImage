@@ -23,7 +23,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <mvthPlugin.h>
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "base/images_utils.h"
 #include "base/images_types.h"
 #include "utils/timestamp.h"

@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mvthPlugin.h>
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "utils/timestamp.h"
 #include "utils/timestamp.h"
 

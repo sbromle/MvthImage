@@ -16,7 +16,7 @@
 #include <tcl.h>
 #include <assert.h>
 #include "dynamic_load.h"
-#include "base/images_context.h"
+#include "base/images_types.h"
 
 int undoimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])

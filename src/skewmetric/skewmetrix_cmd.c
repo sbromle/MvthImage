@@ -19,7 +19,7 @@
 #include <string.h>
 #include <popt.h>
 #include <mvthPlugin.h>
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "utils/timestamp.h"
 
 extern int poptPrintHelpMvth(poptContext con, FILE *f, int flags);

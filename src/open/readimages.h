@@ -12,7 +12,7 @@
 
 #ifndef READIMAGES_H
 #define READIMAGES_H
-#include "base/images_context.h"
+#include "base/images_types.h"
 
 image_t * readimage(char *filename);
 

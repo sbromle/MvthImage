@@ -22,7 +22,6 @@
 #include "utils/mvth_rng.h"
 #include "base/images_types.h"
 /*
-#include "UTILS/images_context.h"
 #include "UTILS/rng.h"
 */
 #include "base/stereo_context_t.h"

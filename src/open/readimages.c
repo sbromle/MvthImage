@@ -15,7 +15,7 @@
 #include <IL/il.h>
 #include <dlfcn.h>
 
-#include "base/images_context.h"
+#include "base/images_types.h"
 
 image_t *readimage(char *filename)
 {

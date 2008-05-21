@@ -16,7 +16,7 @@
 #include <tcl.h>
 #include <assert.h>
 #include "dynamic_load.h"
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "base/images_utils.h"
 #include "base/mmap_handler.h"
 

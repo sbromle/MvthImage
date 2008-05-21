@@ -15,7 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <mvthPlugin.h>
-#include "base/images_context.h"
+#include "base/images_types.h"
 #include "utils/timestamp.h"
 
 extern void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float rgb[6], float alpha);

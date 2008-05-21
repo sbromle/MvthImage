@@ -21,7 +21,7 @@
 #include <IL/ilu.h>
 #include <dlfcn.h>
 
-#include "base/images_context.h"
+#include "base/images_types.h"
 
 int writeimage(float *img,int w,int h,int bands,int bpc,char *filename)
 {

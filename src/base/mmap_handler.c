@@ -27,7 +27,7 @@
 #include <assert.h>
 
 #include "mmap_handler.h"
-#include "images_context.h"
+#include "images_types.h"
 #include "images_utils.h"
 #include "utils/mvth_semaphore.h"
 #include "utils/timestamp.h"
