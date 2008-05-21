@@ -92,9 +92,11 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 int MvthImageDuplicate(ClientData data, Tcl_Interp *interp, int objc,
-		Tcl_Obj *CONST objv[]);\
-int MvthImageOpen(Tcl_Interp *interp, MvthImageState *statePtr,
-		Tcl_Obj *fileObjPtr, MvthImage *mimgPtr);
+		Tcl_Obj *CONST objv[]);
+int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
+		Tcl_Obj *CONST objv[]);
+int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
+		Tcl_Obj *CONST objv[]);
 void MvthImageCleanup(ClientData data);
 int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr);
 int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr);
@@ -214,7 +216,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			return MvthImageCopy((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
 		case OpenIx:
-			if (objc!=3 && objc!=4) goto err;
+			return MvthImageOpen((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
 	}
 
@@ -234,22 +236,6 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 				return TCL_ERROR;
 			}
 			iPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
-			break;
-		case OpenIx:
-			/* get the filename */
-			if (objc==4) { /* get the name of an existing mvthimage */
-				entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[3]));
-				if (entryPtr==NULL) {
-					Tcl_AppendResult(interp,"Unknown mvthimage: ",
-							Tcl_GetString(objv[3]),NULL);
-					return TCL_ERROR;
-				}
-				iPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
-			} else {
-				iPtr=NULL;
-			}
-			return MvthImageOpen(interp,statePtr,objv[2],iPtr);
-
 			break;
 	}
 
@@ -463,53 +449,77 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 
 /* open a file and either create a new MvthImage, or
  * load the file into an existing one */
-int MvthImageOpen(Tcl_Interp *interp, MvthImageState *statePtr,
-		Tcl_Obj *fileObjPtr, MvthImage *mimgPtr)
+int MvthImageOpen(ClientData data, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
 {
+	MvthImageState *statePtr=(MvthImageState*)data;
 	Tcl_HashEntry *entryPtr;
-	MvthImage *iPtr;
+	MvthImage *iPtr=NULL;
 	int new;
 	char name[20];
 	image_t *img=NULL;
 	char *filename=NULL;
+	char *iname=NULL;
 
-	/* read the image */
-	img=readimage(filename=Tcl_GetStringFromObj(fileObjPtr,NULL));
+	if (objc<2 || objc>3) {
+		/* note that we are preprocessed by the "mi" command so that
+		 * we only see "open filename ?varname?" as arguments.
+		 */
+		Tcl_WrongNumArgs(interp,0,NULL,"mi open filename ?varname?");
+		return TCL_ERROR;
+	}
+
+	if (objc==3) { /* get the user supplied name of an mvthimage */
+		int len;
+		iname=Tcl_GetStringFromObj(objv[2],&len);
+		if (len==0 || len>20) {
+			Tcl_AppendResult(interp,"mvthimage varname length must be >0 and <=20 characters.",NULL);
+			return TCL_ERROR;
+		}
+		entryPtr=Tcl_FindHashEntry(&statePtr->hash,iname);
+		if (entryPtr!=NULL) iPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
+	} 
+
+	/* get the filename */
+	filename=Tcl_GetString(objv[1]);
+
+	/* try to read the image */
+	img=readimage(filename);
 	if (img==NULL || img->data==NULL) {
 		if (img!=NULL) free(img);
 		Tcl_AppendResult(interp,"Trouble reading image `",filename,"'",NULL);
 		return TCL_ERROR;
 	}
 
-	if (mimgPtr!=NULL) {
-		/* just replace the image with the new one */
-		mvthImageReplace(img,mimgPtr);
-		return TCL_OK;
+	if (iPtr==NULL) {
+		/* need to try to create a new one */
+		if (iname==NULL) {
+			statePtr->uid++;
+			sprintf(name,"mi%03d",statePtr->uid);
+			while (mvthImageExists0(interp,statePtr,name)) {
+				statePtr->uid++;
+				sprintf(name,"mi#%03d",statePtr->uid);
+			}
+			iname=name;
+		}
+		entryPtr=Tcl_CreateHashEntry(&statePtr->hash,iname,&new);
+		/* you probably should assert the new==1 to confirm
+	 	* a new item was added to the hash table */
+		iPtr=(MvthImage*)ckalloc(sizeof(MvthImage));
+		iPtr->widthPtr=Tcl_NewIntObj(img->w);
+		iPtr->heightPtr=Tcl_NewIntObj(img->h);
+		iPtr->depthPtr=Tcl_NewIntObj(img->bands);
+		iPtr->img=img;
+		Tcl_IncrRefCount(iPtr->widthPtr);
+		Tcl_IncrRefCount(iPtr->heightPtr);
+		Tcl_IncrRefCount(iPtr->depthPtr);
+		Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
+	} else {
+		mvthImageReplace(img,iPtr);
 	}
 
-	/* otherwise, we need to create a new one */
-
-	/* generate an MvthImage and put it in the hash table */
-	statePtr->uid++;
-	sprintf(name,"mvthimage%d",statePtr->uid);
-	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name,&new);
-	/* you probably should assert the new==1 to confirm
-	 * a new item was added to the hash table */
-	iPtr=(MvthImage*)ckalloc(sizeof(MvthImage));
-
-	iPtr->widthPtr=Tcl_NewIntObj(img->w);
-	iPtr->heightPtr=Tcl_NewIntObj(img->h);
-	iPtr->depthPtr=Tcl_NewIntObj(img->bands);
-
-	Tcl_IncrRefCount(iPtr->widthPtr);
-	Tcl_IncrRefCount(iPtr->heightPtr);
-	Tcl_IncrRefCount(iPtr->depthPtr);
-
-	iPtr->img=img;
-
-	Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
 	/* copy the name to the interpreter result */
-	Tcl_SetStringObj(Tcl_GetObjResult(interp),name,-1);
+	Tcl_SetStringObj(Tcl_GetObjResult(interp),iname,-1);
 	return TCL_OK;
 }
 

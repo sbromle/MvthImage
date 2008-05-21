@@ -111,8 +111,8 @@ astereo/astereo_fltr.h \
 gaussian/gaussian_fltr.c \
 feature_extract/feature_extract_fltr.c \
 optical_flow/opticalFlow_fltr.c \
-open/readimages.c \
-open/readimages.h \
+base/readimages.c \
+base/readimages.h \
 write_image/writeimage.h \
 write_image/writeimage.c \
 v_plotpoly/v_plotpoly_fltr.c \
@@ -135,6 +135,8 @@ base/mvthimagestate.c \
 base/mvthimagestate.h \
 base/images_utils.c \
 base/images_utils.h \
+base/readimages.c \
+base/readimages.h \
 dynamic_load.c \
 dynamic_load.h \
 base/mmap_handler.h \
