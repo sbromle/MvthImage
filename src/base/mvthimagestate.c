@@ -15,26 +15,26 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
+#include "dynamic_load.h"
 #include "images_types.h"
 #include "images_utils.h"
 #include "mvthimagestate.h"
 
 /* the following structure is created once for each Tcl interpretor*/
 typedef struct MvthImageState {
-	Tcl_HashTable hash; /* List of blobs by name */
-	int uid;            /* used to generate names */
+	Tcl_HashTable hash; /* List of images by name */
+	int uid;            /* used to auto-generate names */
 } MvthImageState;
 
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
-
 int mvthImageExists0(Tcl_Interp *interp,
 		MvthImageState *statePtr,
-		Tcl_Obj *CONST name)
+		char *name)
 {
 	Tcl_HashEntry *entryPtr=NULL;
 	if (name==NULL) return 0;
-	entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(name));
+	entryPtr=Tcl_FindHashEntry(&statePtr->hash,name);
 	if (entryPtr==NULL) return 0;
 	return 1;
 }
@@ -45,14 +45,14 @@ int mvthImageExists(Tcl_Interp *interp, Tcl_Obj *CONST name)
 	if (name==NULL) return 0;
 	statePtr=(MvthImageState*)Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL);
 
-	return mvthImageExists0(interp,statePtr,name);
+	return mvthImageExists0(interp,statePtr,Tcl_GetString(name));
 }
 
 int mvthImageExistsTcl(Tcl_Interp *interp,
 		MvthImageState *statePtr,
 		Tcl_Obj *CONST name)
 {
-	if (mvthImageExists0(interp,statePtr,name))
+	if (mvthImageExists0(interp,statePtr,Tcl_GetString(name)))
 	{
 		Tcl_SetObjResult(interp,Tcl_NewIntObj(1));
 		return TCL_OK;
@@ -90,10 +90,10 @@ int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 /* forward declarations */
 int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
-int MvthImageCreate(Tcl_Interp *interp, MvthImageState *statePtr,
-		Tcl_Obj *wObjPtr, Tcl_Obj *hObjPtr, Tcl_Obj *dObjPtr);
-int MvthImageDuplicate(Tcl_Interp *interp, MvthImageState *statePtr,
-		MvthImage *iPtr);
+int MvthImageCreate(ClientData data, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
+int MvthImageDuplicate(ClientData data, Tcl_Interp *interp, int objc,
+		Tcl_Obj *CONST objv[]);\
 int MvthImageOpen(Tcl_Interp *interp, MvthImageState *statePtr,
 		Tcl_Obj *fileObjPtr, MvthImage *mimgPtr);
 void MvthImageCleanup(ClientData data);
@@ -117,10 +117,11 @@ int MvthImageState_Init(Tcl_Interp *interp) {
 	/* register the statePtr with this interpreter */
 	Tcl_SetAssocData(interp,MVTHIMAGESTATEKEY,NULL,(ClientData)statePtr);
 	statePtr->uid=0;
-	Tcl_CreateObjCommand(interp,"mvthimage", MvthImageCmd,
-			(ClientData)statePtr,MvthImageCleanup);
 	Tcl_CreateObjCommand(interp,"mi", MvthImageCmd,
 			(ClientData)statePtr,MvthImageCleanup);
+	Tcl_VarEval(interp,
+			"interp alias {} mvthimage {} mi;",
+			NULL);
 	return TCL_OK;
 }
 
@@ -192,8 +193,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			return MvthImageNames(interp,statePtr);
 			break;
 		case CreateIx:
-			if (objc!=5) goto err;
-			return MvthImageCreate(interp,statePtr,objv[2],objv[3],objv[4]);
+			return MvthImageCreate(statePtr,interp,objc-1,objv+1);
 			break;
 		case WidthIx:
 		case HeightIx:
@@ -207,7 +207,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			if (objc!=3) goto err;
 			break;
 		case DuplicateIx:
-			if (objc!=3) goto err;
+			return MvthImageDuplicate((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
 		case OpenIx:
 			if (objc!=3 && objc!=4) goto err;
@@ -223,7 +223,6 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case DepthIx:
 		case SizeIx:
 		case DeleteIx:
-		case DuplicateIx:
 			entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[2]));
 			if (entryPtr==NULL) {
 				Tcl_AppendResult(interp,"Unknown mvthimage: ",
@@ -261,9 +260,6 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			return MvthImageWHD(interp,iPtr,valueObjPtr,3);
 		case DeleteIx:
 			return MvthImageDelete(iPtr,entryPtr);
-		case DuplicateIx:
-			return MvthImageDuplicate(interp,statePtr,iPtr);
-			break;
 	}
 	return TCL_OK;
 
@@ -295,57 +291,184 @@ int newMvthImage(Tcl_Interp *interp,
 	return TCL_OK;
 }
 
+int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
+{
+	image_t *simg;
+	image_t *dimg=NULL;
+	MvthImage *smimg=NULL;
+	MvthImage *dmimg=NULL;
+	void *libhandle=NULL;
+	int (*copy_image_t)(image_t *src, image_t *dst)=NULL;
+	image_t * (*new_image_t)(int w, int h, int bands)=NULL;
+
+	if (objc!=3)
+	{
+		Tcl_WrongNumArgs(interp,1,objv,"srcname dstname");
+		return TCL_ERROR;
+	}
+
+	if (getMvthImageFromObj(interp,objv[1],&smimg)!=TCL_OK) return TCL_ERROR;
+	simg=smimg->img;
+	if (getMvthImageFromObj(interp,objv[2],&dmimg)!=TCL_OK) return TCL_ERROR;
+
+	if (smimg==dmimg) {
+		Tcl_AppendResult(interp,"Source and Destination are the same!",NULL);
+		return TCL_ERROR;
+	}
+
+	//if (dimg!=NULL) register_image_undo_var(dstname);
+
+	/* load the helper functions */
+	new_image_t=load_symbol(MVTHIMAGELIB,"new_image_t",&libhandle);
+	assert(new_image_t!=NULL);
+	copy_image_t=load_symbol(MVTHIMAGELIB,"copy_image_t",&libhandle);
+	assert(copy_image_t!=NULL);
+
+	/* make a copy */
+	dimg=new_image_t(simg->w,simg->h,simg->bands);
+	assert(dimg!=NULL);
+	memcpy(dimg->name,simg->name,sizeof(dimg->name));
+	copy_image_t(simg,dimg);
+	//register_image_var(dimg,dstname);
+	//stamp_image_t(dimg);
+	mvthImageReplace(dimg,dmimg);
+
+	Tcl_SetObjResult(interp,objv[2]);
+
+	release_handle(&libhandle);
+	return TCL_OK;
+}
+
 
 /* the following routine actually creates MvthImages */
-int MvthImageCreate(Tcl_Interp *interp, MvthImageState *statePtr,
-		Tcl_Obj *wObjPtr, Tcl_Obj *hObjPtr, Tcl_Obj *dObjPtr)
+int MvthImageCreate(ClientData data, Tcl_Interp *interp, 
+		int objc, Tcl_Obj *CONST objv[])
 {
+	MvthImageState *statePtr=(MvthImageState *)data;
 	Tcl_HashEntry *entryPtr;
 	MvthImage *iPtr;
 	int new;
+	int len;
+	char *name_ptr=NULL;
 	char name[20];
 
-	if (newMvthImage(interp,wObjPtr,hObjPtr,dObjPtr,&iPtr)!=TCL_OK)
+	if (objc>3) {
+		Tcl_WrongNumArgs(interp,0,NULL,"mi create {w h d} ?name?");
 		return TCL_ERROR;
+	}
 
-	/* generate an MvthImage and put it in the hash table */
-	statePtr->uid++;
-	sprintf(name,"mvthimage%d",statePtr->uid);
-	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name,&new);
+	Tcl_Obj **whd=NULL;
+	if (Tcl_ListObjGetElements(interp,objv[1],&len,&whd)!=TCL_OK)
+		return TCL_ERROR;
+	if (len!=3) {
+		Tcl_AppendResult(interp,"list must contain 3 elements, {w h d}\n",NULL);
+		return TCL_ERROR;
+	}
+
+	/* did the user provide a name for this image? */
+	if (objc==3) {
+		/* does an image with this name already exist ? */
+		name_ptr=Tcl_GetStringFromObj(objv[2],&len);
+		/* then we need to get the string */
+		if (len==0 || len>20) {
+			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
+			return TCL_ERROR;
+		}
+		if (mvthImageExists0(interp,statePtr,name_ptr)) {
+			Tcl_AppendResult(interp,"Image named ",name_ptr," already exists!\n",NULL);
+			return TCL_ERROR;
+		}
+	} else {
+		/* generate an MvthImage and put it in the hash table */
+		statePtr->uid++;
+		sprintf(name,"mi#%03d",statePtr->uid);
+		while (mvthImageExists0(interp,statePtr,name)) {
+			statePtr->uid++;
+			sprintf(name,"mi#%03d",statePtr->uid);
+		}
+		name_ptr=name;
+	}
+
+	/* ok, we can now safely make the image and register it */
+	if (newMvthImage(interp,whd[0],whd[1],whd[2],&iPtr)!=TCL_OK)
+		return TCL_ERROR;
+	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name_ptr,&new);
 	/* you probably should assert the new==1 to confirm
 	 * a new item was added to the hash table */
 	Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
 	/* copy the name to the interpreter result */
-	Tcl_SetStringObj(Tcl_GetObjResult(interp),name,-1);
+	Tcl_SetStringObj(Tcl_GetObjResult(interp),name_ptr,-1);
 	return TCL_OK;
 }
 
 /* the following routine duplicates MvthImages */
-int MvthImageDuplicate(Tcl_Interp *interp, MvthImageState *statePtr,
-		MvthImage *iSrcPtr)
+int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
 {
+	MvthImageState *statePtr=(MvthImageState*)data;
+	MvthImage *iSrcPtr;
+
 	Tcl_HashEntry *entryPtr;
 	MvthImage *iPtr;
 	int new;
 	char name[20];
+	char *src_name=NULL;
+	char *dst_name=NULL;
 
+
+	if (objc>3) {
+		Tcl_WrongNumArgs(interp,0,NULL,"mi duplicate src ?dst?");
+		return TCL_ERROR;
+	}
+
+	src_name=Tcl_GetString(objv[1]);
+	entryPtr=Tcl_FindHashEntry(&statePtr->hash,src_name);
+	if (entryPtr==NULL) {
+		Tcl_AppendResult(interp,"Unknown mvthimage: ",src_name,NULL);
+		return TCL_ERROR;
+	}
+
+	if (objc==3) {
+		int len;
+		/* then user is requesting that we copy to a specific name */
+		dst_name=Tcl_GetStringFromObj(objv[2],&len);
+		/* then we need to get the string */
+		if (len==0 || len>20) {
+			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
+			return TCL_ERROR;
+		}
+		if (mvthImageExists0(interp,statePtr,dst_name)) {
+			/* then we really should copy the image */
+			return MvthImageCopy(NULL,interp,3,objv);
+		} 
+	} else {
+		/* generate an MvthImage and put it in the hash table */
+		statePtr->uid++;
+		sprintf(name,"mi#%03d",statePtr->uid);
+		while (mvthImageExists0(interp,statePtr,name)) {
+			statePtr->uid++;
+			sprintf(name,"mi#%03d",statePtr->uid);
+		}
+		dst_name=name;
+	}
+	/* if we get here, dst_name is set and we must create a new image */
+
+	iSrcPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
 	if (newMvthImage(interp,iSrcPtr->widthPtr,iSrcPtr->heightPtr,iSrcPtr->depthPtr,&iPtr)!=TCL_OK)
 		return TCL_ERROR;
 	image_t2MvthImage(iSrcPtr->img,iPtr);
 
 	/* put the new MvthImage in the hash table */
-	statePtr->uid++;
-	sprintf(name,"mvthimage%d",statePtr->uid);
-	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name,&new);
+	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,dst_name,&new);
 	/* you probably should assert the new==1 to confirm
 	 * a new item was added to the hash table */
 	Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
 	/* copy the name to the interpreter result */
-	Tcl_SetStringObj(Tcl_GetObjResult(interp),name,-1);
+	Tcl_SetStringObj(Tcl_GetObjResult(interp),dst_name,-1);
 	return TCL_OK;
 }
 
-#include "dynamic_load.h"
 /* open a file and either create a new MvthImage, or
  * load the file into an existing one */
 int MvthImageOpen(Tcl_Interp *interp, MvthImageState *statePtr,

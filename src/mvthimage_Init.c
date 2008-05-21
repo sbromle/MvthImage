@@ -35,8 +35,6 @@ extern int circle_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int canny_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
-extern int copyimage_cmd (ClientData clientData, Tcl_Interp *interp,
-		int objc, Tcl_Obj *CONST objv[]);
 extern int delauney_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int detectcorners_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -110,8 +108,6 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"circle",circle_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
-	Tcl_CreateObjCommand(interp,"copyimage",copyimage_cmd,
-			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"delauney",delauney_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"detectcorners",detectcorners_cmd,
@@ -157,6 +153,10 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 
 	/* initialize the new, alternative image context handling code */
 	MvthImageState_Init(interp);
+
+	Tcl_VarEval(interp,
+			"interp alias {} copyimage {} mvthimage copy;",
+			NULL);
 
 	/* Initialize the state preserving commands */
 	char buff[1024];

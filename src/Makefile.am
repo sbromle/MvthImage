@@ -147,7 +147,6 @@ axes/axes_cmd.c \
 brighten/brighten_cmd.c \
 canny/canny_cmd.c \
 circ/circ_cmd.c \
-copy/copy_cmd.c \
 corner/corner_cmd.c \
 delauney/delauney_cmd.c \
 diff/diff_cmd.c \
