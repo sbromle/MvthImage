@@ -395,7 +395,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 	char *dst_name=NULL;
 
 
-	if (objc>3) {
+	if (objc<2 || objc>3) {
 		Tcl_WrongNumArgs(interp,0,NULL,"mi duplicate src ?dst?");
 		return TCL_ERROR;
 	}
