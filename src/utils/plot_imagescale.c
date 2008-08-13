@@ -108,22 +108,16 @@ static int default_colorSpace(void *datum, void *vmin_in, void *vmax_in,
 	{
 		c[0]=vscale*v+voffset;
 		if (flags&PFLAG_CLIP && (v<vmin || v>vmax)) 
-		{
-			if (v<vmin) c[0]=1.0/255.0;
-			else c[0]=1.0;
-		}
+			c[0]=1.0/255.0;
 		if (c[0]<=0) c[0]=1.0/255.0;
 		else if (c[0]>1.0) c[0]=1.0;
 		//c[0]=log10(100*c[0]+1)/log10(101);/* humans percive log grayscale as linear */
 		c[0]=c[0]*c[0];/* humans percive log grayscale as linear */
 	} else {
 		if (flags&PFLAG_CLIP && (v<vmin || v>vmax))
-		{
-			if (v<vmin) for (k=0;k<bands;k++) c[k]=1.0/255.0;
-			else for (k=0;k<bands;k++) c[k]=1.0;
-		} else {
+			for (k=0;k<bands;k++) c[k]=1.0/255.0;
+		else
 			getJetRGB(v,vmin,vmax,c);
-		}
 	}
 
 	for (k=0;k<bands;k++) rgba[k]=c[k];
