@@ -68,20 +68,6 @@ if test "x$devillibs" != "x"; then
   AC_SUBST(DEVIL_LIBS,["$devillibs"])
 fi
 
-
-# SDL Libraries
-# The following macro should work, but give problems, so I do it myself
-#AM_PATH_SDL([1.2.8])
-#do this instead
-AC_CHECK_LIB([SDL], [SDL_Init],[sdllibs="`sdl-config --libs`"],[echo SDL library not found; exit 0;],[-lpthread])
-if test "x$sdllibs" != "x"; then
-	AC_CHECK_HEADERS([SDL/SDL.h],[],[echo SDL header not found.; exit 0;],[])
-  AC_DEFINE(HAVE_LIBSDL,1,[Define if sdl library is available])
-	sdlcflags=`sdl-config --cflags`
-	AC_SUBST(SDL_LIBS,["$sdllibs"])
-	AC_SUBST(SDL_CFLAGS,["$sdlcflags"])
-fi
-
 # Tcl libraries
 # Use the TEA (Tcl Extention Architecture) macros (in tcl.m4).
 TEA_INIT([3.6])
