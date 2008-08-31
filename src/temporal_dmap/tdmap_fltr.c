@@ -19,7 +19,7 @@
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
-#include <memUtils.h>
+
 
 #include "base/stereo_context_t.h"
 

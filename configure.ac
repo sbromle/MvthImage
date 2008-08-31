@@ -145,10 +145,6 @@ AC_ARG_ENABLE(mvthplugin,AS_HELP_STRING([--enable-mvthplugin],[build mvth plugin
 AC_CACHE_CHECK([whether to build mvth plugin] , [ac_cv_enable_mvthplugin], [ac_cv_enable_mvthplugin=yes])
 AM_CONDITIONAL([COND_MVTHPLUGIN],[test "x$ac_cv_enable_mvthplugin" = "xyes"])
 
-AC_ARG_WITH(memutils,AS_HELP_STRING([--with-memutils],[specify where memUtils library is installed (default is /usr/local/lib/memutils)]),[ac_with_memutils=$withval],[ac_with_memutils="/usr/local/lib/memutils"])
-AC_CACHE_CHECK([location of memUtils] , [ac_with_memutils], [ac_with_memutils="/usr/local/lib/memutils"])
-AC_SUBST(memutils,["$ac_with_memutils"])
-
 AC_ARG_WITH(tclargv,AS_HELP_STRING([--with-tclargv],[specify where tclArgv library is installed (default is /usr/local/lib/tclargv)]),[ac_with_tclargv=$withval],[ac_with_tclargv="/usr/local/lib/tclargv"])
 AC_CACHE_CHECK([location of tclArgv] , [ac_with_tclargv], [ac_with_tclargv="/usr/local/lib/tclargv"])
 AC_SUBST(tclargv,["$ac_with_tclargv"])

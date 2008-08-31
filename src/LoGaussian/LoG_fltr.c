@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <memUtils.h>
+
 
 #include "base/images_types.h"
 #include "utils/xyfilters.h"

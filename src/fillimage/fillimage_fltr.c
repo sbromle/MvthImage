@@ -15,7 +15,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <memUtils.h>
 #include "base/images_types.h"
 
 void fillimage_fltr0(ImageBlock *b, float rgba[4])

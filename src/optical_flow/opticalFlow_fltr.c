@@ -19,7 +19,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
-#include <memUtils.h>
+
 
 #include "base/images_types.h"
 #include "utils/drawLine.h"

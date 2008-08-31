@@ -19,7 +19,7 @@
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
-#include <memUtils.h>
+
 
 #include "utils/getMatch.h"
 #include "utils/getColor.h"

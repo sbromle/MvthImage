@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include <memUtils.h>
+
 #include "base/images_types.h"
 
 void kmeans_fltr(image_t *img, int nclasses, int channel)

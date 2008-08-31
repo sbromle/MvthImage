@@ -19,7 +19,7 @@
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
-#include <memUtils.h>
+
 #include "base/images_types.h"
 #include "utils/derivatives.h"
 #include "utils/mvth_convert.h"
@@ -53,7 +53,9 @@ void corner_fltr(image_t *img, float thigh, float tlow)
 	tmp=(float*)calloc(w*h,sizeof(float));
 	Jx=(float*)calloc(w*h,sizeof(float));
 	Jy=(float*)calloc(w*h,sizeof(float));
-	eigenvals=twoDdouble(w,h);
+	eigenvals=(double**)malloc(h*sizeof(double**));
+	eigenvals[0]=(double*)calloc(h*w,sizeof(double));
+	for (i=1;i<h;i++) eigenvals[i]=eigenvals[0]+i*w;
 
 	if (tmp==NULL || Jx==NULL || Jy==NULL || eigenvals==NULL)
 	{
@@ -61,7 +63,10 @@ void corner_fltr(image_t *img, float thigh, float tlow)
 		if (tmp!=NULL) free(tmp);
 		if (Jx!=NULL) free(Jx);
 		if (Jy!=NULL) free(Jy);
-		if (eigenvals!=NULL) free2D(eigenvals);
+		if (eigenvals!=NULL) {
+			free(eigenvals[0]);
+			free(eigenvals);
+		}
 		return;
 	}
 
@@ -137,7 +142,10 @@ void corner_fltr(image_t *img, float thigh, float tlow)
 	if (tmp!=NULL) free(tmp);
 	if (Jx!=NULL) free(Jx);
 	if (Jy!=NULL) free(Jy);
-	if (eigenvals!=NULL) free2D(eigenvals);
+	if (eigenvals!=NULL) {
+		free(eigenvals[0]);
+		free(eigenvals);
+	}
 
 	return;
 }

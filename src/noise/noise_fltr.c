@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <memUtils.h>
 #include "utils/mvth_rng.h"
 #include "utils/rng_gauss.h"
 #include "base/images_types.h"

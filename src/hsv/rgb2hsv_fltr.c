@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <memUtils.h>
 #include "base/images_utils.h"
 #include "utils/hsv_utils.h"
 

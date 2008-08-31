@@ -20,7 +20,7 @@
 #include <math.h>
 #include <values.h>
 #include <tcl.h>
-#include <memUtils.h>
+
 #include "base/images_types.h"
 #include "base/images_utils.h"
 #include "utils/derivatives.h"
@@ -97,12 +97,14 @@ image_t *feature_extract_fltr(image_t *simg, int cr, int cc, int r, int b, int s
 		}
 		if (F != NULL)
 		{
-			free2D(F);
+			if (F[0]!=NULL) free(F[0]);
+			free(F);
 			F = NULL;
 		}
 		if (phi != NULL)
 		{
-			free2D(phi);
+			if (phi[0]!=NULL) free(phi[0]);
+			free(phi);
 			phi = NULL;
 		}
 		while (front != NULL)
@@ -147,11 +149,18 @@ image_t *feature_extract_fltr(image_t *simg, int cr, int cc, int r, int b, int s
 			tmp[i] = (short)sqrt((double)(Jx[i]*Jx[i]+Jy[i]*Jy[i]));
 	
 		// calculate speed function F 
-		if( (F = twoDdouble(w,h)) == NULL)
-		{
+		F=(double**)malloc(h*sizeof(double**));
+		if (F==NULL) {
 			fprintf(stderr, "feature_extract:  unable to allocate memory for F\n");
 			goto exitfcn;
 		}
+		F[0]=(double*)calloc(w*h,sizeof(double));
+		if (F[0]==NULL) {
+			free(F); F=NULL;
+			fprintf(stderr, "feature_extract:  unable to allocate memory for F\n");
+			goto exitfcn;
+		}
+		for (i=1;i<h;i++) F[i]=F[0]+i*w;
 		for (j=0; j < h; j++)
 			for (i=0; i < w; i++)
 				F[j][i] = 1.0/(1.0 + tmp[j*w+i]);
@@ -232,11 +241,17 @@ image_t *feature_extract_fltr(image_t *simg, int cr, int cc, int r, int b, int s
 			mask[cr*w + nd_c] = 1;
 		}
 
-		if( (phi = twoDdouble(w,h)) == NULL)
+		if ((phi=(double**)malloc(h*sizeof(double*)))==NULL)
 		{
 			fprintf(stderr, "feature_extract:  unable to allocate memory for phi\n");
 			goto exitfcn;
 		}
+		if ((phi[0]=(double*)calloc(w*h,sizeof(double)))==NULL)
+		{
+			fprintf(stderr, "feature_extract:  unable to allocate memory for phi\n");
+			goto exitfcn;
+		}
+		for (i=1;i<h;i++) phi[i]=phi[0]+i*w;
 		// Evolve front from initial position to edge of tube ("first iteration")
 		front = evolve_front(front, mask, F, phi, w, h, b);
 	}
@@ -293,12 +308,14 @@ exitfcn:
 		}
 		if (F != NULL)
 		{
-			free2D(F);
+			if (F[0]!=NULL) free(F[0]);
+			free(F);
 			F = NULL;
 		}
 		if (phi != NULL)
 		{
-			free2D(phi);
+			if (phi[0]!=NULL) free(phi[0]);
+			free(phi);
 			phi = NULL;
 		}
 		while (front != NULL)
