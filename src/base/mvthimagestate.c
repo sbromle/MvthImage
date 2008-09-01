@@ -331,7 +331,7 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 	char *name_ptr=NULL;
 	char name[20];
 
-	if (objc>3) {
+	if (objc>3 || objc<2) {
 		Tcl_WrongNumArgs(interp,0,NULL,"mi create {w h d} ?name?");
 		return TCL_ERROR;
 	}
