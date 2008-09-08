@@ -5,9 +5,8 @@ AC_PREREQ(2.59)
 AC_INIT([MVTH Image Plugin], [1.5.0], [Sam Bromley <sam@sbnumerics.ca>], [mvthimage])
 AM_INIT_AUTOMAKE(mvthimage,[1.5.0])
 
-AC_CONFIG_SUBDIRS(libltdl)
-
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 
 # Checks for programs.
@@ -44,9 +43,6 @@ if test "x$MNG_LIBS" != "x"; then
 	AC_SUBST(MNG_LIBS,["$MNG_LIBS"])
 fi
 AM_CONDITIONAL([COND_MNG],[test "x$MNG_LIBS" != "x"])
-
-# GNU Libtool dynamic loading Library
-AC_CHECK_LIB([ltdl], [lt_dlopen],[],[echo libtool dynamic library not found; exit 0;])
 
 # Freetype font library.
 AC_CHECK_FT2
