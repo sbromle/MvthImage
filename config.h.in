@@ -49,9 +49,6 @@
 /* Define if the DevIL image library is available */
 #undef HAVE_LIBIL
 
-/* Define to 1 if you have the `ltdl' library (-lltdl). */
-#undef HAVE_LIBLTDL
-
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
@@ -181,6 +178,10 @@
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
 
 /* Are we building against Mac OS X TkAqua? */
 #undef MAC_OSX_TK
