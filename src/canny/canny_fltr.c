@@ -18,7 +18,6 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
-#include <memUtils.h>
 #include <float.h>
 #include "utils/derivatives.h"
 #include "utils/mvth_convert.h"
@@ -180,7 +179,9 @@ static int hysteresisThresh(float *src, float *dst, char *dirs,
 
 	memset(dst,0,w*h*sizeof(float));
 
-	done=twoDchar(w,h);
+	done=(char**)malloc(h*sizeof(char*));
+	done[0]=(char*)malloc(w*h*sizeof(char));
+	for (i=1;i<h;i++) done[i]=done[0]+i*w;
 	if (done==NULL)
 	{
 		fprintf(stderr,"hysteresisThresh16(): Cannot allocate occupancy grid.\n");
@@ -249,6 +250,7 @@ static int hysteresisThresh(float *src, float *dst, char *dirs,
 			}
 		}
 	}
-	free2D(done);
+	free(done[0]);
+	free(done);
 	return 1;
 }

@@ -5,9 +5,8 @@ AC_PREREQ(2.59)
 AC_INIT([MVTH Image Plugin], [1.5.0], [Sam Bromley <sam@sbnumerics.ca>], [mvthimage])
 AM_INIT_AUTOMAKE(mvthimage,[1.5.0])
 
-AC_CONFIG_SUBDIRS(libltdl)
-
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 
 # Checks for programs.
@@ -45,9 +44,6 @@ if test "x$MNG_LIBS" != "x"; then
 fi
 AM_CONDITIONAL([COND_MNG],[test "x$MNG_LIBS" != "x"])
 
-# GNU Libtool dynamic loading Library
-AC_CHECK_LIB([ltdl], [lt_dlopen],[],[echo libtool dynamic library not found; exit 0;])
-
 # Freetype font library.
 AC_CHECK_FT2
 
@@ -66,20 +62,6 @@ if test "x$devillibs" != "x"; then
 	AC_CHECK_HEADERS([IL/il.h],[],[echo lib DevIL header not found.; exit 0;],[])
   AC_DEFINE(HAVE_LIBIL,1,[Define if the DevIL image library is available])
   AC_SUBST(DEVIL_LIBS,["$devillibs"])
-fi
-
-
-# SDL Libraries
-# The following macro should work, but give problems, so I do it myself
-#AM_PATH_SDL([1.2.8])
-#do this instead
-AC_CHECK_LIB([SDL], [SDL_Init],[sdllibs="`sdl-config --libs`"],[echo SDL library not found; exit 0;],[-lpthread])
-if test "x$sdllibs" != "x"; then
-	AC_CHECK_HEADERS([SDL/SDL.h],[],[echo SDL header not found.; exit 0;],[])
-  AC_DEFINE(HAVE_LIBSDL,1,[Define if sdl library is available])
-	sdlcflags=`sdl-config --cflags`
-	AC_SUBST(SDL_LIBS,["$sdllibs"])
-	AC_SUBST(SDL_CFLAGS,["$sdlcflags"])
 fi
 
 # Tcl libraries
@@ -158,10 +140,6 @@ AH_TEMPLATE(DEBUG,turn on extra debugging checks/output)
 AC_ARG_ENABLE(mvthplugin,AS_HELP_STRING([--enable-mvthplugin],[build mvth plugin interface (default is YES)]),[ac_cv_enable_mvthplugin=$enableval],[ac_cv_enable_mvthplugin=yes])
 AC_CACHE_CHECK([whether to build mvth plugin] , [ac_cv_enable_mvthplugin], [ac_cv_enable_mvthplugin=yes])
 AM_CONDITIONAL([COND_MVTHPLUGIN],[test "x$ac_cv_enable_mvthplugin" = "xyes"])
-
-AC_ARG_WITH(memutils,AS_HELP_STRING([--with-memutils],[specify where memUtils library is installed (default is /usr/local/lib/memutils)]),[ac_with_memutils=$withval],[ac_with_memutils="/usr/local/lib/memutils"])
-AC_CACHE_CHECK([location of memUtils] , [ac_with_memutils], [ac_with_memutils="/usr/local/lib/memutils"])
-AC_SUBST(memutils,["$ac_with_memutils"])
 
 AC_ARG_WITH(tclargv,AS_HELP_STRING([--with-tclargv],[specify where tclArgv library is installed (default is /usr/local/lib/tclargv)]),[ac_with_tclargv=$withval],[ac_with_tclargv="/usr/local/lib/tclargv"])
 AC_CACHE_CHECK([location of tclArgv] , [ac_with_tclargv], [ac_with_tclargv="/usr/local/lib/tclargv"])

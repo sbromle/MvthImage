@@ -18,7 +18,7 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include <memUtils.h>
+
 
 #include "utils/mvth_convert.h"
 #include "base/images_types.h"

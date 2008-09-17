@@ -19,7 +19,6 @@
 #include <math.h>
 #include <limits.h>
 #include <assert.h>
-#include <memUtils.h>
 #include "base/images_types.h"
 #include "utils/getColor.h"
 #include "base/stereo_context_t.h"

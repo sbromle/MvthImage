@@ -17,7 +17,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <memUtils.h>
 #include "base/images_utils.h"
 
 image_t * rgb2grayscale_fltr(image_t *img)

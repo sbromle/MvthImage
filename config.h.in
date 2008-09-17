@@ -49,9 +49,6 @@
 /* Define if the DevIL image library is available */
 #undef HAVE_LIBIL
 
-/* Define to 1 if you have the `ltdl' library (-lltdl). */
-#undef HAVE_LIBLTDL
-
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
@@ -60,9 +57,6 @@
 
 /* Define if mpeg2 library is available */
 #undef HAVE_LIBMPEG2
-
-/* Define if sdl library is available */
-#undef HAVE_LIBSDL
 
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
@@ -101,9 +95,6 @@
 
 /* Define to 1 if you have the `rmdir' function. */
 #undef HAVE_RMDIR
-
-/* Define to 1 if you have the <SDL/SDL.h> header file. */
-#undef HAVE_SDL_SDL_H
 
 /* Define to 1 if you have the `sqrt' function. */
 #undef HAVE_SQRT
@@ -187,6 +178,10 @@
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
 
 /* Are we building against Mac OS X TkAqua? */
 #undef MAC_OSX_TK

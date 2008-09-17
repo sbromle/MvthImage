@@ -18,7 +18,6 @@
 #include <math.h>
 #include <limits.h>
 #include <float.h>
-#include <memUtils.h>
 
 #include "base/images_types.h"
 

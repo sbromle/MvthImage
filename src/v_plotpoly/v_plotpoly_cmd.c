@@ -23,7 +23,7 @@
 /* include the GNU command argument handling header */
 #include <tcl.h>
 #include <tclArgv.h>
-#include <memUtils.h>
+
 #include "dynamic_load.h"
 #include "base/mvthimagestate.h"
 #include "utils/timestamp.h"

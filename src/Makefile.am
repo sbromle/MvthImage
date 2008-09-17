@@ -1,5 +1,4 @@
 AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)/src \
--I@memutils@/../../include/memutils \
 -I@mvth@/../../include/mvth \
 -I@tclargv@/../../include/tclargv \
 $(FT2_CFLAGS) $(PANGO_CFLAGS) \
@@ -180,7 +179,7 @@ libMvthImage_la_SOURCES = $(CORESOURCES)
 libMvthImage_la_LDFLAGS = -export-dynamic $(MPEGLIBS) $(MNGLIBS) $(FT2_LIBS) $(PANGO_LIBS) 
 libMvthImage_la_LIBADD = utils/libutils.la
 
-mvthimage_la_LDFLAGS = -module -export-dynamic $(MY_TCL_LIBS) -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
+mvthimage_la_LDFLAGS = -module -export-dynamic $(MY_TCL_LIBS) -L@tclargv@ -lTclParseArgv
 
-viewimage_la_LDFLAGS = -module -export-dynamic $(MY_TCL_LIBS) -L@memutils@ -lMemUtils -L@tclargv@ -lTclParseArgv
+viewimage_la_LDFLAGS = -module -export-dynamic $(MY_TCL_LIBS) -L@tclargv@ -lTclParseArgv
 
