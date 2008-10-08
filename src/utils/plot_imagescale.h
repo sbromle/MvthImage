@@ -38,6 +38,8 @@ typedef int (*ColorSpaceFunc)(unsigned char *datum,
 		int bands, int flags, float *rgba);
 typedef int (*InterpDataFunc)(unsigned char *datum, int dw, int dh, int dpitch,
 		double x, double y, int flags, unsigned char *result);
+typedef int (*DataConversionFunc)(unsigned char *datum, unsigned char *params,
+		unsigned char *result);
 /* Like plot_imagescale_vLLL but uses blit_data_to_image_expert,
  * and thus allows multi-channel data with multiple coloring
  * functions */
@@ -58,6 +60,7 @@ int plot_imagescale_expert(
 		int flags,
 		ColorSpaceFunc colorSpace,
 		InterpDataFunc interpDatum,
+		DataConversionFunc dataConvFunc,
 		unsigned char *ws /* pointer to memory of size sizeof(data[0])*/
 		);
 
