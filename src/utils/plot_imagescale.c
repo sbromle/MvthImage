@@ -142,6 +142,7 @@ static void blit_data_to_image_expert(
 		int flags,             /* how to plot the data (OR'ed PLOT_FLAGS masks )*/
 		ColorSpaceFunc colorSpace, /* map a datum to an rgb value */
 		InterpDataFunc interpDatum,/* interpolate a data value. */
+		DataConversionFunc dataConvFunc, /* function to convert data to plotted value */
 		unsigned char *ws /* pointer to memory of size sizeof(data[0]) */
 		)
 {
@@ -170,6 +171,8 @@ static void blit_data_to_image_expert(
 
 			if (interpDatum(data,dw,dh,dpitch,ix2dx*i,dh-1-iy2dy*j,flags, ws)!=0)
 				continue;
+			/* convert data to another form if dataConvFunc not NULL */
+			if (dataConvFunc!=NULL && dataConvFunc(ws,NULL,ws)!=0) continue;
 
 			colour=colorSpace(ws,vmin,vmax,bands,flags,&pixels[j*pitch+i*bands]);
 			if (bands==4) pixels[j*pitch+i*bands+3]=0;
@@ -195,7 +198,7 @@ static void blit_data_to_image(
 			(unsigned char*)data,dw,dh,dpitch,
 			(unsigned char*)&vmin,(unsigned char*)&vmax,
 			flags,
-			default_colorSpace,(InterpDataFunc)default_interp,
+			default_colorSpace,(InterpDataFunc)default_interp,NULL,
 			(unsigned char*)&workspace);
 	return;
 }
@@ -307,6 +310,7 @@ int plot_imagescale_expert(
 		int flags,
 		ColorSpaceFunc colorSpace,
 		InterpDataFunc interpDatum,
+		DataConversionFunc dataConvFunc,
 		unsigned char *ws /* pointer to memory of size sizeof(data[0])*/
 		)
 {
@@ -381,6 +385,7 @@ int plot_imagescale_expert(
 		bflags,
 		colorSpace,
 		interpDatum,
+		dataConvFunc,
 		ws);
 	return 1;
 }

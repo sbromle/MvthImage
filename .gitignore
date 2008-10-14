@@ -4,3 +4,8 @@ configure
 autom4te.cache
 aclocal.m4
 *.swp
+config.guess
+config.sub
+config.h.in
+*~
+ltmain.sh
