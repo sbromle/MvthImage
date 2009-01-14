@@ -1,4 +1,4 @@
-set (PACKAGE mvthimage1.6)
+set (PACKAGE mvthimage)
 project (${PACKAGE})
 cmake_minimum_required (VERSION 2.6)
 
