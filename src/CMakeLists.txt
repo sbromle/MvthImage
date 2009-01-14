@@ -2,7 +2,7 @@
 # GTK_glib_INLUCDE_PATH
 # GTK_glib_LIBRARY
 # amoung others.
-include (FindTCL)
+find_package (TCL)
 option (USE_TCL_STUBS "Enable use of TCL stubs library")
 
 include (FindPkgConfig)
@@ -227,18 +227,19 @@ target_link_libraries(MvthImage z fftw3 m ${GSFF_LIBRARY} pthread ${GLIB2_LIBRAR
 if (MPEG2_SUPPORT) 
 	target_link_libraries(MvthImage ${MPEG2_LIBRARIES})
 endif (MPEG2_SUPPORT)
-set_target_properties (MvthImage PROPERTIES VERSION 3.0 SOVERSION 3)
 
 target_link_libraries(mvthimage m ${GLIB2_LIBRARIES})
 if (USE_TCL_STUBS)
-	target_link_libraries(mvthimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
-	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
+	target_link_libraries(mvthimage ${TCL_STUBS_LIBRARY} ${TCLARGV_LIBRARY})
+	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
 else (USE_TCL_STUBS)
 	target_link_libraries(mvthimage ${TCL_LIBRARY} ${TCLARGV_LIBRARY})
-	target_link_libraries(viewimage ${TCL_LIBRARY} ${TCLARGV_LIBRARY})
+	target_link_libraries(viewimage ${TCL_LIBRARY} ${TK_LIBRARY} ${TCLARGV_LIBRARY})
 endif (USE_TCL_STUBS)
-set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "")
-set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "")
+
+set_target_properties (MvthImage PROPERTIES VERSION 3.0 SOVERSION 3 INSTALL_RPATH_USE_LINK_PATH on)
+set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on)
+set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on)
 
 
 ########### install files ###############
