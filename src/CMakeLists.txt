@@ -2,7 +2,7 @@
 # GTK_glib_INLUCDE_PATH
 # GTK_glib_LIBRARY
 # amoung others.
-find_package (TCL)
+include  (FindTclStub)
 option (USE_TCL_STUBS "Enable use of TCL stubs library")
 
 include (FindPkgConfig)
@@ -227,7 +227,7 @@ endif (MPEG2_SUPPORT)
 
 target_link_libraries(mvthimage m ${GLIB2_LIBRARIES})
 if (USE_TCL_STUBS)
-	target_link_libraries(mvthimage ${TCL_STUBS_LIBRARY} ${TCLARGV_LIBRARY})
+	target_link_libraries(mvthimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
 	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
 else (USE_TCL_STUBS)
 	target_link_libraries(mvthimage ${TCL_LIBRARY} ${TCLARGV_LIBRARY})
