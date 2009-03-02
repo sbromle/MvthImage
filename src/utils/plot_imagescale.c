@@ -49,43 +49,52 @@
 
 /* default interpolation routine for handling arrays of type double */
 static int
-default_interp(unsigned char *data, int dw, int dh, int dpitch,
-		double x, double y, int flags, unsigned char *result)
+default_interp(unsigned char *data, int dw, int dh,
+    unsigned int dsize, unsigned int dpitch,
+    double x, double y, int flags, unsigned char *result)
 {
 	int di,dj;
 	double *d=(double*)data;
 	double *r=(double*)result;
 	double val;
+	double *ptr=NULL;
+	double *ptr_i=NULL;
+	double *ptr_j=NULL;
+	double *ptr_ij=NULL;
 
-	dj=(int)(y+0.5); /* the +0.5 here accounts for the way y is calculated */
+	dj=(int)y;
 	di=(int)x; /* the same is not done for x */
 	if (di<0 || di>=dw || dj<0 || dj>=dh)
 	{
 		*r=0;
 		return -1;
 	}
-	val=d[dj*dpitch+di];
+	ptr=(double*)(data+di*dsize+dj*dpitch);
+	ptr_i=(double*)(data+(di+1)*dsize+dj*dpitch);
+	ptr_j=(double*)(data+di*dsize+(dj+1)*dpitch);
+	ptr_ij=(double*)(data+(di+1)*dsize+(dj+1)*dpitch);
+	val=*ptr;
 	if ((flags&PFLAG_NOBILINEAR)==0)
 	{
 		/* then interpolate the value */
 		double difrac=x-di; /* get the fractional overshots */
-		double djfrac=dj-y;
-		if (di<dw-1 && dj>0)
+		double djfrac=y-dj;
+		if (di<dw-1 && dj<dh-1)
 		{
-			val=d[dj*dpitch+di]*(1.0-difrac)*(1.0-djfrac)
-				+d[dj*dpitch+di+1]*difrac*(1.0-djfrac)
-				+d[(dj-1)*dpitch+di+1]*difrac*djfrac
-				+d[(dj-1)*dpitch+di]*(1.0-difrac)*djfrac;
+			val=(*ptr)*(1.0-difrac)*(1.0-djfrac)
+				+(*ptr_i)*difrac*(1.0-djfrac)
+				+(*ptr_ij)*difrac*djfrac
+				+(*ptr_j)*(1.0-difrac)*djfrac;
 		}
 		else if (di<dw-1) 
 		{
-			val=d[dj*dpitch+di]*(1.0-difrac)
-				+d[dj*dpitch+di+1]*difrac;
+			val=(*ptr)*(1.0-difrac)
+				+(*ptr_i)*difrac;
 		}
-		else if (dj>0)
+		else if (dj<dh-1)
 		{
-			val=d[dj*dpitch+di]*(1.0-djfrac)
-				+d[(dj-1)*dpitch+di]*djfrac;
+			val=(*ptr)*(1.0-djfrac)
+				+(*ptr_j)*djfrac;
 		}
 	}
 	*r=val;
@@ -142,7 +151,8 @@ static void blit_data_to_image_expert(
 		unsigned char *data,   /* generic pointer to data,
 															passed functions must know how to manipulate it*/
 		int dw, int dh,        /* width and height of data region to be drawn */
-		int dpitch,            /* distance to next row in data */
+		unsigned int dsize,    /* size of one data item in bytes. */
+		unsigned int dpitch,            /* distance to next row in data in bytes */
 		unsigned char *vmin, unsigned char *vmax, /* array of ranges to scale values. Passed
 															 functions must know how to handle them. */
 		int flags,             /* how to plot the data (OR'ed PLOT_FLAGS masks )*/
@@ -175,7 +185,7 @@ static void blit_data_to_image_expert(
 			di=(int)(ix2dx*i);
 			if (di<0 || di>=dw) continue;
 
-			if (interpDatum(data,dw,dh,dpitch,ix2dx*i,dh-1-iy2dy*j,flags, ws)!=0)
+			if (interpDatum(data,dw,dh,dsize,dpitch,ix2dx*i,dh-1-iy2dy*j,flags, ws)!=0)
 				continue;
 			/* convert data to another form if dataConvFunc not NULL */
 			if (dataConvFunc!=NULL && dataConvFunc(ws,NULL,ws)!=0) continue;
@@ -201,7 +211,7 @@ static void blit_data_to_image(
 {
 	double workspace;
 	blit_data_to_image_expert(pixels,iw,ih,bands,pitch,
-			(unsigned char*)data,dw,dh,dpitch,
+			(unsigned char*)data,dw,dh,sizeof(double),dpitch,
 			(unsigned char*)&vmin,(unsigned char*)&vmax,
 			flags,
 			default_colorSpace,(InterpDataFunc)default_interp,NULL,
@@ -309,7 +319,7 @@ int plot_imagescale_expert(
 		unsigned char *data,      /* data to plot (a generic pointer) */
 		int dw, int dh,           /* dimensions of region of data to plot */
 		int dsize,                /* size of one data element */
-		int dpitch,               /* number of doubles in one record */
+		int dpitch,               /* memory offset between data rows  */
 		double xd0, double yd0,   /* coords of data boundaries */
 		double xd1, double yd1,
 		void *vmin, void *vmax,  /* data range to use for color coding */
@@ -363,7 +373,7 @@ int plot_imagescale_expert(
 	fprintf(stderr,"Image region: (%d,%d) -> (%d,%d)\n", i0,j0,i1,j1);
 	/* fix up the offsets so we can pass it to blit_data_to_image */
 	fprintf(stderr,"Data  region: (%d,%d) -> (%d,%d)\n", id0,jd0,id1,jd1);
-	fprintf(stderr,"Image dim was %dx%d, now %dx%d\n",w,h,i1-i0,j1-j0);
+	fprintf(stderr,"Image dim was %dx%d, now %dx%d\n",w,h,i1-i0+1,j1-j0+1);
 #endif
 
 	pixels+=i0*bands+(h-1-j1)*pitch;
@@ -386,6 +396,7 @@ int plot_imagescale_expert(
 		pitch,             /* distance to next row in image */
 		data,          /* pointer to data */
 		dw,dh,        /* width and height of data region to be drawn */
+		dsize,
 		dpitch,            /* distance to next row in data */
 		vmin,vmax,     /* range to scale values for colouring */
 		bflags,

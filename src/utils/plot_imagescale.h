@@ -36,7 +36,8 @@ typedef int (*ColorSpaceFunc)(unsigned char *datum,
 		unsigned char *vmin,
 		unsigned char *vmax,
 		int bands, int flags, float *rgba);
-typedef int (*InterpDataFunc)(unsigned char *datum, int dw, int dh, int dpitch,
+typedef int (*InterpDataFunc)(unsigned char *datum, int dw, int dh,
+		unsigned int dsize, unsigned int dpitch,
 		double x, double y, int flags, unsigned char *result);
 typedef int (*DataConversionFunc)(unsigned char *datum, unsigned char *params,
 		unsigned char *result);
