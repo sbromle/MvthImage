@@ -36,9 +36,9 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 	int (*axes_fltr)(image_t *img,ViewPort_t *viewport, float rgb[4])=NULL;
 
 	ViewPort_t axes= {
+		{{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
 		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
-		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
-		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
+		{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0}},
 		0.1,0.9,
 		0.1,0.9
 	};
@@ -57,21 +57,21 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	/* build the options table */
 	Tcl_ArgvInfo argTable[] = {
-		{"-xmin",TCL_ARGV_FLOAT,NULL,&axes.x_axis.min,
+		{"-xmin",TCL_ARGV_FLOAT,NULL,&axes.axis[0].min,
 			"set minimum x value"},
-		{"-xmax",TCL_ARGV_FLOAT,NULL,&axes.x_axis.max,
+		{"-xmax",TCL_ARGV_FLOAT,NULL,&axes.axis[0].max,
 			"set maximum x value"},
-		{"-ymin",TCL_ARGV_FLOAT,NULL,&axes.y_axis.min,
+		{"-ymin",TCL_ARGV_FLOAT,NULL,&axes.axis[1].min,
 			"set minimum x value"},
-		{"-ymax",TCL_ARGV_FLOAT,NULL,&axes.y_axis.max,
+		{"-ymax",TCL_ARGV_FLOAT,NULL,&axes.axis[1].max,
 			"set maximum x value"},
-		{"-xmajor",TCL_ARGV_FLOAT,NULL,&axes.x_axis.inc_major,
+		{"-xmajor",TCL_ARGV_FLOAT,NULL,&axes.axis[0].inc_major,
 			"set x major increment value"},
-		{"-ymajor",TCL_ARGV_FLOAT,NULL,&axes.y_axis.inc_major,
+		{"-ymajor",TCL_ARGV_FLOAT,NULL,&axes.axis[1].inc_major,
 			"set y major increment value"},
-		{"-nxminor",TCL_ARGV_INT,NULL,&axes.x_axis.nminor,
+		{"-nxminor",TCL_ARGV_INT,NULL,&axes.axis[0].nminor,
 			"set number of minor ticks for x axes"},
-		{"-nyminor",TCL_ARGV_INT,NULL,&axes.y_axis.nminor,
+		{"-nyminor",TCL_ARGV_INT,NULL,&axes.axis[1].nminor,
 			"set number of minor ticks for y axes"},
 		{"-xlog",TCL_ARGV_CONSTANT,(void*)1,&xlog, "set x axes as logarithmic"},
 		{"-ylog",TCL_ARGV_CONSTANT,(void*)1,&ylog, "set x axes as logarithmic"},
@@ -126,47 +126,47 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	/* get format strings */
 	if (xfmt!=NULL)
-		strncpy(axes.x_axis.format,xfmt,32);
+		strncpy(axes.axis[0].format,xfmt,32);
 	if (yfmt!=NULL)
-		strncpy(axes.y_axis.format,yfmt,32);
+		strncpy(axes.axis[1].format,yfmt,32);
 
 	if (xlabel!=NULL)
-		strncpy(axes.x_axis.label,xlabel,256);
+		strncpy(axes.axis[0].label,xlabel,256);
 	if (ylabel!=NULL)
-		strncpy(axes.y_axis.label,ylabel,256);
+		strncpy(axes.axis[1].label,ylabel,256);
 
 	/* get option strings*/
 	if(xopt==NULL)
-		strncpy(axes.x_axis.opt,"a",31);
+		strncpy(axes.axis[0].opt,"a",31);
 	else
-		strncpy(axes.x_axis.opt,xopt,31);
+		strncpy(axes.axis[0].opt,xopt,31);
 	if (yopt==NULL)
-		strncpy(axes.y_axis.opt,"a",31);
+		strncpy(axes.axis[1].opt,"a",31);
 	else
-		strncpy(axes.y_axis.opt,xopt,31);
+		strncpy(axes.axis[1].opt,xopt,31);
 
 	
 	/* select log or linear axes */
 	if (xlog) {
-		axes.x_axis.type=AXIS_LOGARITHMIC;
-		if (axes.x_axis.inc_major<=1.0) axes.x_axis.inc_major=10;
+		axes.axis[0].type=AXIS_LOGARITHMIC;
+		if (axes.axis[0].inc_major<=1.0) axes.axis[0].inc_major=10;
 		Tcl_Eval(interp,"puts \"Request for logaritmic x-axis.\n\"");
 	}
 	if (ylog) {
-		axes.y_axis.type=AXIS_LOGARITHMIC;
-		if (axes.y_axis.inc_major<=1.0) axes.y_axis.inc_major=10;
+		axes.axis[1].type=AXIS_LOGARITHMIC;
+		if (axes.axis[1].inc_major<=1.0) axes.axis[1].inc_major=10;
 		Tcl_Eval(interp,"puts \"Request for logaritmic y-axis.\n\"");
 	}
 
 	/*check that xmin<xmax and ymin<ymax*/
-	if((axes.y_axis.min>=axes.y_axis.max)||(axes.x_axis.min>=axes.x_axis.max)) {
+	if((axes.axis[1].min>=axes.axis[1].max)||(axes.axis[0].min>=axes.axis[0].max)) {
 		Tcl_AppendResult(interp,"axes(): Invalid axes limits\n",NULL);
 		return TCL_ERROR;
 	}
 
 	/* check that user isn't requesting too many tick marks */
-	int nmajx=(int)((axes.x_axis.max-axes.x_axis.min)/axes.x_axis.inc_major);
-	int nmajy=(int)((axes.y_axis.max-axes.y_axis.min)/axes.y_axis.inc_major);
+	int nmajx=(int)((axes.axis[0].max-axes.axis[0].min)/axes.axis[0].inc_major);
+	int nmajy=(int)((axes.axis[1].max-axes.axis[1].min)/axes.axis[1].inc_major);
 	if (nmajx>MAXTICKS || nmajy>MAXTICKS) {
 		Tcl_AppendResult(interp,
 				"Too many ticks. Try increasing major tick increment.\n",NULL);

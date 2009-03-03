@@ -39,9 +39,9 @@ int plotpoly(image_t *img, ViewPort_t *viewport,
 	xdata=(double*)malloc(len*sizeof(double));
 	ydata=(double*)malloc(len*sizeof(double));
 
-	xmin=viewport->x_axis.min;
+	xmin=viewport->axis[0].min;
 	/* x scaling from pixels to data */
-	xscale=(viewport->x_axis.max-viewport->x_axis.min)/(img->w*(viewport->xmax-viewport->xmin));
+	xscale=(viewport->axis[0].max-viewport->axis[0].min)/(img->w*(viewport->xmax-viewport->xmin));
   
 	/* generate the data */
 	for (i=0;i<len;i++)

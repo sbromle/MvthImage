@@ -93,16 +93,14 @@ typedef struct AXES_param_s {
 }AXIS_t;
 
 typedef struct ViewPort_s {
-	AXIS_t x_axis;/*x-axis parameters */
-	AXIS_t y_axis;/*y-axis parameters  */
-	AXIS_t z_axis;/*y-axis parameters  */
+	AXIS_t axis[3];/*x-,y-,z-axis parameters */
 	double xmin,xmax; /* fractional size of graph occupied by viewport...*/
 	double ymin,ymax; /* ...typically between 0.0 and 1.0 */
 } ViewPort_t;
 
-#define DEFAULTVIEWPORT {{1,0,0,1,"%lg",AXIS_LINEAR,"",0},\
+#define DEFAULTVIEWPORT {{{1,0,0,1,"%lg",AXIS_LINEAR,"",0},\
 	{1,0,0,1,"%lg","",AXIS_LINEAR,"",0},\
-	{1,0,0,0,"%lg","",AXIS_LINEAR,"",0},\
+	{1,0,0,0,"%lg","",AXIS_LINEAR,"",0}},\
 	0,1,0,1}
 
 #endif

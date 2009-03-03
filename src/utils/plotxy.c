@@ -30,10 +30,10 @@ int plotxy(float *img, int w, int h, int bands,
 	if (x==NULL || y==NULL || len==0 || img==NULL || viewport==NULL) return -1;
 
 
-	xmin=viewport->x_axis.min;
-	ymin=viewport->y_axis.min;
-	xmax=viewport->x_axis.max;
-	ymax=viewport->y_axis.max;
+	xmin=viewport->axis[0].min;
+	ymin=viewport->axis[1].min;
+	xmax=viewport->axis[0].max;
+	ymax=viewport->axis[1].max;
 	xlow=(int)(w*viewport->xmin);
 	xhigh=(int)(w*viewport->xmax);
 	ylow=(int)(h*viewport->ymin);
@@ -94,10 +94,10 @@ int plotxydots(float *img, int w, int h, int bands,
 	int i;
 	if (x==NULL || y==NULL || len==0 || img==NULL || viewport==NULL) return -1;
 
-	xmin=viewport->x_axis.min;
-	ymin=viewport->y_axis.min;
-	xmax=viewport->x_axis.max;
-	ymax=viewport->y_axis.max;
+	xmin=viewport->axis[0].min;
+	ymin=viewport->axis[1].min;
+	xmax=viewport->axis[0].max;
+	ymax=viewport->axis[1].max;
 	xlow=(int)(w*viewport->xmin);
 	xhigh=(int)(w*viewport->xmax);
 	ylow=(int)(h*viewport->ymin);
