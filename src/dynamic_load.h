@@ -5,6 +5,10 @@
 #include <string.h>
 #include <dlfcn.h>
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifndef MVTHIMAGELIB
 #error "MVTHIMAGELIB not defined!"
 /* this should be defined in Makefile.am */

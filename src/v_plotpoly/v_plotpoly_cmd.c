@@ -45,9 +45,9 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	int order=1; /* default to a line plot */
 	double *coefs=NULL; /* coefficients of polynomial */
 	ViewPort_t viewport= {
-		{10,5,0,100,"%6.3lg","",AXIS_LINEAR,"",0}, /* x axes */
+		{{10,5,0,100,"%6.3lg","",AXIS_LINEAR,"",0}, /* x axes */
 		{1.0,5,0,1.0,"%6.3lg","",AXIS_LINEAR,"",0}, /* y axes */
-		{1.0,5,0,1.0,"%6.3lg","",AXIS_LINEAR,"",0}, /* z axes */
+		{1.0,5,0,1.0,"%6.3lg","",AXIS_LINEAR,"",0}}, /* z axes */
 		0.05,0.95, /* x pixel range */
 		0.05,0.95 /* y pixel range */ };
 	Tcl_ArgvInfo argTable[] = {
@@ -63,13 +63,13 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 			"bottom image coordinate of viewport"},
 		{"-jhigh",TCL_ARGV_FLOAT,NULL,&viewport.ymax,
 			"top image coordinate of viewport"},
-		{"-xlow",TCL_ARGV_FLOAT,NULL,&viewport.x_axis.min,
+		{"-xlow",TCL_ARGV_FLOAT,NULL,&viewport.axis[0].min,
 			"left data coordinate of viewport"},
-		{"-xhigh",TCL_ARGV_FLOAT,NULL,&viewport.x_axis.max,
+		{"-xhigh",TCL_ARGV_FLOAT,NULL,&viewport.axis[0].max,
 			"right data coordinate of viewport"},
-		{"-ylow",TCL_ARGV_FLOAT,NULL,&(viewport.y_axis.min),
+		{"-ylow",TCL_ARGV_FLOAT,NULL,&(viewport.axis[1].min),
 			"bottom data coordinate of viewport"},
-		{"-yhigh",TCL_ARGV_FLOAT,NULL,&(viewport.y_axis.max),
+		{"-yhigh",TCL_ARGV_FLOAT,NULL,&(viewport.axis[1].max),
 			"top data coordinate of viewport"},
 		TCL_ARGV_AUTO_HELP,
 		TCL_ARGV_TABLE_END

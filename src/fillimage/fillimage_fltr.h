@@ -21,5 +21,6 @@
 
 extern void fillimage_fltr0(ImageBlock *b, float rgba[4]);
 extern void fillimage_fltr(image_t *img,float val[4]);
+extern void fillimage_vp_fltr(image_t *img,float val[4],ViewPort_t viewport);
 
 #endif

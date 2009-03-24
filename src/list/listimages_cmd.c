@@ -9,6 +9,9 @@
  * the GNU GPL. See the file COPYING in the top level directory of
  * the MVTH archive for details.
  */
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

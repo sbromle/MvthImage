@@ -25,13 +25,13 @@ image_t *readimage(char *filename)
 	ILuint imageid;
 	/* library functions that we will look up dynamically */
 	ILint (*dlilGetInteger)(ILenum);
-	ILvoid (*dlilInit)(ILvoid);
-	ILvoid (*dlilShutDown)(ILvoid);
-	ILvoid (*dlilBindImage)(ILuint imageid);
+	void (*dlilInit)(void);
+	void (*dlilShutDown)(void);
+	void (*dlilBindImage)(ILuint imageid);
 	ILboolean (*dlilGenImages)(ILsizei,ILuint *imageid);
 	ILboolean (*dlilLoadImage)(char *filename);
-	ILvoid (*dlilDeleteImages)(ILsizei,const ILuint *);
-	ILvoid (*dlilCopyPixels)(
+	void (*dlilDeleteImages)(ILsizei,const ILuint *);
+	void (*dlilCopyPixels)(
 			ILuint Xoff,
 			ILuint Yoff,
 			ILuint Zoff,
@@ -40,7 +40,7 @@ image_t *readimage(char *filename)
 			ILuint Depth,
 			ILenum Format,
 			ILenum Type,
-			ILvoid *Data);
+			void *Data);
 
 	dlerror(); /* clear any old errors in dynamic library loading */
 	/* get the library handle */

@@ -98,27 +98,27 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 	if (img==NULL || img->data==NULL || viewport==NULL) return -1;
 
 	/* get local aliases for x and y labels */
-	strncpy(xlabel,viewport->x_axis.label,256);
-	strncpy(ylabel,viewport->y_axis.label,256);
+	strncpy(xlabel,viewport->axis[0].label,256);
+	strncpy(ylabel,viewport->axis[1].label,256);
 
 	/* get local aliases for size of each axis */
-	strncpy(xformat,viewport->x_axis.format,32);
-	strncpy(yformat,viewport->y_axis.format,32);
-	xmin=viewport->x_axis.min;
-	xmax=viewport->x_axis.max;
-	xinc=viewport->x_axis.inc_major;
+	strncpy(xformat,viewport->axis[0].format,32);
+	strncpy(yformat,viewport->axis[1].format,32);
+	xmin=viewport->axis[0].min;
+	xmax=viewport->axis[0].max;
+	xinc=viewport->axis[0].inc_major;
 	nmajx = (xmax-xmin)/xinc; /* get the number of major ticks */
-	ymin=viewport->y_axis.min;
-	ymax=viewport->y_axis.max;
-	yinc=viewport->y_axis.inc_major;
+	ymin=viewport->axis[1].min;
+	ymax=viewport->axis[1].max;
+	yinc=viewport->axis[1].inc_major;
 	nmajy = (ymax-ymin)/yinc; /* get the number of major ticks */
 
 	if (nmajx<=0) nmajx=1;
 	if (nmajy<=0) nmajy=1;
 
 	/* get local aliases for number of minor tick marks */
-	nsubx = viewport->x_axis.nminor;
-	nsuby = viewport->y_axis.nminor;
+	nsubx = viewport->axis[0].nminor;
+	nsuby = viewport->axis[1].nminor;
 
 	w=img->w;
 	h=img->h;
@@ -142,11 +142,11 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 	DRAWLINE(ixhigh, h-1-iylow , ixlow , h-1-iylow ); /* bottom */
 
 	/* determine the scaling from data to image coordinates */
-	if (viewport->x_axis.type==AXIS_LOGARITHMIC)
+	if (viewport->axis[0].type==AXIS_LOGARITHMIC)
 		scalex = (double)(ixhigh-ixlow)/(log10(xmax)-log10(xmin));
 	else
 		scalex = (double)(ixhigh-ixlow)/(xmax-xmin);
-	if (viewport->y_axis.type==AXIS_LOGARITHMIC)
+	if (viewport->axis[1].type==AXIS_LOGARITHMIC)
 		scaley = (double)(iyhigh-iylow)/(log10(ymax)-log10(ymin));
 	else
 		scaley = (double)(iyhigh-iylow)/(ymax-ymin);
@@ -217,7 +217,7 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 		free(mask);
 		strImg = NULL;
 	}
-	switch (viewport->x_axis.type)
+	switch (viewport->axis[0].type)
 	{
 		case AXIS_LINEAR:
 			xx=xinc/(nsubx+1);
@@ -327,7 +327,7 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 		free(mask);
 		strImg = NULL;
 	}
-	switch (viewport->y_axis.type)
+	switch (viewport->axis[1].type)
 	{
 		case AXIS_LINEAR:
 			for (ytmp=ymin;ytmp<=ymax;ytmp+=yinc) {

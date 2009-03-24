@@ -33,13 +33,13 @@ int writeimage(float *img,int w,int h,int bands,int bpc,char *filename)
 	/* library functions that we will look up dynamically */
 	ILint (*dlilGetInteger)(ILenum);
 	ILboolean (*dliluGetInteger)(ILenum);
-	ILvoid (*dlilSetInteger)(ILenum,ILint);
-	ILvoid (*dlilInit)(ILvoid);
-	ILvoid (*dlilBindImage)(ILuint imageid);
+	void (*dlilSetInteger)(ILenum,ILint);
+	void (*dlilInit)(void);
+	void (*dlilBindImage)(ILuint imageid);
 	ILboolean (*dlilOriginFunc)(ILenum Mode);
 	ILboolean (*dlilGenImages)(ILsizei,ILuint *imageid);
 	ILboolean (*dlilSaveImage)(char *filename);
-	ILvoid (*dlilDeleteImages)(ILsizei,const ILuint *);
+	void (*dlilDeleteImages)(ILsizei,const ILuint *);
 	ILboolean (*dlilTexImage)(
 			ILuint Width,
 			ILuint Height,
@@ -47,10 +47,10 @@ int writeimage(float *img,int w,int h,int bands,int bpc,char *filename)
 			ILubyte Bpp,
 			ILenum Format,
 			ILenum Type,
-			ILvoid *Data);
+			void *Data);
 	/* ILU library functions */
-	ILvoid (*dliluInit)(ILvoid);
-	ILboolean (*dliluFlipImage)(ILvoid);
+	void (*dliluInit)(void);
+	ILboolean (*dliluFlipImage)(void);
 
 	if (bpc!=1 && bpc!=2 && bpc!=4) {
 		fprintf(stderr,"writeimage: bpc must be 1, 2, or 4.\n");
