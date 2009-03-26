@@ -205,7 +205,7 @@ static void blit_data_to_image(
 {
 	double workspace;
 	blit_data_to_image_expert(pixels,iw,ih,bands,pitch,
-			(unsigned char*)data,dw,dh,sizeof(double),dpitch,
+			(unsigned char*)data,dw,dh,sizeof(double),dpitch*sizeof(double),
 			(unsigned char*)&vmin,(unsigned char*)&vmax,
 			flags,
 			default_colorSpace,(InterpDataFunc)default_interp,NULL,
@@ -248,7 +248,7 @@ int plot_imagescale_vLLL(
 	ymin=(y0>yd0?y0:yd0);
 	xmax=(x1>xd1?xd1:x1);
 	ymax=(y1>yd1?yd1:y1);
-#if DEBUG
+#ifdef DEBUG
 	fprintf(stderr,"Intersecting region : (%lg,%lg) -> (%lg,%lg)\n",
 			xmin,ymin,xmax,ymax);
 #endif
@@ -267,7 +267,7 @@ int plot_imagescale_vLLL(
 	jd0=(int)((ymin-yd0)*dh/(yd1-yd0)-wiggle);
 	jd1=(int)((ymax-yd0)*dh/(yd1-yd0)-wiggle);
 
-#if DEBUG
+#ifdef DEBUG
 	fprintf(stderr,"Image region: (%d,%d) -> (%d,%d)\n", i0,j0,i1,j1);
 	/* fix up the offsets so we can pass it to blit_data_to_image */
 	fprintf(stderr,"Data  region: (%d,%d) -> (%d,%d)\n", id0,jd0,id1,jd1);
