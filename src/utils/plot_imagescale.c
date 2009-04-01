@@ -243,9 +243,9 @@ int plot_imagescale_vLLL(
 	/* is the intersection the empty set? */
 	if (x0>xd1 || x1<xd0 || y0>yd1 || y1<yd0)
 	{
-		fprintf(stderr,"Data completely outside of viewport\n");
-		fprintf(stderr,"Viewport: (%lg,%lg) -> (%lg,%lg)\n",x0,y0,x1,y1);
-		fprintf(stderr,"Data: (%lg,%lg) -> (%lg,%lg)\n",xd0,yd0,xd1,yd1);
+		fprintf(stderr,"Data completely outside of viewport!\n");
+		fprintf(stderr,"Viewport: (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",x0,y0,x1,y1);
+		fprintf(stderr,"Data:     (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xd0,yd0,xd1,yd1);
 		return 0;
 	}
 
@@ -339,9 +339,9 @@ int plot_imagescale_expert(
 	/* is the intersection the empty set? */
 	if (x0>xd1 || x1<xd0 || y0>yd1 || y1<yd0)
 	{
-		fprintf(stderr,"Data completely outside of viewport\n");
-		fprintf(stderr,"Viewport: (%lg,%lg) -> (%lg,%lg)\n",x0,y0,x1,y1);
-		fprintf(stderr,"Data: (%lg,%lg) -> (%lg,%lg)\n",xd0,yd0,xd1,yd1);
+		fprintf(stderr,"Data completely outside of viewport!\n");
+		fprintf(stderr,"Viewport: (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",x0,y0,x1,y1);
+		fprintf(stderr,"Data:     (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xd0,yd0,xd1,yd1);
 		return 0;
 	}
 
