@@ -370,15 +370,16 @@ int plot_imagescale_expert(
 
 
 	/* get the minimum and maximum pixel coords within the image; */
-	i0=(xmin-x0)/(x1-x0)*w;
-	i1=(xmax-x0)/(x1-x0)*w;
-	j0=(ymin-y0)/(y1-y0)*h;
-	j1=(ymax-y0)/(y1-y0)*h;
+	double wiggle=0.00001;
+	i0=(int)((xmin-x0)/(x1-x0)*w-wiggle);
+	i1=(int)((xmax-x0)/(x1-x0)*w-wiggle);
+	j0=(int)((ymin-y0)/(y1-y0)*h-wiggle);
+	j1=(int)((ymax-y0)/(y1-y0)*h-wiggle);
 	/* get the minimum and maximum pixel coords within the data; */
-	id0=(xmin-xd0)/(xd1-xd0)*dw;
-	id1=(xmax-xd0)/(xd1-xd0)*dw;
-	jd0=(ymin-yd0)/(yd1-yd0)*dh;
-	jd1=(ymax-yd0)/(yd1-yd0)*dh;
+	id0=(int)((xmin-xd0)/(xd1-xd0)*dw-wiggle);
+	id1=(int)((xmax-xd0)/(xd1-xd0)*dw-wiggle);
+	jd0=(int)((ymin-yd0)/(yd1-yd0)*dh-wiggle);
+	jd1=(int)((ymax-yd0)/(yd1-yd0)*dh-wiggle);
 
 #define DEBUG
 #ifdef DEBUG
@@ -389,17 +390,17 @@ int plot_imagescale_expert(
 #endif
 #undef DEBUG
 
-	/* re-order the image pixel coords for easy looping */
-	int tmp;
-	if (i0>i1) { tmp=i0;i0=i1;i1=tmp;}
-	if (j0>j1) { tmp=j0;j0=j1;j1=tmp;}
+	/* get positively increasing image pixel coords for easy looping */
+	int ii0,ii1,jj0,jj1;
+	if (i0>i1) { ii0=i1; ii1=i0;} else { ii0=i0; ii1=i1;};
+	if (j0>j1) { jj0=j1; jj1=j0;} else { jj0=j0; jj1=j1;};
 
-	if (i0<0 || j0<0) {
-		fprintf(stderr,"Some error has occurred. i0=%d j0=%d\n",i0,j0);
+	if (ii0<0 || jj0<0) {
+		fprintf(stderr,"Some error has occurred. ii0=%d jj0=%d\n",ii0,jj0);
 		return 0;
 	}
-	if (i1>=w) i1=w-1;
-	if (j1>=h) j1=h-1;
+	if (ii1>=w) ii1=w-1;
+	if (jj1>=h) jj1=h-1;
 
 	int bflags=PFLAG_LANDSCAPE;
 	if (flags&PFLAG_NOBILINEAR) bflags|=PFLAG_NOBILINEAR;
@@ -407,7 +408,7 @@ int plot_imagescale_expert(
 	if (flags&PFLAG_CLIP) bflags|=PFLAG_CLIP;
 
 	float colour;
-	for (j=j0;j<=j1;j++) {
+	for (j=jj0;j<=jj1;j++) {
 		double jw;
 		double dj;
 		/* map from image coords to world coords */
@@ -429,8 +430,8 @@ int plot_imagescale_expert(
 			/* convert data to another form if dataConvFunc not NULL */
 			if (dataConvFunc!=NULL && dataConvFunc(ws,NULL,ws)!=0) continue;
 
-			colour=colorSpace(ws,vmin,vmax,bands,bflags,&pixels[j*pitch+i*bands]);
-			if (bands==4) pixels[j*pitch+i*bands+3]=0;
+			colour=colorSpace(ws,vmin,vmax,bands,bflags,&pixels[(h-1-j)*pitch+i*bands]);
+			if (bands==4) pixels[(h-1-j)*pitch+i*bands+3]=0;
 		}
 	}
 	return 1;
