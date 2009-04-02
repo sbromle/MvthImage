@@ -306,6 +306,26 @@ int plot_imagescale_vLLL(
 	return 1;
 }
 
+static int get_intersection(double x0, double y0, double x1, double y1,
+		double xd0, double yd0, double xd1, double yd1,
+		double *xmin, double *ymin, double *xmax, double *ymax)
+{
+	double tmp;
+	if (x0>x1) { tmp=x0;x0=x1;x1=tmp;}
+	if (y0>y1) { tmp=y0;y0=y1;y1=tmp;}
+	if (xd0>xd1) { tmp=xd0;xd0=xd1;xd1=tmp;}
+	if (yd0>yd1) { tmp=yd0;yd0=yd1;yd1=tmp;}
+	
+
+	if (x0>xd1 || xd0>x1 || y0>yd1 || yd0>y1) return 0; /* no intersection */
+
+	*xmin=(x0<xd0?xd0:x0);
+	*xmax=(x1>xd1?xd1:x1);
+	*ymin=(y0<yd0?yd0:y0);
+	*ymax=(y1>yd1?yd1:y1);
+	return 1;
+}
+
 /* Like plot_imagescale_vLLL but uses blit_data_to_image_expert,
  * and thus allows multi-channel data with multiple coloring
  * functions */
@@ -334,76 +354,85 @@ int plot_imagescale_expert(
 	 * two regions.*/
 	double xmin, ymin, xmax, ymax;
 	int i0,i1,j0,j1;
+	int i,j;
 	int id0,id1,jd0,jd1;
 
-	/* is the intersection the empty set? */
-	if (x0>xd1 || x1<xd0 || y0>yd1 || y1<yd0)
+	if (get_intersection(x0,y0,x1,y1,xd0,yd0,xd1,yd1,&xmin,&ymin,&xmax,&ymax)!=1)
 	{
-		fprintf(stderr,"Data completely outside of viewport!\n");
+		fprintf(stderr,"!Data completely outside of viewport!\n");
 		fprintf(stderr,"Viewport: (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",x0,y0,x1,y1);
 		fprintf(stderr,"Data:     (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xd0,yd0,xd1,yd1);
 		return 0;
 	}
+	fprintf(stderr,"Viewport: (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",x0,y0,x1,y1);
+	fprintf(stderr,"Data:     (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xd0,yd0,xd1,yd1);
+	fprintf(stderr,"Intersept:(%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xmin,ymin,xmax,ymax);
 
-	/* find the intersecting region */
-	xmin=(x0>xd0?x0:xd0);
-	ymin=(y0>yd0?y0:yd0);
-	xmax=(x1>xd1?xd1:x1);
-	ymax=(y1>yd1?yd1:y1);
-#if DEBUG
-	fprintf(stderr,"Intersecting region : (%lg,%lg) -> (%lg,%lg)\n",
-			xmin,ymin,xmax,ymax);
-#endif
 
-	/* ok, so intersecting region is bounded by (xmin,ymin) to (xmax, ymax).
-	 * What does this correspond to in pixel coords? */
+	/* get the minimum and maximum pixel coords within the image; */
+	i0=(xmin-x0)/(x1-x0)*w;
+	i1=(xmax-x0)/(x1-x0)*w;
+	j0=(ymin-y0)/(y1-y0)*h;
+	j1=(ymax-y0)/(y1-y0)*h;
+	/* get the minimum and maximum pixel coords within the data; */
+	id0=(xmin-xd0)/(xd1-xd0)*dw;
+	id1=(xmax-xd0)/(xd1-xd0)*dw;
+	jd0=(ymin-yd0)/(yd1-yd0)*dh;
+	jd1=(ymax-yd0)/(yd1-yd0)*dh;
 
-	double wiggle=0.000001;
-	i0=(int)((xmin-x0)*w/(x1-x0)-wiggle);
-	i1=(int)((xmax-x0)*w/(x1-x0)-wiggle);
-	j0=(int)((ymin-y0)*h/(y1-y0)-wiggle);
-	j1=(int)((ymax-y0)*h/(y1-y0)-wiggle);
-
-	id0=(int)((xmin-xd0)*dw/(xd1-xd0)-wiggle);
-	id1=(int)((xmax-xd0)*dw/(xd1-xd0)-wiggle);
-	jd0=(int)((ymin-yd0)*dh/(yd1-yd0)-wiggle);
-	jd1=(int)((ymax-yd0)*dh/(yd1-yd0)-wiggle);
-
-#if DEBUG
+#define DEBUG
+#ifdef DEBUG
 	fprintf(stderr,"Image region: (%d,%d) -> (%d,%d)\n", i0,j0,i1,j1);
 	/* fix up the offsets so we can pass it to blit_data_to_image */
 	fprintf(stderr,"Data  region: (%d,%d) -> (%d,%d)\n", id0,jd0,id1,jd1);
 	fprintf(stderr,"Image dim was %dx%d, now %dx%d\n",w,h,i1-i0+1,j1-j0+1);
 #endif
+#undef DEBUG
 
-	pixels+=i0*bands+(h-1-j1)*pitch;
-	w=(i1-i0)+1;
-	h=(j1-j0)+1;
-	data+=id0*dsize+jd0*dpitch;
-	dw=(id1-id0)+1;
-	dh=(jd1-jd0)+1;
+	/* re-order the image pixel coords for easy looping */
+	int tmp;
+	if (i0>i1) { tmp=i0;i0=i1;i1=tmp;}
+	if (j0>j1) { tmp=j0;j0=j1;j1=tmp;}
 
-	/* and plot it */
+	if (i0<0 || j0<0) {
+		fprintf(stderr,"Some error has occurred. i0=%d j0=%d\n",i0,j0);
+		return 0;
+	}
+	if (i1>=w) i1=w-1;
+	if (j1>=h) j1=h-1;
+
 	int bflags=PFLAG_LANDSCAPE;
 	if (flags&PFLAG_NOBILINEAR) bflags|=PFLAG_NOBILINEAR;
 	if (flags&PFLAG_GRAYSCALE) bflags|=PFLAG_GRAYSCALE;
 	if (flags&PFLAG_CLIP) bflags|=PFLAG_CLIP;
 
-	blit_data_to_image_expert(
-		pixels, /* start of image region to draw to */
-		w, h,        /* width of region to draw to */
-		bands,             /* number of colours in image */
-		pitch,             /* distance to next row in image */
-		data,          /* pointer to data */
-		dw,dh,        /* width and height of data region to be drawn */
-		dsize,
-		dpitch,            /* distance to next row in data */
-		vmin,vmax,     /* range to scale values for colouring */
-		bflags,
-		colorSpace,
-		interpDatum,
-		dataConvFunc,
-		ws);
+	float colour;
+	for (j=j0;j<=j1;j++) {
+		double jw;
+		double dj;
+		/* map from image coords to world coords */
+		jw=j*(y1-y0)/(h-1)+y0;
+		/* map from world coords to data coords */
+		dj=(jw-yd0)/(yd1-yd0)*dh;
+		if (dj<0 || dj>dh-1) continue;
+		for (i=i0;i<=i1;i++) {
+			double iw;
+			double di;
+			/* map from image coords to world coords */
+			iw=i*(x1-x0)/(w-1)+x0;
+			/* map from world coords to data coords */
+			di=(iw-xd0)/(xd1-xd0)*dw;
+			if (di<0 || di>dw-1) continue;
+
+			if (interpDatum(data,dw,dh,dsize,dpitch,di,dj,bflags, ws)!=0)
+				continue;
+			/* convert data to another form if dataConvFunc not NULL */
+			if (dataConvFunc!=NULL && dataConvFunc(ws,NULL,ws)!=0) continue;
+
+			colour=colorSpace(ws,vmin,vmax,bands,bflags,&pixels[j*pitch+i*bands]);
+			if (bands==4) pixels[j*pitch+i*bands+3]=0;
+		}
+	}
 	return 1;
 }
 
