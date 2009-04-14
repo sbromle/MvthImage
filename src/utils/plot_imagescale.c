@@ -263,22 +263,27 @@ int plot_imagescale_expert(
 	if (flags&PFLAG_GRAYSCALE) bflags|=PFLAG_GRAYSCALE;
 	if (flags&PFLAG_CLIP) bflags|=PFLAG_CLIP;
 
+	double yscale1=(y1-y0)/(double)(h-1);
+	double xscale1=(x1-x0)/(double)(w-1);
+	double xscale2=dw/(double)(xd1-xd0);
+	double yscale2=dh/(double)(yd1-yd0);
 	float colour;
 	for (j=jj0;j<=jj1;j++) {
 		double jw;
 		double dj;
 		/* map from image coords to world coords */
-		jw=j*(y1-y0)/(h-1)+y0;
+		jw=(j+0.5)*yscale1+y0; /* extra 0.5 pixels since data not cell-centred*/
 		/* map from world coords to data coords */
-		dj=(jw-yd0)/(yd1-yd0)*dh;
+		dj=(jw-yd0)*yscale2;
 		if (dj<0 || dj>dh-1) continue;
 		for (i=i0;i<=i1;i++) {
 			double iw;
 			double di;
 			/* map from image coords to world coords */
-			iw=i*(x1-x0)/(w-1)+x0;
+			/* extra 0.5 pixels since data not cell-centred*/
+			iw=(i+0.5)*xscale1+x0;
 			/* map from world coords to data coords */
-			di=(iw-xd0)/(xd1-xd0)*dw;
+			di=(iw-xd0)*xscale2;
 			if (di<0 || di>dw-1) continue;
 
 			if (interpDatum(data,dw,dh,dsize,dpitch,di,dj,bflags, ws)!=0)
