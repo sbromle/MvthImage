@@ -117,22 +117,16 @@ static int default_colorSpace(void *datum, void *vmin_in, void *vmax_in,
 	{
 		c[0]=vscale*v+voffset;
 		if (flags&PFLAG_CLIP && (v<vmin || v>vmax)) 
-		{
-			if (v<vmin) c[0]=1.0/255.0;
-			else c[0]=1.0;
-		}
+			c[0]=1.0/255.0;
 		if (c[0]<=0) c[0]=1.0/255.0;
 		else if (c[0]>1.0) c[0]=1.0;
 		//c[0]=log10(100*c[0]+1)/log10(101);/* humans percive log grayscale as linear */
 		c[0]=c[0]*c[0];/* humans percive log grayscale as linear */
 	} else {
 		if (flags&PFLAG_CLIP && (v<vmin || v>vmax))
-		{
-			if (v<vmin) for (k=0;k<bands;k++) c[k]=1.0/255.0;
-			else for (k=0;k<bands;k++) c[k]=1.0;
-		} else {
+			for (k=0;k<bands;k++) c[k]=1.0/255.0;
+		else
 			getJetRGB(v,vmin,vmax,c);
-		}
 	}
 
 	for (k=0;k<bands;k++) rgba[k]=c[k];
@@ -158,7 +152,7 @@ int plot_imagescale_vLLL(
 	double workspace;
 	return plot_imagescale_expert(pixels,w,h,bands,pitch,x0,y0,x1,y1,
 			(unsigned char *)data,dw,dh,sizeof(double),dpitch*sizeof(double),
-			xd0,yd0,xd1,yd0, &vmin,&vmax,flags,default_colorSpace,
+			xd0,yd0,xd1,yd1,&vmin,&vmax,flags,default_colorSpace,
 			default_interp,NULL,&workspace);
 	return 1;
 }
