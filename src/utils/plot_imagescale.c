@@ -152,7 +152,7 @@ int plot_imagescale_vLLL(
 	double workspace;
 	return plot_imagescale_expert(pixels,w,h,bands,pitch,x0,y0,x1,y1,
 			(unsigned char *)data,dw,dh,sizeof(double),dpitch*sizeof(double),
-			xd0,yd0,xd1,yd0, &vmin,&vmax,flags,default_colorSpace,
+			xd0,yd0,xd1,yd1,&vmin,&vmax,flags,default_colorSpace,
 			default_interp,NULL,&workspace);
 	return 1;
 }
