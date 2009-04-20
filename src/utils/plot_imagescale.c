@@ -227,12 +227,13 @@ int plot_imagescale_expert(
 
 
 	/* get the minimum and maximum pixel coords within the image; */
-	double wiggle=0.00001;
+	double wiggle=0.5; /* image is cell-centred */
 	i0=(int)((xmin-x0)/(x1-x0)*w-wiggle);
 	i1=(int)((xmax-x0)/(x1-x0)*w-wiggle);
 	j0=(int)((ymin-y0)/(y1-y0)*h-wiggle);
 	j1=(int)((ymax-y0)/(y1-y0)*h-wiggle);
 	/* get the minimum and maximum pixel coords within the data; */
+	wiggle=0; /* data is point centred */
 	id0=(int)((xmin-xd0)/(xd1-xd0)*dw-wiggle);
 	id1=(int)((xmax-xd0)/(xd1-xd0)*dw-wiggle);
 	jd0=(int)((ymin-yd0)/(yd1-yd0)*dh-wiggle);
@@ -250,6 +251,9 @@ int plot_imagescale_expert(
 	int ii0,ii1,jj0,jj1;
 	if (i0>i1) { ii0=i1; ii1=i0;} else { ii0=i0; ii1=i1;};
 	if (j0>j1) { jj0=j1; jj1=j0;} else { jj0=j0; jj1=j1;};
+
+	if (ii0<0) ii0=0;
+	if (jj0<0) jj0=0;
 
 	if (ii0<0 || jj0<0) {
 		fprintf(stderr,"Some error has occurred. ii0=%d jj0=%d\n",ii0,jj0);
