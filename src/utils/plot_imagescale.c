@@ -206,37 +206,38 @@ int plot_imagescale_expert(
 	double xmin, ymin, xmax, ymax;
 	int i0,i1,j0,j1;
 	int i,j;
-	int id0,id1,jd0,jd1;
 
 	if (get_intersection(x0,y0,x1,y1,xd0,yd0,xd1,yd1,&xmin,&ymin,&xmax,&ymax)!=1)
 	{
 		fprintf(stderr,"!Data completely outside of viewport!\n");
-		fprintf(stderr,"Viewport: (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",x0,y0,x1,y1);
-		fprintf(stderr,"Data:     (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xd0,yd0,xd1,yd1);
+		fprintf(stderr,"Viewport: x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",x0,x1,y0,y1);
+		fprintf(stderr,"Data:     (%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xd0,xd1,yd0,yd1);
 		return 0;
 	}
-	fprintf(stderr,"Viewport: (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",x0,y0,x1,y1);
-	fprintf(stderr,"Data:     (%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xd0,yd0,xd1,yd1);
-	fprintf(stderr,"Intersept:(%15.12lg,%15.12lg) -> (%15.12lg,%15.12lg)\n",xmin,ymin,xmax,ymax);
+	fprintf(stderr,"Viewport: x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",x0,x1,y0,y1);
+	fprintf(stderr,"Data:     x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xd0,xd1,yd0,yd1);
+	fprintf(stderr,"Intersept:x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xmin,xmax,ymin,ymax);
 
 
 	/* get the minimum and maximum pixel coords within the image; */
-	double wiggle=0.5; /* image is cell-centred */
-	i0=(int)((xmin-x0)/(x1-x0)*w-wiggle);
-	i1=(int)((xmax-x0)/(x1-x0)*w-wiggle);
-	j0=(int)((ymin-y0)/(y1-y0)*h-wiggle);
-	j1=(int)((ymax-y0)/(y1-y0)*h-wiggle);
-	/* get the minimum and maximum pixel coords within the data; */
-	wiggle=0; /* data is point centred */
-	id0=(int)((xmin-xd0)/(xd1-xd0)*dw-wiggle);
-	id1=(int)((xmax-xd0)/(xd1-xd0)*dw-wiggle);
-	jd0=(int)((ymin-yd0)/(yd1-yd0)*dh-wiggle);
-	jd1=(int)((ymax-yd0)/(yd1-yd0)*dh-wiggle);
+	double wiggle=0.0; /* image is cell-centred */
+	i0=(int)((xmin-x0)/(x1-x0)*w+wiggle);
+	i1=(int)((xmax-x0)/(x1-x0)*w+wiggle);
+	j0=(int)((ymin-y0)/(y1-y0)*h+wiggle);
+	j1=(int)((ymax-y0)/(y1-y0)*h+wiggle);
 
 #define DEBUG
 #ifdef DEBUG
-	fprintf(stderr,"Image region: (%d,%d) -> (%d,%d)\n", i0,j0,i1,j1);
-	fprintf(stderr,"Data  region: (%d,%d) -> (%d,%d)\n", id0,jd0,id1,jd1);
+	int id0,id1,jd0,jd1;
+	/* get the minimum and maximum pixel coords within the data; */
+	wiggle=0.5; /* data is point centred */
+	id0=(int)((xmin-xd0)/(xd1-xd0)*dw+wiggle);
+	id1=(int)((xmax-xd0)/(xd1-xd0)*dw+wiggle);
+	jd0=(int)((ymin-yd0)/(yd1-yd0)*dh+wiggle);
+	jd1=(int)((ymax-yd0)/(yd1-yd0)*dh+wiggle);
+	fprintf(stderr,"Image region: x(%d,%d)  y(%d,%d)\n", i0,i1,j0,j1);
+	fprintf(stderr,"Data  region: x(%d,%d)  y(%d,%d)\n", id0,id1,jd0,jd1);
+	fprintf(stderr,"Data dim was %dx%d, now %dx%d\n",dw,dh,id1-id0+1,jd1-jd0+1);
 	fprintf(stderr,"Image dim was %dx%d, now %dx%d\n",w,h,i1-i0+1,j1-j0+1);
 #endif
 #undef DEBUG
@@ -261,20 +262,22 @@ int plot_imagescale_expert(
 	if (flags&PFLAG_GRAYSCALE) bflags|=PFLAG_GRAYSCALE;
 	if (flags&PFLAG_CLIP) bflags|=PFLAG_CLIP;
 
-	double yscale1=(y1-y0)/(double)(h-1);
-	double xscale1=(x1-x0)/(double)(w-1);
-	double xscale2=dw/(double)(xd1-xd0);
-	double yscale2=dh/(double)(yd1-yd0);
+	double yscale1=(y1-y0)/(double)h; /* yes,divide by h not h-1 (cell centred) */
+	double xscale1=(x1-x0)/(double)w; /* yes, divide by w not w-1 (cell centred) */
+	double xscale2=(dw-1)/(double)(xd1-xd0); /* yes dw-1 not dw (point-centred)*/
+	double yscale2=(dh-1)/(double)(yd1-yd0);
 	float colour;
-	for (j=jj0;j<=jj1;j++) {
+	//for (j=jj0;j<=jj1;j++) {
+	for (j=0;j<h;j++) {
 		double jw;
 		double dj;
 		/* map from image coords to world coords */
 		jw=(j+0.5)*yscale1+y0; /* extra 0.5 pixels since data not cell-centred*/
 		/* map from world coords to data coords */
 		dj=(jw-yd0)*yscale2;
-		if (dj<0 || dj>dh-1) continue;
-		for (i=i0;i<=i1;i++) {
+		//if (dj<0 || dj>dh-1) continue;
+		//for (i=i0;i<=i1;i++) {
+		for (i=0;i<w;i++) {
 			double iw;
 			double di;
 			/* map from image coords to world coords */
@@ -282,7 +285,7 @@ int plot_imagescale_expert(
 			iw=(i+0.5)*xscale1+x0;
 			/* map from world coords to data coords */
 			di=(iw-xd0)*xscale2;
-			if (di<0 || di>dw-1) continue;
+			//if (di<0 || di>dw-1) continue;
 
 			if (interpDatum(data,dw,dh,dsize,dpitch,di,dj,bflags, ws)!=0)
 				continue;
