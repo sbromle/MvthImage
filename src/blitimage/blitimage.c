@@ -1,3 +1,20 @@
+/* 
+ * This file is part of MVTH - the Machine Vision Test Harness.
+ * 
+ * MVTH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License Version 3,
+ * as published by the Free Software Foundation.
+ * 
+ * MVTH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * (see the file named "COPYING), and a copy of the GNU Lesser General
+ * Public License (see the file named "COPYING.LESSER") along with MVTH.
+ * If not, see  <http://www.gnu.org/licenses/>.
+ */
 #if HAVE_CONFIG_H
 #  include <config.h>
 #endif
