@@ -29,7 +29,7 @@ extern int print_image_t(FILE *fp, image_t *img);
 extern int sprint_image_t(char *buff, image_t *img);
 /* functions to read and write an image */
 extern image_t * readimage(char *filename);
-extern int writeimage(float *img,int w,int h,int bands,char *filename);
+extern int writeimage(float *img,int w,int h,int bands,int bpc, char *filename);
 
 extern double **getRadialMap(int theta,int rlen,int W,int H,int ycenter);
 extern double **getUnitMapping(int w, int h, R3Dmatrix_t rm);
