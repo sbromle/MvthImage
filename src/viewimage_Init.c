@@ -5,9 +5,22 @@
  *
  * Copyright (C) 2006 Samuel P. Bromley <sam@sambromley.com>
  *
- * This code is licensed under the terms and conditions of
- * the GNU GPL. See the file COPYING in the top level directory of
- * the MVTH archive for details.
+ * This file is part of MVTH - the Machine Vision Test Harness.
+ *
+ * MVTH is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License Version 3,
+ * as published by the Free Software Foundation.
+ *
+ * MVTH is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (see the file named "COPYING"), and a copy of the GNU Lesser General
+ * Public License (see the file named "COPYING.LESSER") along with MVTH.
+ * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 #if HAVE_CONFIG_H
 #  include <config.h>
@@ -52,6 +65,13 @@ int Viewimage_Init(Tcl_Interp *interp) {
 	snprintf(buff,sizeof(buff),"%s/viewimage.tcl",TCLSCRIPTDIR);
 	fprintf(stdout,"viewimage.tcl should be located at: %s\n",buff);
 	Tcl_EvalFile(interp,buff);
+	Tcl_VarEval(interp,
+			"puts stdout {viewimage Copyright (C) 2009 Sam Bromley};",
+			"puts stdout {This software comes with ABSOLUTELY NO WARRANTY.};",
+			"puts stdout {This is free software, and you are welcome to};",
+			"puts stdout {redistribute it under certain conditions.};",
+			"puts stdout {For details, see the GNU Lesser Public License V.3 <http://www.gnu.org/licenses>.};",
+			NULL);
 	/* Declare that we provide the buriedtargets package */
 	Tcl_PkgProvide(interp,"viewimage","1.0");
 	return TCL_OK;

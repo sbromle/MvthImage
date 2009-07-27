@@ -2,20 +2,23 @@
 ** This file is part of MVTH (Machine Vision Test Harness).
 **
 ** Copyright (c) 2004 Samuel P. Bromley <sam@sambromley.com>
-** 
-** MVTH is free software; you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 2 of the License, or
-** (at your option) any later version.
-** 
+**
+** This file is part of MVTH - the Machine Vision Test Harness.
+**
+** MVTH is free software: you can redistribute it and/or modify
+** it under the terms of the GNU Lesser General Public License Version 3,
+** as published by the Free Software Foundation.
+**
 ** MVTH is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-** 
+** GNU Lesser General Public License for more details.
+**
 ** You should have received a copy of the GNU General Public License
-** along with MVTH; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+** (see the file named "COPYING"), and a copy of the GNU Lesser General
+** Public License (see the file named "COPYING.LESSER") along with MVTH.
+** If not, see <http://www.gnu.org/licenses/>.
+**
 */ 
 
 /* we will wlock and rlock variables in the

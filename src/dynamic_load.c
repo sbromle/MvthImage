@@ -1,3 +1,15 @@
+/* This file is part of MVTH - the Machine Vision Test Harness.
+ * 
+ * Copyright Sam Bromley (sam@sambromley.com) 2005.
+ *
+ * The function in this file is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the
+ * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * You may do with it as your wish.
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
