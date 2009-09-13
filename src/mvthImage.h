@@ -39,6 +39,7 @@ extern void remapImage(float *src, int sw, int sh,
 extern void stamp_image_t(image_t *img);
 
 extern int getJetRGB(double v, double vmin, double vmax, float *rgb);
+extern int getBrownGreenRGB(double v, double vmin, double vmax, float *rgb);
 /* plot an image based on arrays of doubles */
 #include <plot_imagescale.h>
 /* draw a line */

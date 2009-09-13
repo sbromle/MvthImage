@@ -158,14 +158,15 @@ int getBrownGreenRGB(double v, double vmin, double vmax, float *rgb)
 	if (ans<0.0) ans=0.0;
 	if (ans>1.0) ans=1.0;
 	double H,S,V;
-	V=0.67;
+	double aa=ans-0.5;
 	if (ans<0.5) {
-		S=2*(0.5-ans);
-		H=27+2*ans*33; /* start at brown, go to yellowish */
+		H=22+2*(40.0-22.)*ans;
 	} else {
-		S=2*(ans-0.5);
-		H=60+2*(ans-0.5)*68; /* start at yellowish, go to green */
+		H=40+2*(ans-0.5)*(127-40);
 	}
+	if (ans<0.45 || ans>0.55) S=1;
+	else S=0.3+0.7*fabs(0.5-ans)/0.05;
+	V=1.0-(0.66/0.5)*fabs(ans-0.5);
 	HSV2RGB(H,S,V,rgb,rgb+1,rgb+2);
 	return 0;
 }
