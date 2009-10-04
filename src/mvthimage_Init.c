@@ -56,6 +56,8 @@ extern int diffimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int fillimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
+extern int draw_hmap_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int flushimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int gaussian_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -126,6 +128,8 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp,"detectcorners",detectcorners_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"diffimages",diffimage_cmd,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
+	Tcl_CreateObjCommand(interp,"drawhmap",draw_hmap_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"fillimage",fillimage_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);

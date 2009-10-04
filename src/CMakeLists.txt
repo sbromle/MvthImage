@@ -99,6 +99,7 @@ set (libMvthImage_SRCS
 	stats/stats_fltr.c 
 	roberts/roberts_fltr.c 
 	rgb2grayscale/rgb2grayscale_fltr.c 
+	hmap_shader/hmap_shader_fltr.c
 	hsv/rgb2hsv_fltr.c 
 	rwarp/rwarp_fltr.c 
 	rwarp/rwarp_fltr.h 
@@ -200,6 +201,7 @@ set (mvthimage_SRCS
 	fillimage/fillimage_cmd.c 
 	flushimage/flushimage_cmd.c 
 	gaussian/gaussian_cmd.c 
+	hmap_shader/hmap_shader_cmd.c 
 	invert/invert_cmd.c 
 	isometric/isometric_cmd.c 
 	kmeans/kmeans_cmd.c 
