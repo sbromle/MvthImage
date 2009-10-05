@@ -31,6 +31,7 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
+#include "dynamic_load.h"
 #include "images_types.h"
 #include "images_utils.h"
 #include "mvthimagestate.h"
@@ -117,6 +118,8 @@ void MvthImageCleanup(ClientData data);
 int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr);
 int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr);
 int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
+int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 
 
 /* The following routines create, initialize and delete Image_ts */
@@ -189,9 +192,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	 * the subcommand.
 	 */
 	CONST char *subCmds[] = {
-		"create","delete","duplicate","copy","exists","open", "width","height","depth","names","size",NULL};
+		"create","delete","duplicate","copy","exists","open", "width","height","depth","names","size","scale",NULL};
 	enum MvthImageIx {
-		CreateIx, DeleteIx, DuplicateIx,CopyIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx};
+		CreateIx, DeleteIx, DuplicateIx,CopyIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx,ScaleIx};
 	int index;
 
 	if (objc==1 || objc>=6) {
@@ -233,6 +236,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			break;
 		case OpenIx:
 			return MvthImageOpen((ClientData)statePtr,interp,objc-1,objv+1);
+			break;
+		case ScaleIx:
+			return MvthImageScale((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
 	}
 
@@ -334,6 +340,62 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	return TCL_OK;
 }
 
+int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
+{
+	image_t *simg;
+	image_t *dimg=NULL;
+	MvthImage *smimg=NULL;
+	double factor=1.0;
+	void *libhandle=NULL;
+	void (*resize_image)(float *,int,int,int,float *,float)=NULL;
+	
+
+	if (objc!=3)
+	{
+		Tcl_WrongNumArgs(interp,1,objv,"srcname fraction");
+		return TCL_ERROR;
+	}
+
+	if (getMvthImageFromObj(interp,objv[1],&smimg)!=TCL_OK) return TCL_ERROR;
+	simg=smimg->img;
+	if (Tcl_GetDoubleFromObj(interp,objv[2],&factor)!=TCL_OK) return TCL_ERROR;
+
+	if (factor<=0) {
+		Tcl_AppendResult(interp,"Scale factor must be >0\n",NULL);
+		return TCL_ERROR;
+	}
+
+	/* Try to load the resize function from the library */
+	resize_image=load_symbol(MVTHIMAGELIB,"resize_image",&libhandle);
+	if (resize_image==NULL) {
+		Tcl_AppendResult(interp,"Could not dynamically load `resize_image()' from ",
+				MVTHIMAGELIB,"\n",NULL);
+		return TCL_ERROR;
+	}
+	/* make an image to store the result. */
+	simg=smimg->img;
+	int nw,nh;
+	nw=(int)(simg->w*factor+0.5);
+	nh=(int)(simg->h*factor+0.5);
+	dimg=new_image_t(nw,nh,simg->bands);
+	assert(dimg!=NULL);
+	/* do the resizing */
+	resize_image(simg->data,simg->w,simg->h,simg->bands,dimg->data,factor);
+	stamp_image_t(dimg);
+	release_handle(&libhandle);
+	//stamp_image_t(dimg);
+	mvthImageReplace(dimg,smimg);
+
+	/* return the new dimensions of the image */
+	Tcl_Obj *dlist=Tcl_NewListObj(0,NULL);
+	if (Tcl_ListObjAppendElement(interp,dlist,smimg->widthPtr)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,smimg->heightPtr)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,smimg->depthPtr)!=TCL_OK) return TCL_ERROR;
+	Tcl_SetObjResult(interp,dlist);
+
+	return TCL_OK;
+}
 
 /* the following routine actually creates MvthImages */
 int MvthImageCreate(ClientData data, Tcl_Interp *interp, 
