@@ -50,16 +50,17 @@ void draw_hmap_fltr(image_t *img,
 
 	float ys=dh/(float)h;
 	float xs=dw/(float)w;
-	float drop=tan(angle);
+	float drop=0.2*tan(angle);
 	float shadow=-FLT_MAX;
 	float t;
 	float vx=cos(angle);
-	float vy=sin(angle);
+	float vy=-sin(angle);
 
 	/* scan each line and render it to the image */
 	for (j=0;j<h-1;j++) {
 		unsigned int y = ys*j;
 		if (y>=dh) continue;
+		shadow=-FLT_MAX;
 		for (i=0;i<w-1;i++) {
 			unsigned int x = xs*i;
 			if (x>=dw-1) continue;
@@ -71,7 +72,7 @@ void draw_hmap_fltr(image_t *img,
 				for (k=0;k<bands;k++) p[bands*(j*w+i)+k]=0.0;
 			} else {
 				/* otherwise we must color the pixel */
-				float dot=DOT(-d*dn,1*dn,vx,vy); /* dot prod of two unit vectors */
+				float dot=fabs(DOT(d*dn,-1*dn,vx,vy)); /* dot prod of two unit vectors */
 				for (k=0;k<bands;k++) p[bands*(j*w+i)+k]=dot;
 			}
 			shadow-=drop;
