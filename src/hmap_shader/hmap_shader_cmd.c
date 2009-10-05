@@ -44,15 +44,23 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 	MvthImage *outimg=NULL;
 	void *libhandle=NULL;
 	void (*draw_hmap_fltr)(image_t *img,float *data, unsigned int dw, unsigned int dh, float angle)=NULL;
+	float angle=30.0;
 
-	if (objc!=3)
+	if (objc!=3 && objc!=4)
 	{
-		Tcl_WrongNumArgs(interp,1,objv,"grayscaleimage outimage");
+		Tcl_WrongNumArgs(interp,1,objv,"grayscaleimage outimage ?angle(degrees)?");
 		return TCL_ERROR;
 	}
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	if (getMvthImageFromObj(interp,objv[2],&outimg)!=TCL_OK) return TCL_ERROR;
+	if (objc==4) {
+		double a=30;
+		if (Tcl_GetDoubleFromObj(interp,objv[3],&a)!=TCL_OK) return TCL_ERROR;
+		if (a<0) a=0.0;
+		else if (a>90) a=90;
+		angle=a;
+	}
 
 	if (mimg->img->bands!=1) {
 		Tcl_AppendResult(interp,"Input data image must be grayscale.\n",NULL);
@@ -63,7 +71,7 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 	assert(draw_hmap_fltr!=NULL);
 	draw_hmap_fltr(outimg->img,
 			mimg->img->data,mimg->img->w,mimg->img->h,
-			30*M_PI/180);
+			angle*M_PI/180);
 	stamp_image_t(outimg->img);
 	
 	Tcl_ResetResult(interp);
