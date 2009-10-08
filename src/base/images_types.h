@@ -17,10 +17,10 @@
  */
 typedef struct image_s
 {
-	char name[128]; /* name of image in image context array */
-	unsigned long timestamp; /* timestamp of last modification */
 	int w, h, bands; /* width, height, and number of channels */
 	float *data; /* pointer to image data. */
+	unsigned long timestamp; /* timestamp of last modification */
+	char name[128]; /* name of image in image context array */
 } image_t;
 
 /* We should really write the filters to use image blocks,
