@@ -35,7 +35,7 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include "base/mvthimagestate.h"
-#include "mvth_dynamic_symbols.h"
+#include "dynamic_symbols_mvth.h"
 
 /* Arguments are:
  * kmeans image ?-nclasses numclasses? ?-channel R|G|B? 

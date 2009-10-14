@@ -31,7 +31,7 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
-#include "mvth_dynamic_symbols.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
 
 int roberts_cmd(ClientData clientData, Tcl_Interp *interp,

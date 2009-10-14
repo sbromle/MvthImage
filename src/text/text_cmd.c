@@ -32,7 +32,7 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include <assert.h>
-#include "mvth_dynamic_symbols.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
 
 int text_cmd(ClientData clientData, Tcl_Interp *interp,

@@ -31,7 +31,7 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "mvth_dynamic_symbols.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
 
 int detectcorners_cmd(ClientData clientData, Tcl_Interp *interp,

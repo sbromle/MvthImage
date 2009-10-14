@@ -37,7 +37,7 @@
 #include <tcl.h>
 #include <tclArgv.h>
 
-#include "mvth_dynamic_symbols.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
 
 int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,

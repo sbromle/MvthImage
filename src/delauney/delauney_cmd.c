@@ -33,7 +33,7 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "mvth_dynamic_symbols.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
 #include "base/stereo_context.h"
 
