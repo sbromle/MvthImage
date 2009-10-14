@@ -32,10 +32,8 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-
 
 /* The following two functions are now both identical */
 int gaussian_cmd(ClientData clientData, Tcl_Interp *interp,
@@ -44,8 +42,6 @@ int gaussian_cmd(ClientData clientData, Tcl_Interp *interp,
 	double sigma;
 	image_t *img;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	void (*gaussian_fltr)(image_t *img, float sigma)=NULL;
 
 	if (objc!=3) {
 		Tcl_WrongNumArgs(interp,1,objv,"?img? ?sigma in pixels?");
@@ -67,12 +63,10 @@ int gaussian_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	gaussian_fltr=load_symbol(MVTHIMAGELIB,"gaussian_fltr",&libhandle);
 	assert(gaussian_fltr!=NULL);
 	/* do the filter */
 	gaussian_fltr(img,(float)sigma);
 	//stamp_image_t(img);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }

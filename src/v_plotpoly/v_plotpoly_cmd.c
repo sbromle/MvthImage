@@ -37,10 +37,8 @@
 #include <tcl.h>
 #include <tclArgv.h>
 
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-#include "v_plotpoly_fltr.h"
 
 int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -49,10 +47,6 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	//int cutlen=INT_MAX;
 	image_t *mi=NULL;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	int (*plotpoly)(image_t *img, ViewPort_t *viewport,
-		int order, double *coefs, float rgb[4])=NULL;
-	
 	int doErase=0;
 	double r=1.0,g=1.0,b=1.0; /* color to draw in */
 	int order=1; /* default to a line plot */
@@ -155,7 +149,6 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	rgb[1]=(float)g;
 	rgb[2]=(float)b;
 	rgb[3]=0.0;
-	plotpoly=load_symbol(MVTHIMAGELIB,"plotpoly",&libhandle);
 	assert(plotpoly!=NULL);
 
 	/* do the filter */
@@ -165,6 +158,5 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 
 	free(coefs);
 
-	release_handle(&libhandle);
 	return TCL_OK;
 }

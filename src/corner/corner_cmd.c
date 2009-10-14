@@ -31,18 +31,14 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-
 
 int detectcorners_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *img=NULL;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	void (*corner_fltr)(image_t *img, float thigh, float tlow)=NULL;
 
 	if (objc!=2) {
 		Tcl_WrongNumArgs(interp,1,objv,"?name?");
@@ -61,12 +57,10 @@ int detectcorners_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	corner_fltr=load_symbol(MVTHIMAGELIB,"corner_fltr",&libhandle);
 	assert(corner_fltr!=NULL);
 	/* do the filter */
 	corner_fltr(img,0,0);
 	stamp_image_t(img);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }

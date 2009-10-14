@@ -30,11 +30,9 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mmap_handler.h"
 #include "base/mvthimagestate.h"
-#include "base/images_utils.h"
-#include "utils/timestamp.h"
 
 int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -42,9 +40,6 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	int w[3],h[3],bands[3];
 	image_t *img[3]={NULL,NULL,NULL};
 	MvthImage *mimg[3]={NULL,NULL,NULL};
-	void *libhandle=NULL;
-	int (*diff_fltr)(image_t *img1, image_t *img2, image_t *imgD)=NULL;
-	image_t * (*new_image_t)(int w, int h, int bands)=NULL;
 	int i;
 
 	if (objc!=3 && objc!=4)
@@ -77,9 +72,7 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* get the maximum channels */
 	if (bands[1]>bands[0]) bands[1]=bands[0];
 
-	diff_fltr=load_symbol(MVTHIMAGELIB,"diff_fltr",&libhandle);
 	assert(diff_fltr!=NULL);
-	new_image_t=load_symbol(MVTHIMAGELIB,"new_image_t",&libhandle);
 	assert(new_image_t!=NULL);
 
 	/* make an image to hold the result */
@@ -103,6 +96,5 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	stamp_image_t(img[2]);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }

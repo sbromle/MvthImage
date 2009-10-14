@@ -31,10 +31,9 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
 #include "base/images_types.h"
-#include "writeimage.h"
 
 int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -43,9 +42,6 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	image_t *img=NULL;
 	int bpc=1;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	int (*writeimage)(float *img,int w,int h,int bands,int bpc,char *filename)=NULL;
-
 
 	if (objc!=3 && objc!=4)
 	{
@@ -64,10 +60,8 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	img=mimg->img;
-	writeimage=load_symbol(MVTHIMAGELIB,"writeimage",&libhandle);
 	assert(writeimage!=NULL);
 	writeimage(img->data, img->w,img->h,img->bands,bpc,filename);
 
-	release_handle(&libhandle);
 	return TCL_OK;
 }

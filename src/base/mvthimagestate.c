@@ -31,9 +31,8 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "images_types.h"
-#include "images_utils.h"
 #include "mvthimagestate.h"
 
 /* the following structure is created once for each Tcl interpretor*/
@@ -347,9 +346,6 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	image_t *dimg=NULL;
 	MvthImage *smimg=NULL;
 	double factor=1.0;
-	void *libhandle=NULL;
-	void (*resize_image)(float *,int,int,int,float *,float)=NULL;
-	
 
 	if (objc!=3)
 	{
@@ -367,7 +363,6 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* Try to load the resize function from the library */
-	resize_image=load_symbol(MVTHIMAGELIB,"resize_image",&libhandle);
 	if (resize_image==NULL) {
 		Tcl_AppendResult(interp,"Could not dynamically load `resize_image()' from ",
 				MVTHIMAGELIB,"\n",NULL);
@@ -383,7 +378,6 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	/* do the resizing */
 	resize_image(simg->data,simg->w,simg->h,simg->bands,dimg->data,factor);
 	stamp_image_t(dimg);
-	release_handle(&libhandle);
 	//stamp_image_t(dimg);
 	mvthImageReplace(dimg,smimg);
 

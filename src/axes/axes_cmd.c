@@ -32,10 +32,8 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-#include "axes_fltr.h"
 
 enum {MAXTICKS=500};
 
@@ -44,8 +42,6 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	image_t *img=NULL;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	int (*axes_fltr)(image_t *img,ViewPort_t *viewport, float rgb[4])=NULL;
 
 	ViewPort_t axes= {
 		{{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
@@ -191,13 +187,10 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	axes_fltr=load_symbol(MVTHIMAGELIB,"axes_fltr",&libhandle);
 	assert(axes_fltr!=NULL);
 	axes_fltr(img,&axes,rgb);
 	stamp_image_t(img);
 	
-	release_handle(&libhandle);
-
 	Tcl_ResetResult(interp);
 	return TCL_OK;
 }

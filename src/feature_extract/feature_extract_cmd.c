@@ -33,9 +33,8 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/images_utils.h"
-#include "utils/timestamp.h"
 
 //extern image_t *feature_extract_fltr(image_t *img, int ci, int cj, int r, int b, int sgn, int procID);
 
@@ -56,10 +55,6 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 	int r = 4;			// initial front radius 
 	int b = 2;			// tube radius around front where all computations take place
 	int sgn = 1;		// "1" -> expand, "-1" -> shrink
-	
-	void *libhandle=NULL;
-	image_t * (*feature_extract_fltr)(image_t *img, int ci, int cj, int r, int b, int sgn, int procID)=NULL;
-	image_t * (*new_image_t)(int w, int h, int bands)=NULL;
 	
 	Tcl_Obj *resultPtr=NULL;
 	char buff[1024];
@@ -161,10 +156,8 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 		if (dimg->bands != 3)
 		{
 			free(dimg);
-			new_image_t=load_symbol(MVTHIMAGELIB,"new_image_t",&libhandle);
 			assert(new_image_t!=NULL);
 			dimg = new_image_t(simg->w, simg->h, 3);
-			release_handle(&libhandle);
 			libhandle = NULL;
 		}
 		register_image_undo_var(dname);
@@ -200,7 +193,6 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 	if(b < 6 && count > 0)
 		b += 1;
 	count++;
-	feature_extract_fltr = load_symbol(MVTHIMAGELIB, "feature_extract_fltr", &libhandle);
 	assert(feature_extract_fltr != NULL);
 	dimg = feature_extract_fltr(simg, cj, ci, r, b, sgn, procID);
 	if (procID == 2) 
@@ -210,6 +202,5 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 		register_image_var(dimg, dname);
 		stamp_image_t(dimg);
 	}
-	release_handle(&libhandle);
 	return TCL_OK;
 }

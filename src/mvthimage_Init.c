@@ -34,6 +34,7 @@
 #include <tk.h>
 #include "base/images_types.h"
 #include "base/mvthimagestate.h"
+#include "dynamic_symbols.h"
 
 int verbose=0;
 
@@ -57,8 +58,6 @@ extern int diffimage_cmd (ClientData clientData, Tcl_Interp *interp,
 extern int fillimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int draw_hmap_cmd (ClientData clientData, Tcl_Interp *interp,
-		int objc, Tcl_Obj *CONST objv[]);
-extern int flushimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int gaussian_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
@@ -112,6 +111,10 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 		return TCL_ERROR;
 	}
 	
+	/* dynamically load all of the library functions */
+	unload_all_mvth();
+	load_all_mvth();
+
 	/* Create all of the Tcl commands */
 	Tcl_CreateObjCommand(interp,"astereo",astereo_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
@@ -132,8 +135,6 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 	Tcl_CreateObjCommand(interp,"drawhmap",draw_hmap_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"fillimage",fillimage_cmd,
-			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
-	Tcl_CreateObjCommand(interp,"flushimage",flushimage_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"gaussian",gaussian_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);

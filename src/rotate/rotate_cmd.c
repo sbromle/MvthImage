@@ -33,22 +33,13 @@
 #include <assert.h>
 #include <tcl.h>
 #include <tclArgv.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-
-	void (*rotate_fltr)(image_t *wimg,
-		const double alpha,
-		const double beta,
-		const double gamma,
-		const double x, const double y, const double z)=NULL;
-
 	double alpha=0.0, beta=0.0,gamma=0.0;
 	double x=0.0, y=0.0,z=0.0;
 
@@ -87,13 +78,10 @@ int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 	if (remObjv!=NULL) free(remObjv);
 
 	/* load the symbol */
-	rotate_fltr=load_symbol(MVTHIMAGELIB,"rotate_fltr",&libhandle);
 	assert(rotate_fltr!=NULL);
 
 	/* do the filter */
 	rotate_fltr(mimg->img,alpha,beta,gamma,x,y,z);
-
-	release_handle(&libhandle);
 	
 	return TCL_OK;
 }

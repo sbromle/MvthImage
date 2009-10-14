@@ -31,10 +31,8 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-
 
 int canny_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -42,8 +40,6 @@ int canny_cmd(ClientData clientData, Tcl_Interp *interp,
 	double tlow,thigh;
 	image_t *img=NULL;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	void (*canny_fltr)(image_t *img, float thigh, float tlow)=NULL;
 
 	if (objc!=4)
 	{
@@ -73,11 +69,9 @@ int canny_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_undo_var(name);
 
 	/* do the filter */
-	canny_fltr=load_symbol(MVTHIMAGELIB,"canny_fltr",&libhandle);
 	assert(canny_fltr!=NULL);
 	canny_fltr(img,thigh,tlow);
 	stamp_image_t(img);
 
-	release_handle(&libhandle);
 	return TCL_OK;
 }

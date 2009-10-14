@@ -32,18 +32,14 @@
 #include <math.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-
 
 int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	MvthImage *mimg=NULL;
 	MvthImage *outimg=NULL;
-	void *libhandle=NULL;
-	void (*draw_hmap_fltr)(image_t *img,float *data, unsigned int dw, unsigned int dh, float angle)=NULL;
 	float angle=30.0;
 
 	if (objc!=3 && objc!=4)
@@ -67,7 +63,6 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	draw_hmap_fltr=load_symbol(MVTHIMAGELIB,"draw_hmap_fltr",&libhandle);
 	assert(draw_hmap_fltr!=NULL);
 	draw_hmap_fltr(outimg->img,
 			mimg->img->data,mimg->img->w,mimg->img->h,
@@ -75,6 +70,5 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 	stamp_image_t(outimg->img);
 	
 	Tcl_ResetResult(interp);
-	release_handle(&libhandle);
 	return TCL_OK;
 }

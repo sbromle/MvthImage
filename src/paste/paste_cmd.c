@@ -32,10 +32,8 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-#include "paste_fltr.h"
 
 int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -48,8 +46,6 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	float RGB[6]; /* RGB and dR dG dB values for color-wise transparency */
 	image_t *src_img=NULL;
 	image_t *dst_img=NULL;
-	void *libhandle=NULL;
-	void (*paste_fltr)(image_t *src, image_t *dst,int xoff, int yoff, float RGB[6], float alpha)=NULL;
 
 	Tcl_Obj **remObjv=NULL;
 	Tcl_ArgvInfo argTable[] = {
@@ -108,12 +104,10 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	//register_image_undo_var(dstname);
 
-	paste_fltr=load_symbol(MVTHIMAGELIB,"paste_fltr",&libhandle);
 	assert(paste_fltr!=NULL);
 	paste_fltr(src_img,dst_img,xoff,yoff,RGB,(float)alpha);
 	stamp_image_t(dst_img);
 
 	Tcl_ResetResult(interp);
-	release_handle(&libhandle);
 	return TCL_OK;
 }

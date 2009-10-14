@@ -168,8 +168,8 @@ set (viewimage_SRCS
 	viewimage_Init.c
 	dynamic_load.c
 	dynamic_load.h
-	base/images_utils.c
-	base/images_utils.h
+	dynamic_symbols.c
+	dynamic_symbols.h
 	base/mvthimagestate.c
 	base/mvthimagestate.h
 	blitimage/blitimage.c
@@ -179,14 +179,10 @@ set (mvthimage_SRCS
 	mvthimage_Init.c 
 	base/mvthimagestate.c 
 	base/mvthimagestate.h 
-	base/images_utils.c 
-	base/images_utils.h 
-	base/readimages.c 
-	base/readimages.h 
 	dynamic_load.c 
 	dynamic_load.h 
-	base/mmap_handler.h 
-	base/mmap_handler.c 
+	dynamic_symbols.c 
+	dynamic_symbols.h 
 	base/stereo_context_t.h 
 	base/stereo_context.c 
 	base/stereo_context.h 
@@ -211,8 +207,6 @@ set (mvthimage_SRCS
 	rotate/rotate_cmd.c 
 	hsv/rgb2hsv_cmd.c 
 	text/text_cmd.c 
-	utils/timestamp.c 
-	utils/timestamp.h 
 	v_plotpoly/v_plotpoly_cmd.c 
 	write_image/writeimage_cmd.c
 )

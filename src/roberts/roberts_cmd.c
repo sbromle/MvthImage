@@ -31,17 +31,14 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	MvthImage *mimg=NULL;
 	image_t *img=NULL;
-	void *libhandle=NULL;
-	void (*roberts_fltr)(image_t *img)=NULL;
 
 	if (objc!=2) {
 		Tcl_WrongNumArgs(interp,1,objv,"imagename");
@@ -52,11 +49,9 @@ int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
 	img=mimg->img;
 
 	/* load the symbol */
-	roberts_fltr=load_symbol(MVTHIMAGELIB,"roberts_fltr",&libhandle);
 	assert(roberts_fltr!=NULL);
 	/* do the filter */
 	roberts_fltr(img);
 	stamp_image_t(img);
-	release_handle(&libhandle);
 	return TCL_OK;
 }
