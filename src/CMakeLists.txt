@@ -199,7 +199,6 @@ set (mvthimage_SRCS
 	delauney/delauney_cmd.c 
 	diff/diff_cmd.c 
 	fillimage/fillimage_cmd.c 
-	flushimage/flushimage_cmd.c 
 	gaussian/gaussian_cmd.c 
 	hmap_shader/hmap_shader_cmd.c 
 	invert/invert_cmd.c 
