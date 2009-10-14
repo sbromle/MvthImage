@@ -31,7 +31,7 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
-#include "dynamic_symbols.h"
+#include "mvth_dynamic_symbols.h"
 #include "images_types.h"
 #include "mvthimagestate.h"
 

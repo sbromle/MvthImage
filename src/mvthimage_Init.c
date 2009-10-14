@@ -34,7 +34,7 @@
 #include <tk.h>
 #include "base/images_types.h"
 #include "base/mvthimagestate.h"
-#include "dynamic_symbols.h"
+#include "mvth_dynamic_symbols.h"
 
 int verbose=0;
 

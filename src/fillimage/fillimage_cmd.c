@@ -31,7 +31,7 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_symbols.h"
+#include "mvth_dynamic_symbols.h"
 #include "base/mvthimagestate.h"
 
 int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,

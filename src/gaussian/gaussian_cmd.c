@@ -32,7 +32,7 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_symbols.h"
+#include "mvth_dynamic_symbols.h"
 #include "base/mvthimagestate.h"
 
 /* The following two functions are now both identical */

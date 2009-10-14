@@ -33,7 +33,7 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include <assert.h>
-#include "dynamic_symbols.h"
+#include "mvth_dynamic_symbols.h"
 #include "base/images_utils.h"
 
 //extern image_t *feature_extract_fltr(image_t *img, int ci, int cj, int r, int b, int sgn, int procID);
