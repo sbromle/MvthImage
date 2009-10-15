@@ -15,5 +15,6 @@
 
 extern int getJetRGB(double v, double vmin, double vmax, float *rgb);
 extern int getBlueYellowRGB(double v, double vmin, double vmax, float *rgb);
+extern int getBrownGreenRGB(double v, double vmin, double vmax, float *rgb);
 
 #endif

@@ -142,3 +142,32 @@ int getBlueYellowRGB(double v, double vmin, double vmax, float *rgb)
 	return 0;
 }
 
+int getBrownGreenRGB(double v, double vmin, double vmax, float *rgb)
+{
+	double scale;
+	double ans;
+
+	if (vmax!=vmin)
+		scale=1.0/(vmax-vmin);
+	else /* return bright red color as error */
+	{
+		rgb[0]=1.0; rgb[1]=0; rgb[2]=0;
+		return 1;
+	}
+	ans=(v-vmin)*scale;
+	if (ans<0.0) ans=0.0;
+	if (ans>1.0) ans=1.0;
+	double H,S,V;
+	double aa=ans-0.5;
+	if (ans<0.5) {
+		H=22+2*(40.0-22.)*ans;
+	} else {
+		H=40+2*(ans-0.5)*(127-40);
+	}
+	if (ans<0.45 || ans>0.55) S=1;
+	else S=0.3+0.7*fabs(0.5-ans)/0.05;
+	V=1.0-(0.66/0.5)*fabs(ans-0.5);
+	HSV2RGB(H,S,V,rgb,rgb+1,rgb+2);
+	return 0;
+}
+
