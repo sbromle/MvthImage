@@ -1,8 +1,8 @@
 #ifndef MVTH_DYNAMIC_SYMBOLS_H
 #define MVTH_DYNAMIC_SYMBOLS_H
 #include <stdio.h>
-#include "base/images_types.h"
-#include "base/stereo_context.h"
+#include "images_types.h"
+#include "stereo_context_t.h"
 
 /* Function pointers for all of the dynamic functions */
 /* dynamic loaded functions from MVTH image library */

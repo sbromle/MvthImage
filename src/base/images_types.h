@@ -103,4 +103,16 @@ typedef struct ViewPort_s {
 	{1,0,0,0,"%lg","",AXIS_LINEAR,"",0}},\
 	0,1,0,1}
 
+/** flags for plotting */
+typedef enum PLOT_FLAGS {
+	PFLAG_NONE = 0,
+	PFLAG_LANDSCAPE = 1,
+	PFLAG_CLIP = (1<<1),
+	PFLAG_NOBILINEAR = (1<<2),
+	PFLAG_FLIPY = (1<<3),
+	PFLAG_GRAYSCALE = (1<<4)
+} PLOT_FLAG;
+
+
+
 #endif

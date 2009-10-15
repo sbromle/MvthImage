@@ -18,6 +18,7 @@ include_directories(${TCL_INCLUDE_PATH})
 include_directories(${TK_INCLUDE_PATH})
 include_directories(${TCLARGV_INCLUDES})
 include_directories(.)
+include_directories(./base)
 
 ########### next target ###############
 SET (utils_HEADERS
@@ -241,6 +242,7 @@ install(FILES
 	${utils_HEADERS}
 	mvthImage.h
 	base/images_types.h
+	base/stereo_context_t.h
 	base/mvth_colors.h
 	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
