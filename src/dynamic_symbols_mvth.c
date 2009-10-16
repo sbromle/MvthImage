@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tcl.h>
 #include "dynamic_load.h"
 #include "base/images_types.h"
 #include "base/stereo_context.h"
@@ -188,4 +189,18 @@ void unload_all_mvth() {
 	zero_image_t=NULL;
 	if (_mvthimage_handle!=NULL) release_handle(_mvthimage_handle);
 	_mvthimage_handle=NULL;
+}
+
+int mireload_cmd(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
+{
+	if (objc!=1) {
+		Tcl_WrongNumArgs(interp,1,objv,"(takes no arguments)");
+		return TCL_ERROR;
+	}
+	fprintf(stderr,"Unloading all mvthimage symbols.\n");
+	unload_all_mvth();
+	fprintf(stderr,"Loading all mvthimage symbols.\n");
+	load_all_mvth();
+	return TCL_OK;
 }

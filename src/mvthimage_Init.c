@@ -39,6 +39,8 @@
 int verbose=0;
 
 /* command function declarations */
+extern int mireload_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int astereo_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int axes_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -116,6 +118,8 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 	load_all_mvth();
 
 	/* Create all of the Tcl commands */
+	Tcl_CreateObjCommand(interp,"mireload",mireload_cmd,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"astereo",astereo_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"axes",axes_cmd,
