@@ -25,36 +25,38 @@
 /* handle to the opened libraries */
 static void *_mvthimage_handle=NULL; 
 
+#define DSYM(x) x##_dyn
+
 /* First we need definitions for all of the functions, these
  * are duplicated in dynamic_symbols.h.
  */
 
 /* dynamic loaded functions from MVTH image library */
-void (*astereo_fltr)(image_t *img1, image_t *img2, SContext_t *sc);
-int (*axes_fltr)(image_t *img,ViewPort_t *viewport, float rgb[4])=NULL;
-void (*brighten_fltr)(image_t *wimg,double factor)=NULL;
-void (*canny_fltr)(image_t *img, float thigh, float tlow)=NULL;
-void (*corner_fltr)(image_t *img, float thigh, float tlow)=NULL;
-int (*copy_image_t)(image_t *src, image_t *dst)=NULL;
-void (*delauney_fltr)(image_t *,SContext_t *sc)=NULL;
-int (*diff_fltr)(image_t *img1, image_t *img2, image_t *imgD)=NULL;
-void (*drawCircle)(image_t *img,int cx, int cy, int r, float rgb[3])=NULL;
-image_t * (*feature_extract_fltr)(image_t *img,
+void (*DSYM(astereo_fltr))(image_t *img1, image_t *img2, SContext_t *sc);
+int (*DSYM(axes_fltr))(image_t *img,ViewPort_t *viewport, float rgb[4])=NULL;
+void (*DSYM(brighten_fltr))(image_t *wimg,double factor)=NULL;
+void (*DSYM(canny_fltr))(image_t *img, float thigh, float tlow)=NULL;
+void (*DSYM(corner_fltr))(image_t *img, float thigh, float tlow)=NULL;
+int (*DSYM(copy_image_t))(image_t *src, image_t *dst)=NULL;
+void (*DSYM(delauney_fltr))(image_t *,SContext_t *sc)=NULL;
+int (*DSYM(diff_fltr))(image_t *img1, image_t *img2, image_t *imgD)=NULL;
+void (*DSYM(drawCircle))(image_t *img,int cx, int cy, int r, float rgb[3])=NULL;
+image_t * (*DSYM(feature_extract_fltr))(image_t *img,
 		int ci, int cj, int r, int b, int sgn, int procID)=NULL;
-void (*draw_hmap_fltr)(image_t *img, float *data,
+void (*DSYM(draw_hmap_fltr))(image_t *img, float *data,
 		unsigned int dw, unsigned int dh, float angle)=NULL;
-void (*fillimage_fltr)(image_t *img,float val[3])=NULL;
-void (*fillimage_vp_fltr)(image_t *img, float val[4],ViewPort_t viewport)=NULL;
-void (*free_image_t)(image_t *img)=NULL;
-void (*gaussian_fltr)(image_t *img, float sigma)=NULL;
-image_t * (*grayscale2rgb_fltr)(image_t *src)=NULL;
-int (*hsv2rgb_fltr)(image_t *img)=NULL;
-void (*invert_fltr)(image_t *wimg)=NULL;
-void (*isometric_fltr)(image_t *img, double theta)=NULL;
-int (*kmeans_fltr)(image_t *img, int nmeans, int channel);
-void (*paste_fltr)(image_t *src, image_t *dst,int xoff, int yoff,
+void (*DSYM(fillimage_fltr))(image_t *img,float val[3])=NULL;
+void (*DSYM(fillimage_vp_fltr))(image_t *img, float val[4],ViewPort_t viewport)=NULL;
+void (*DSYM(free_image_t))(image_t *img)=NULL;
+void (*DSYM(gaussian_fltr))(image_t *img, float sigma)=NULL;
+image_t * (*DSYM(grayscale2rgb_fltr))(image_t *src)=NULL;
+int (*DSYM(hsv2rgb_fltr))(image_t *img)=NULL;
+void (*DSYM(invert_fltr))(image_t *wimg)=NULL;
+void (*DSYM(isometric_fltr))(image_t *img, double theta)=NULL;
+int (*DSYM(kmeans_fltr))(image_t *img, int nmeans, int channel);
+void (*DSYM(paste_fltr))(image_t *src, image_t *dst,int xoff, int yoff,
 		float RGB[6], float alpha)=NULL;
-int (*plot_imagescale_vLLL)(
+int (*DSYM(plot_imagescale_vLLL))(
 		float *pixels,    /* pointer to beginning of drawable pixels */
 		int w, int h,             /* width and height of region to draw */
 		int bands,                /* number of colour bands (channels) */
@@ -68,40 +70,40 @@ int (*plot_imagescale_vLLL)(
 		double xd1, double yd1,
 		double vmin, double vmax,  /* data range to use for color coding */
 		int flags)=NULL;
-image_t * (*new_image_t)(int w, int h, int bands)=NULL;
-void (*paste_with_mask_fltr)(image_t *src, image_t *dst,
+image_t * (*DSYM(new_image_t))(int w, int h, int bands)=NULL;
+void (*DSYM(paste_with_mask_fltr))(image_t *src, image_t *dst,
 		int xoff, int yoff, unsigned char *mask)=NULL;
-int (*plotpoly)(image_t *img, ViewPort_t *viewport,
+int (*DSYM(plotpoly))(image_t *img, ViewPort_t *viewport,
 		int order, double *coefs, float rgb[4])=NULL;
-int (*plotxy)(float *img,int w, int h, int bands,
+int (*DSYM(plotxy))(float *img,int w, int h, int bands,
 		double *x, double *y, size_t len, float *rbg,
 		ViewPort_t *viewport)=NULL;
-int (*print_image_t)(FILE *fp, image_t *img)=NULL;
-image_t * (*readimage)(char *filename)=NULL;
-void (*resize_image)(float *,int,int,int,float *,float)=NULL;
-int (*resize_image_t)(image_t *img, int w, int h, int bands)=NULL;
-int (*rgb2hsv_fltr)(image_t *img)=NULL;
-image_t * (*rgb2grayscale_fltr)(image_t *img)=NULL;
-void (*roberts_fltr)(image_t *img)=NULL;
-void (*rotate_fltr)(image_t *wimg,
+int (*DSYM(print_image_t))(FILE *fp, image_t *img)=NULL;
+image_t * (*DSYM(readimage))(char *filename)=NULL;
+void (*DSYM(resize_image))(float *,int,int,int,float *,float)=NULL;
+int (*DSYM(resize_image_t))(image_t *img, int w, int h, int bands)=NULL;
+int (*DSYM(rgb2hsv_fltr))(image_t *img)=NULL;
+image_t * (*DSYM(rgb2grayscale_fltr))(image_t *img)=NULL;
+void (*DSYM(roberts_fltr))(image_t *img)=NULL;
+void (*DSYM(rotate_fltr))(image_t *wimg,
 		const double alpha,
 		const double beta,
 		const double gamma,
 		const double x, const double y, const double z)=NULL;
-int (*sprint_image_t)(char *buff, image_t *img)=NULL;
-void (*stamp_image_t)(image_t *img)=NULL;
-image_t * (*text_pango_fltr)(const char *message,
+int (*DSYM(sprint_image_t))(char *buff, image_t *img)=NULL;
+void (*DSYM(stamp_image_t))(image_t *img)=NULL;
+image_t * (*DSYM(text_pango_fltr))(const char *message,
 		float colour[4], double ptsize,unsigned char **mask)=NULL;
-int (*writeimage)(float *img,int w,int h,int bands,int bpc,char *filename)=NULL;
-void (*zero_image_t)(image_t *img)=NULL;
+int (*DSYM(writeimage))(float *img,int w,int h,int bands,int bpc,char *filename)=NULL;
+void (*DSYM(zero_image_t))(image_t *img)=NULL;
 
 #ifdef TRYLOAD
 #undef TRYLOAD
 #endif
 
 #define TRYLOAD(sym,library,handle) \
-	sym=load_symbol(library,#sym,&handle); \
-	if (sym==NULL) { \
+	DSYM(sym)=load_symbol(library,#sym,&handle); \
+	if (DSYM(sym)==NULL) { \
 		fprintf(stderr,"Could not find function '%s'\n",#sym); \
 	}
 
@@ -148,45 +150,45 @@ void load_all_mvth() {
 }
 
 void unload_all_mvth() {
-	astereo_fltr=NULL;
-	axes_fltr=NULL;
-	brighten_fltr=NULL;
-	canny_fltr=NULL;
-	copy_image_t=NULL;
-	corner_fltr=NULL;
-	delauney_fltr=NULL;
-	diff_fltr=NULL;
-	drawCircle=NULL;
-	draw_hmap_fltr=NULL;
-	feature_extract_fltr=NULL;
-	fillimage_fltr=NULL;
-	fillimage_vp_fltr=NULL;
-	free_image_t=NULL;
-	gaussian_fltr=NULL;
-	grayscale2rgb_fltr=NULL;
-	hsv2rgb_fltr=NULL;
-	invert_fltr=NULL;
-	isometric_fltr=NULL;
-	kmeans_fltr=NULL;
-	new_image_t=NULL;
-	paste_fltr=NULL;
-	paste_with_mask_fltr=NULL;
-	plot_imagescale_vLLL=NULL;
-	plotpoly=NULL;
-	plotxy=NULL;
-	print_image_t=NULL;
-	readimage=NULL;
-	resize_image=NULL;
-	resize_image_t=NULL;
-	rgb2hsv_fltr=NULL;
-	rgb2grayscale_fltr=NULL;
-	roberts_fltr=NULL;
-	rotate_fltr=NULL;
-	sprint_image_t=NULL;
-	stamp_image_t=NULL;
-	text_pango_fltr=NULL;
-	writeimage=NULL;
-	zero_image_t=NULL;
+	DSYM(astereo_fltr)=NULL;
+	DSYM(axes_fltr)=NULL;
+	DSYM(brighten_fltr)=NULL;
+	DSYM(canny_fltr)=NULL;
+	DSYM(copy_image_t)=NULL;
+	DSYM(corner_fltr)=NULL;
+	DSYM(delauney_fltr)=NULL;
+	DSYM(diff_fltr)=NULL;
+	DSYM(drawCircle)=NULL;
+	DSYM(draw_hmap_fltr)=NULL;
+	DSYM(feature_extract_fltr)=NULL;
+	DSYM(fillimage_fltr)=NULL;
+	DSYM(fillimage_vp_fltr)=NULL;
+	DSYM(free_image_t)=NULL;
+	DSYM(gaussian_fltr)=NULL;
+	DSYM(grayscale2rgb_fltr)=NULL;
+	DSYM(hsv2rgb_fltr)=NULL;
+	DSYM(invert_fltr)=NULL;
+	DSYM(isometric_fltr)=NULL;
+	DSYM(kmeans_fltr)=NULL;
+	DSYM(new_image_t)=NULL;
+	DSYM(paste_fltr)=NULL;
+	DSYM(paste_with_mask_fltr)=NULL;
+	DSYM(plot_imagescale_vLLL)=NULL;
+	DSYM(plotpoly)=NULL;
+	DSYM(plotxy)=NULL;
+	DSYM(print_image_t)=NULL;
+	DSYM(readimage)=NULL;
+	DSYM(resize_image)=NULL;
+	DSYM(resize_image_t)=NULL;
+	DSYM(rgb2hsv_fltr)=NULL;
+	DSYM(rgb2grayscale_fltr)=NULL;
+	DSYM(roberts_fltr)=NULL;
+	DSYM(rotate_fltr)=NULL;
+	DSYM(sprint_image_t)=NULL;
+	DSYM(stamp_image_t)=NULL;
+	DSYM(text_pango_fltr)=NULL;
+	DSYM(writeimage)=NULL;
+	DSYM(zero_image_t)=NULL;
 	if (_mvthimage_handle!=NULL) release_handle(_mvthimage_handle);
 	_mvthimage_handle=NULL;
 }

@@ -84,9 +84,9 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	h=mi->h;
 	bands=mi->bands;
 
-	assert(fillimage_fltr!=NULL);
-	fillimage_fltr(mi,val);
-	stamp_image_t(mi);
+	assert(DSYM(fillimage_fltr)!=NULL);
+	DSYM(fillimage_fltr)(mi,val);
+	DSYM(stamp_image_t)(mi);
 	
 	Tcl_ResetResult(interp);
 	return TCL_OK;

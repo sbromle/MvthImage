@@ -57,10 +57,10 @@ int detectcorners_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	assert(corner_fltr!=NULL);
+	assert(DSYM(corner_fltr)!=NULL);
 	/* do the filter */
-	corner_fltr(img,0,0);
-	stamp_image_t(img);
+	DSYM(corner_fltr)(img,0,0);
+	DSYM(stamp_image_t)(img);
 	
 	return TCL_OK;
 }

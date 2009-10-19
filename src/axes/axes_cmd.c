@@ -187,9 +187,9 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	assert(axes_fltr!=NULL);
-	axes_fltr(img,&axes,rgb);
-	stamp_image_t(img);
+	assert(DSYM(axes_fltr)!=NULL);
+	DSYM(axes_fltr)(img,&axes,rgb);
+	DSYM(stamp_image_t)(img);
 	
 	Tcl_ResetResult(interp);
 	return TCL_OK;

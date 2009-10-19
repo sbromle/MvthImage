@@ -63,11 +63,11 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	assert(draw_hmap_fltr!=NULL);
-	draw_hmap_fltr(outimg->img,
+	assert(DSYM(draw_hmap_fltr)!=NULL);
+	DSYM(draw_hmap_fltr)(outimg->img,
 			mimg->img->data,mimg->img->w,mimg->img->h,
 			angle*M_PI/180);
-	stamp_image_t(outimg->img);
+	DSYM(stamp_image_t)(outimg->img);
 	
 	Tcl_ResetResult(interp);
 	return TCL_OK;

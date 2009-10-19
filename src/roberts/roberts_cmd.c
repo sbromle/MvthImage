@@ -49,9 +49,9 @@ int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
 	img=mimg->img;
 
 	/* load the symbol */
-	assert(roberts_fltr!=NULL);
+	assert(DSYM(roberts_fltr)!=NULL);
 	/* do the filter */
-	roberts_fltr(img);
-	stamp_image_t(img);
+	DSYM(roberts_fltr)(img);
+	DSYM(stamp_image_t)(img);
 	return TCL_OK;
 }

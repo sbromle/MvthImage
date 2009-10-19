@@ -65,9 +65,9 @@ int isometric_cmd(ClientData clientData, Tcl_Interp *interp,
 	img=mimg->img;
 
 	/* load any symbols that we need */
-	assert(isometric_fltr!=NULL);
+	assert(DSYM(isometric_fltr)!=NULL);
 
-	isometric_fltr(img,theta);
+	DSYM(isometric_fltr)(img,theta);
 
 	return TCL_OK;
 }

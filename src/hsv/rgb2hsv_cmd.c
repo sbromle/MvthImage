@@ -61,8 +61,8 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	assert(rgb2hsv_fltr!=NULL);
-	rgb2hsv_fltr(img);
+	assert(DSYM(rgb2hsv_fltr)!=NULL);
+	DSYM(rgb2hsv_fltr)(img);
 	//register_image_var(img,name);
 	//stamp_image_t(img);
 
@@ -98,8 +98,8 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	assert(hsv2rgb_fltr!=NULL);
-	hsv2rgb_fltr(img);
+	assert(DSYM(hsv2rgb_fltr)!=NULL);
+	DSYM(hsv2rgb_fltr)(img);
 	//register_image_var(img,name);
 	//stamp_image_t(img);
 

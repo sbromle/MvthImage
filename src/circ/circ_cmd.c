@@ -90,9 +90,9 @@ int circle_cmd(ClientData clientData, Tcl_Interp *interp,
 	rgb[0]=(float)r;
 	rgb[1]=(float)g;
 	rgb[2]=(float)b;
-	assert(drawCircle!=NULL);
-	drawCircle(img,x,y,rad,rgb);
-	stamp_image_t(img);
+	assert(DSYM(drawCircle)!=NULL);
+	DSYM(drawCircle)(img,x,y,rad,rgb);
+	DSYM(stamp_image_t)(img);
 	
 	return TCL_OK;
 }

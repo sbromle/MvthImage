@@ -60,8 +60,8 @@ int rgb_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	assert(grayscale2rgb_fltr!=NULL);
-	img=grayscale2rgb_fltr(img);
+	assert(DSYM(grayscale2rgb_fltr)!=NULL);
+	img=DSYM(grayscale2rgb_fltr)(img);
 	mvthImageReplace(img,mimg);
 	//register_image_var(img,name);
 	//stamp_image_t(img);

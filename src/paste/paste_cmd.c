@@ -104,9 +104,9 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	//register_image_undo_var(dstname);
 
-	assert(paste_fltr!=NULL);
-	paste_fltr(src_img,dst_img,xoff,yoff,RGB,(float)alpha);
-	stamp_image_t(dst_img);
+	assert(DSYM(paste_fltr)!=NULL);
+	DSYM(paste_fltr)(src_img,dst_img,xoff,yoff,RGB,(float)alpha);
+	DSYM(stamp_image_t)(dst_img);
 
 	Tcl_ResetResult(interp);
 	return TCL_OK;

@@ -51,10 +51,10 @@ int invertimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	assert(invert_fltr!=NULL);
+	assert(DSYM(invert_fltr)!=NULL);
 /* do the filter */
-	invert_fltr(mi);
-	stamp_image_t(mi);
+	DSYM(invert_fltr)(mi);
+	DSYM(stamp_image_t)(mi);
 	
 
 	Tcl_ResetResult(interp);

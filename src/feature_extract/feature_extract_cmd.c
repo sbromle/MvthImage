@@ -193,14 +193,14 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 	if(b < 6 && count > 0)
 		b += 1;
 	count++;
-	assert(feature_extract_fltr != NULL);
-	dimg = feature_extract_fltr(simg, cj, ci, r, b, sgn, procID);
+	assert(DSYM(feature_extract_fltr) != NULL);
+	dimg = DSYM(feature_extract_fltr)(simg, cj, ci, r, b, sgn, procID);
 	if (procID == 2) 
 		count = 0;
 	else
 	{
 		register_image_var(dimg, dname);
-		stamp_image_t(dimg);
+		DSYM(stamp_image_t)(dimg);
 	}
 	return TCL_OK;
 }

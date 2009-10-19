@@ -72,15 +72,15 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* get the maximum channels */
 	if (bands[1]>bands[0]) bands[1]=bands[0];
 
-	assert(diff_fltr!=NULL);
-	assert(new_image_t!=NULL);
+	assert(DSYM(diff_fltr)!=NULL);
+	assert(DSYM(new_image_t)!=NULL);
 
 	/* make an image to hold the result */
-	img[2]=new_image_t(w[1],h[1],bands[1]);
+	img[2]=DSYM(new_image_t)(w[1],h[1],bands[1]);
 
 	/* so all that remains is that we do the difference */
 
-	diff_fltr(img[0], img[1], img[2]);
+	DSYM(diff_fltr)(img[0], img[1], img[2]);
 
 	/* where do we place the result? */
 	if (mimg[2]==NULL)
@@ -94,7 +94,7 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		Tcl_SetObjResult(interp,objv[3]);
 	}
 
-	stamp_image_t(img[2]);
+	DSYM(stamp_image_t)(img[2]);
 	
 	return TCL_OK;
 }

@@ -78,10 +78,10 @@ int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 	if (remObjv!=NULL) free(remObjv);
 
 	/* load the symbol */
-	assert(rotate_fltr!=NULL);
+	assert(DSYM(rotate_fltr)!=NULL);
 
 	/* do the filter */
-	rotate_fltr(mimg->img,alpha,beta,gamma,x,y,z);
+	DSYM(rotate_fltr)(mimg->img,alpha,beta,gamma,x,y,z);
 	
 	return TCL_OK;
 }

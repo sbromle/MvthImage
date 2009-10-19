@@ -59,9 +59,9 @@ int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_undo_var(name);
 
 	/* do the filter */
-	assert(brighten_fltr!=NULL);
-	brighten_fltr(img,factor);
-	stamp_image_t(img);
+	assert(DSYM(brighten_fltr)!=NULL);
+	DSYM(brighten_fltr)(img,factor);
+	DSYM(stamp_image_t)(img);
 	
 	return TCL_OK;
 }

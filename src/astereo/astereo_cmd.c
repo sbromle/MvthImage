@@ -88,8 +88,8 @@ int astereo_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* do the filter */
-	assert(astereo_fltr!=NULL);
-	astereo_fltr(imgL,imgR,&stereo_context);
+	assert(DSYM(astereo_fltr)!=NULL);
+	DSYM(astereo_fltr)(imgL,imgR,&stereo_context);
 
 	Tcl_ResetResult(interp);
 	return TCL_OK;

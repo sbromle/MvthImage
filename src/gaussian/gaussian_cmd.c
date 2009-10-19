@@ -63,9 +63,9 @@ int gaussian_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	assert(gaussian_fltr!=NULL);
+	assert(DSYM(gaussian_fltr)!=NULL);
 	/* do the filter */
-	gaussian_fltr(img,(float)sigma);
+	DSYM(gaussian_fltr)(img,(float)sigma);
 	//stamp_image_t(img);
 	
 	return TCL_OK;

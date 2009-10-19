@@ -297,7 +297,7 @@ int newMvthImage(Tcl_Interp *interp,
 	iPtr->widthPtr=wObjPtr; Tcl_IncrRefCount(wObjPtr);
 	iPtr->heightPtr=hObjPtr; Tcl_IncrRefCount(hObjPtr);
 	iPtr->depthPtr=dObjPtr; Tcl_IncrRefCount(dObjPtr);
-	iPtr->img=new_image_t(w,h,d);
+	iPtr->img=DSYM(new_image_t)(w,h,d);
 	*iPtr_in=iPtr;
 	return TCL_OK;
 }
@@ -326,10 +326,10 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* make a copy */
-	dimg=new_image_t(simg->w,simg->h,simg->bands);
+	dimg=DSYM(new_image_t)(simg->w,simg->h,simg->bands);
 	assert(dimg!=NULL);
 	memcpy(dimg->name,simg->name,sizeof(dimg->name));
-	copy_image_t(simg,dimg);
+	DSYM(copy_image_t)(simg,dimg);
 	//register_image_var(dimg,dstname);
 	//stamp_image_t(dimg);
 	mvthImageReplace(dimg,dmimg);
@@ -363,7 +363,7 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* Try to load the resize function from the library */
-	if (resize_image==NULL) {
+	if (DSYM(resize_image)==NULL) {
 		Tcl_AppendResult(interp,"Could not dynamically load `resize_image()' from ",
 				MVTHIMAGELIB,"\n",NULL);
 		return TCL_ERROR;
@@ -373,11 +373,11 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	int nw,nh;
 	nw=(int)(simg->w*factor+0.5);
 	nh=(int)(simg->h*factor+0.5);
-	dimg=new_image_t(nw,nh,simg->bands);
+	dimg=DSYM(new_image_t)(nw,nh,simg->bands);
 	assert(dimg!=NULL);
 	/* do the resizing */
-	resize_image(simg->data,simg->w,simg->h,simg->bands,dimg->data,factor);
-	stamp_image_t(dimg);
+	DSYM(resize_image)(simg->data,simg->w,simg->h,simg->bands,dimg->data,factor);
+	DSYM(stamp_image_t)(dimg);
 	//stamp_image_t(dimg);
 	mvthImageReplace(dimg,smimg);
 
@@ -556,7 +556,7 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 	filename=Tcl_GetString(objv[1]);
 
 	/* try to read the image */
-	img=readimage(filename);
+	img=DSYM(readimage)(filename);
 	if (img==NULL || img->data==NULL) {
 		if (img!=NULL) free(img);
 		Tcl_AppendResult(interp,"Trouble reading image `",filename,"'",NULL);
@@ -602,7 +602,7 @@ int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr)
 	if (iPtr->widthPtr!=NULL) {Tcl_DecrRefCount(iPtr->widthPtr);}
 	if (iPtr->heightPtr!=NULL) {Tcl_DecrRefCount(iPtr->heightPtr);}
 	if (iPtr->depthPtr!=NULL) {Tcl_DecrRefCount(iPtr->depthPtr);}
-	if (iPtr->img!=NULL) {free_image_t(iPtr->img);}
+	if (iPtr->img!=NULL) {DSYM(free_image_t)(iPtr->img);}
 	Tcl_Free((char*)iPtr);
 	return TCL_OK;
 }
@@ -669,8 +669,8 @@ int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 
 		if (dim[0]!=w || dim[1]!=h || dim[2]!=d) {
 			/* then some dimension has changed */
-			free_image_t(iPtr->img);
-			iPtr->img=new_image_t(dim[0],dim[1],dim[2]);
+			DSYM(free_image_t)(iPtr->img);
+			iPtr->img=DSYM(new_image_t)(dim[0],dim[1],dim[2]);
 		}
 		if (dim[0]!=w) {
 			if (iPtr->widthPtr!=NULL) {
@@ -743,7 +743,7 @@ int updateMvthImageDims(MvthImage *mimg, int w, int h, int d)
 int mvthImageReplace(image_t *img, MvthImage *mimg)
 {
 	if (mimg==NULL) return TCL_ERROR;
-	if (mimg->img!=NULL) free_image_t(mimg->img);
+	if (mimg->img!=NULL) DSYM(free_image_t)(mimg->img);
 	mimg->img=img;
 	updateMvthImageDims(mimg,img->w,img->h,img->bands);
 	return TCL_OK;
@@ -756,9 +756,9 @@ int image_t2MvthImage(image_t *img, MvthImage *mimg)
 	if (img->w!=dst->w || img->h!=dst->h || img->bands!=dst->bands)
 	{
 		/* free the old one and copy the new one */
-		free_image_t(dst);
+		DSYM(free_image_t)(dst);
 		mimg->img=NULL;
-		dst=new_image_t(img->w,img->h,img->bands);
+		dst=DSYM(new_image_t)(img->w,img->h,img->bands);
 	}
 	/* just do a straight copy */
 	memmove(dst->data,img->data,img->w*img->h*img->bands*sizeof(float));

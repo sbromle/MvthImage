@@ -69,9 +69,9 @@ int canny_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_undo_var(name);
 
 	/* do the filter */
-	assert(canny_fltr!=NULL);
-	canny_fltr(img,thigh,tlow);
-	stamp_image_t(img);
+	assert(DSYM(canny_fltr)!=NULL);
+	DSYM(canny_fltr)(img,thigh,tlow);
+	DSYM(stamp_image_t)(img);
 
 	return TCL_OK;
 }

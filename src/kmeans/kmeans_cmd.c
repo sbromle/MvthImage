@@ -63,13 +63,13 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (Tcl_ParseArgsObjv(interp,&objc,objv,&remObjv,argTable)!=TCL_OK)
 	{
-		if (remObjv!=NULL) free(remObjv);;
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
 	if (objc!=2) {
 		Tcl_AppendResult(interp,"You must specify an image!\n",NULL);
-		if (remObjv!=NULL) free(remObjv);;
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 	
@@ -86,11 +86,11 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 
   if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
 	{
-		if (remObjv!=NULL) free(remObjv);;
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
-	if (remObjv!=NULL) free(remObjv);;
+	if (remObjv!=NULL) free(remObjv);
 	img=mimg->img;
 
 	if (channel>=img->bands) {
@@ -99,9 +99,9 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* load any symbols that we may need */
-	assert(kmeans_fltr!=NULL);
+	assert(DSYM(kmeans_fltr)!=NULL);
 
-	kmeans_fltr(img,nclasses,channel);
+	DSYM(kmeans_fltr)(img,nclasses,channel);
 	/* release the library */
 
 	return TCL_OK;

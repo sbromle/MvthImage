@@ -60,8 +60,8 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	img=mimg->img;
-	assert(writeimage!=NULL);
-	writeimage(img->data, img->w,img->h,img->bands,bpc,filename);
+	assert(DSYM(writeimage)!=NULL);
+	DSYM(writeimage)(img->data, img->w,img->h,img->bands,bpc,filename);
 
 	return TCL_OK;
 }

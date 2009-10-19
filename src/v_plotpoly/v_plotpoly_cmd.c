@@ -149,11 +149,11 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	rgb[1]=(float)g;
 	rgb[2]=(float)b;
 	rgb[3]=0.0;
-	assert(plotpoly!=NULL);
+	assert(DSYM(plotpoly)!=NULL);
 
 	/* do the filter */
-	plotpoly(mi,&viewport,order,coefs,rgb);
-	stamp_image_t(mi);
+	DSYM(plotpoly)(mi,&viewport,order,coefs,rgb);
+	DSYM(stamp_image_t)(mi);
 	
 
 	free(coefs);

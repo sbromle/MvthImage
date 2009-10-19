@@ -106,9 +106,9 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	assert(text_pango_fltr!=NULL);
-	assert(paste_with_mask_fltr!=NULL);
-	text=text_pango_fltr(mystring,color,ptsize,&mask);
+	assert(DSYM(text_pango_fltr)!=NULL);
+	assert(DSYM(paste_with_mask_fltr)!=NULL);
+	text=DSYM(text_pango_fltr)(mystring,color,ptsize,&mask);
 	if (text==NULL || mask==NULL)
 	{
 		Tcl_AppendResult(interp,"Text sprint was NULL!\n",NULL);
@@ -117,8 +117,8 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	//register_image_undo_var(iname);
 
-	paste_with_mask_fltr(text,img,xoff,yoff,mask);
-	stamp_image_t(img);
+	DSYM(paste_with_mask_fltr)(text,img,xoff,yoff,mask);
+	DSYM(stamp_image_t)(img);
 	
 	free(text->data);
 	free(text);

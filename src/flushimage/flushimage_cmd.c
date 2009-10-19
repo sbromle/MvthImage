@@ -53,8 +53,8 @@ int flushimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (objc==3) filename=Tcl_GetStringFromObj(objv[2],NULL);
 
-	assert(fflush_image_t!=NULL);
-	fflush_image_t(img,filename);
+	assert(DSYM(fflush_image_t)!=NULL);
+	DSYM(fflush_image_t)(img,filename);
 
 	return TCL_OK;
 }

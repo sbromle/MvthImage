@@ -64,17 +64,17 @@ int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_undo_var(name);
 
 	/* load the helper commands */
-	assert(delauney_fltr!=NULL);
-	assert(resize_image_t!=NULL);
+	assert(DSYM(delauney_fltr)!=NULL);
+	assert(DSYM(resize_image_t)!=NULL);
 
 	if (img->w!=stereo_context.w || img->h!=stereo_context.h)
 	{
-		resize_image_t(img,stereo_context.w,stereo_context.h,img->bands);
+		DSYM(resize_image_t)(img,stereo_context.w,stereo_context.h,img->bands);
 		updateMvthImageDims(mimg,img->w,img->h,img->bands);
 	}
 
-	delauney_fltr(img,&stereo_context);
-	stamp_image_t(img);
+	DSYM(delauney_fltr)(img,&stereo_context);
+	DSYM(stamp_image_t)(img);
 	
 	return TCL_OK;
 }
