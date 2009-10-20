@@ -17,10 +17,10 @@
  */
 typedef struct image_s
 {
-	char name[128]; /* name of image in image context array */
-	unsigned long timestamp; /* timestamp of last modification */
 	int w, h, bands; /* width, height, and number of channels */
 	float *data; /* pointer to image data. */
+	unsigned long timestamp; /* timestamp of last modification */
+	char name[128]; /* name of image in image context array */
 } image_t;
 
 /* We should really write the filters to use image blocks,
@@ -102,5 +102,17 @@ typedef struct ViewPort_s {
 	{1,0,0,1,"%lg","",AXIS_LINEAR,"",0},\
 	{1,0,0,0,"%lg","",AXIS_LINEAR,"",0}},\
 	0,1,0,1}
+
+/** flags for plotting */
+typedef enum PLOT_FLAGS {
+	PFLAG_NONE = 0,
+	PFLAG_LANDSCAPE = 1,
+	PFLAG_CLIP = (1<<1),
+	PFLAG_NOBILINEAR = (1<<2),
+	PFLAG_FLIPY = (1<<3),
+	PFLAG_GRAYSCALE = (1<<4)
+} PLOT_FLAG;
+
+
 
 #endif

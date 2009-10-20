@@ -31,8 +31,8 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
+#include "dynamic_symbols_mvth.h"
 #include "images_types.h"
-#include "images_utils.h"
 #include "mvthimagestate.h"
 
 /* the following structure is created once for each Tcl interpretor*/
@@ -117,6 +117,8 @@ void MvthImageCleanup(ClientData data);
 int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr);
 int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr);
 int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
+int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 
 
 /* The following routines create, initialize and delete Image_ts */
@@ -189,9 +191,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	 * the subcommand.
 	 */
 	CONST char *subCmds[] = {
-		"create","delete","duplicate","copy","exists","open", "width","height","depth","names","size",NULL};
+		"create","delete","duplicate","copy","exists","open", "width","height","depth","names","size","scale",NULL};
 	enum MvthImageIx {
-		CreateIx, DeleteIx, DuplicateIx,CopyIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx};
+		CreateIx, DeleteIx, DuplicateIx,CopyIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, NamesIx,SizeIx,ScaleIx};
 	int index;
 
 	if (objc==1 || objc>=6) {
@@ -233,6 +235,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			break;
 		case OpenIx:
 			return MvthImageOpen((ClientData)statePtr,interp,objc-1,objv+1);
+			break;
+		case ScaleIx:
+			return MvthImageScale((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
 	}
 
@@ -292,7 +297,7 @@ int newMvthImage(Tcl_Interp *interp,
 	iPtr->widthPtr=wObjPtr; Tcl_IncrRefCount(wObjPtr);
 	iPtr->heightPtr=hObjPtr; Tcl_IncrRefCount(hObjPtr);
 	iPtr->depthPtr=dObjPtr; Tcl_IncrRefCount(dObjPtr);
-	iPtr->img=new_image_t(w,h,d);
+	iPtr->img=DSYM(new_image_t)(w,h,d);
 	*iPtr_in=iPtr;
 	return TCL_OK;
 }
@@ -321,10 +326,10 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* make a copy */
-	dimg=new_image_t(simg->w,simg->h,simg->bands);
+	dimg=DSYM(new_image_t)(simg->w,simg->h,simg->bands);
 	assert(dimg!=NULL);
 	memcpy(dimg->name,simg->name,sizeof(dimg->name));
-	copy_image_t(simg,dimg);
+	DSYM(copy_image_t)(simg,dimg);
 	//register_image_var(dimg,dstname);
 	//stamp_image_t(dimg);
 	mvthImageReplace(dimg,dmimg);
@@ -334,6 +339,57 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	return TCL_OK;
 }
 
+int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[])
+{
+	image_t *simg;
+	image_t *dimg=NULL;
+	MvthImage *smimg=NULL;
+	double factor=1.0;
+
+	if (objc!=3)
+	{
+		Tcl_WrongNumArgs(interp,1,objv,"srcname fraction");
+		return TCL_ERROR;
+	}
+
+	if (getMvthImageFromObj(interp,objv[1],&smimg)!=TCL_OK) return TCL_ERROR;
+	simg=smimg->img;
+	if (Tcl_GetDoubleFromObj(interp,objv[2],&factor)!=TCL_OK) return TCL_ERROR;
+
+	if (factor<=0) {
+		Tcl_AppendResult(interp,"Scale factor must be >0\n",NULL);
+		return TCL_ERROR;
+	}
+
+	/* Try to load the resize function from the library */
+	if (DSYM(resize_image)==NULL) {
+		Tcl_AppendResult(interp,"Could not dynamically load `resize_image()' from ",
+				MVTHIMAGELIB,"\n",NULL);
+		return TCL_ERROR;
+	}
+	/* make an image to store the result. */
+	simg=smimg->img;
+	int nw,nh;
+	nw=(int)(simg->w*factor+0.5);
+	nh=(int)(simg->h*factor+0.5);
+	dimg=DSYM(new_image_t)(nw,nh,simg->bands);
+	assert(dimg!=NULL);
+	/* do the resizing */
+	DSYM(resize_image)(simg->data,simg->w,simg->h,simg->bands,dimg->data,factor);
+	DSYM(stamp_image_t)(dimg);
+	//stamp_image_t(dimg);
+	mvthImageReplace(dimg,smimg);
+
+	/* return the new dimensions of the image */
+	Tcl_Obj *dlist=Tcl_NewListObj(0,NULL);
+	if (Tcl_ListObjAppendElement(interp,dlist,smimg->widthPtr)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,smimg->heightPtr)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,smimg->depthPtr)!=TCL_OK) return TCL_ERROR;
+	Tcl_SetObjResult(interp,dlist);
+
+	return TCL_OK;
+}
 
 /* the following routine actually creates MvthImages */
 int MvthImageCreate(ClientData data, Tcl_Interp *interp, 
@@ -500,7 +556,7 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 	filename=Tcl_GetString(objv[1]);
 
 	/* try to read the image */
-	img=readimage(filename);
+	img=DSYM(readimage)(filename);
 	if (img==NULL || img->data==NULL) {
 		if (img!=NULL) free(img);
 		Tcl_AppendResult(interp,"Trouble reading image `",filename,"'",NULL);
@@ -546,7 +602,7 @@ int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr)
 	if (iPtr->widthPtr!=NULL) {Tcl_DecrRefCount(iPtr->widthPtr);}
 	if (iPtr->heightPtr!=NULL) {Tcl_DecrRefCount(iPtr->heightPtr);}
 	if (iPtr->depthPtr!=NULL) {Tcl_DecrRefCount(iPtr->depthPtr);}
-	if (iPtr->img!=NULL) {free_image_t(iPtr->img);}
+	if (iPtr->img!=NULL) {DSYM(free_image_t)(iPtr->img);}
 	Tcl_Free((char*)iPtr);
 	return TCL_OK;
 }
@@ -613,8 +669,8 @@ int MvthImageWHD(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 
 		if (dim[0]!=w || dim[1]!=h || dim[2]!=d) {
 			/* then some dimension has changed */
-			free_image_t(iPtr->img);
-			iPtr->img=new_image_t(dim[0],dim[1],dim[2]);
+			DSYM(free_image_t)(iPtr->img);
+			iPtr->img=DSYM(new_image_t)(dim[0],dim[1],dim[2]);
 		}
 		if (dim[0]!=w) {
 			if (iPtr->widthPtr!=NULL) {
@@ -687,7 +743,7 @@ int updateMvthImageDims(MvthImage *mimg, int w, int h, int d)
 int mvthImageReplace(image_t *img, MvthImage *mimg)
 {
 	if (mimg==NULL) return TCL_ERROR;
-	if (mimg->img!=NULL) free_image_t(mimg->img);
+	if (mimg->img!=NULL) DSYM(free_image_t)(mimg->img);
 	mimg->img=img;
 	updateMvthImageDims(mimg,img->w,img->h,img->bands);
 	return TCL_OK;
@@ -700,9 +756,9 @@ int image_t2MvthImage(image_t *img, MvthImage *mimg)
 	if (img->w!=dst->w || img->h!=dst->h || img->bands!=dst->bands)
 	{
 		/* free the old one and copy the new one */
-		free_image_t(dst);
+		DSYM(free_image_t)(dst);
 		mimg->img=NULL;
-		dst=new_image_t(img->w,img->h,img->bands);
+		dst=DSYM(new_image_t)(img->w,img->h,img->bands);
 	}
 	/* just do a straight copy */
 	memmove(dst->data,img->data,img->w*img->h*img->bands*sizeof(float));

@@ -5,17 +5,6 @@
 #define PLOT_IMAGESCALE_H
 #include "images_types.h"
 
-/* data is a double* array of nrec*reclen values */
-
-typedef enum PLOT_FLAGS {
-	PFLAG_NONE = 0,
-	PFLAG_LANDSCAPE = 1,
-	PFLAG_CLIP = (1<<1),
-	PFLAG_NOBILINEAR = (1<<2),
-	PFLAG_FLIPY = (1<<3),
-	PFLAG_GRAYSCALE = (1<<4)
-} PLOT_FLAG;
-
 /* lower level plotting routine that doesn't use image_t structure */
 extern int plot_imagescale_vLLL(
 		float *pixels,    /* pointer to beginning of drawable pixels */

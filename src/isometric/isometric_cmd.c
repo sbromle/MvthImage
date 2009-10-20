@@ -32,17 +32,14 @@
 #include <assert.h>
 #include <tcl.h>
 #include <tclArgv.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int isometric_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *img; /* must find this */
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	void (*isometric_fltr)(image_t *img, double theta)=NULL;
 	double theta=30;
 	Tcl_Obj **remObjv=NULL;
 
@@ -68,12 +65,9 @@ int isometric_cmd(ClientData clientData, Tcl_Interp *interp,
 	img=mimg->img;
 
 	/* load any symbols that we need */
-	isometric_fltr=load_symbol(MVTHIMAGELIB,"isometric_fltr",&libhandle);
-	assert(isometric_fltr!=NULL);
+	assert(DSYM(isometric_fltr)!=NULL);
 
-	isometric_fltr(img,theta);
+	DSYM(isometric_fltr)(img,theta);
 
-	release_handle(&libhandle);
-	
 	return TCL_OK;
 }

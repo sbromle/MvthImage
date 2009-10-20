@@ -32,9 +32,8 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int text_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -48,9 +47,6 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 	image_t *text=NULL;
-	void *libhandle=NULL;
-	void (*paste_with_mask_fltr)(image_t *src, image_t *dst,int xoff, int yoff, unsigned char *mask)=NULL;
-	image_t * (*text_pango_fltr)(const char *message, float colour[4], double ptsize,unsigned char **mask)=NULL;
 
 	Tcl_ArgvInfo argTable[] = {
 		{"-xoff",TCL_ARGV_INT,NULL,&xoff,
@@ -110,11 +106,9 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	text_pango_fltr=load_symbol(MVTHIMAGELIB,"text_pango_fltr",&libhandle);
-	assert(text_pango_fltr!=NULL);
-	paste_with_mask_fltr=load_symbol(MVTHIMAGELIB,"paste_with_mask_fltr",&libhandle);
-	assert(paste_with_mask_fltr!=NULL);
-	text=text_pango_fltr(mystring,color,ptsize,&mask);
+	assert(DSYM(text_pango_fltr)!=NULL);
+	assert(DSYM(paste_with_mask_fltr)!=NULL);
+	text=DSYM(text_pango_fltr)(mystring,color,ptsize,&mask);
 	if (text==NULL || mask==NULL)
 	{
 		Tcl_AppendResult(interp,"Text sprint was NULL!\n",NULL);
@@ -123,13 +117,12 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	//register_image_undo_var(iname);
 
-	paste_with_mask_fltr(text,img,xoff,yoff,mask);
-	stamp_image_t(img);
+	DSYM(paste_with_mask_fltr)(text,img,xoff,yoff,mask);
+	DSYM(stamp_image_t)(img);
 	
 	free(text->data);
 	free(text);
 	free(mask);
 
-	release_handle(&libhandle);
 	return TCL_OK;
 }

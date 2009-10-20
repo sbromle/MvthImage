@@ -33,21 +33,15 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "base/images_utils.h"
 #include "base/stereo_context.h"
-#include "utils/timestamp.h"
-
 
 int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *img;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	void (*delauney_fltr)(image_t *,SContext_t *sc)=NULL;
-	int (*resize_image_t)(image_t *img, int w, int h, int bands)=NULL;
 
 	if (objc!=2)
 	{
@@ -70,21 +64,17 @@ int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_undo_var(name);
 
 	/* load the helper commands */
-	delauney_fltr=load_symbol(MVTHIMAGELIB,"delauney_fltr",&libhandle);
-	assert(delauney_fltr!=NULL);
-	resize_image_t=load_symbol(MVTHIMAGELIB,"resize_image_t",&libhandle);
-	assert(resize_image_t!=NULL);
+	assert(DSYM(delauney_fltr)!=NULL);
+	assert(DSYM(resize_image_t)!=NULL);
 
 	if (img->w!=stereo_context.w || img->h!=stereo_context.h)
 	{
-		resize_image_t(img,stereo_context.w,stereo_context.h,img->bands);
+		DSYM(resize_image_t)(img,stereo_context.w,stereo_context.h,img->bands);
 		updateMvthImageDims(mimg,img->w,img->h,img->bands);
 	}
 
-	delauney_fltr(img,&stereo_context);
-	stamp_image_t(img);
+	DSYM(delauney_fltr)(img,&stereo_context);
+	DSYM(stamp_image_t)(img);
 	
-
-	release_handle(&libhandle);
 	return TCL_OK;
 }

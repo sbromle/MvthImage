@@ -31,12 +31,10 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/images_types.h"
 #include "base/mvthimagestate.h"
 #include "base/images_types.h"
-#include "utils/drawCircle.h"
-#include "utils/timestamp.h"
 
 int circle_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -48,9 +46,6 @@ int circle_cmd(ClientData clientData, Tcl_Interp *interp,
 	MvthImage *mimg=NULL;
 	Tcl_Obj **lobjv=NULL;
 	int lobjc=0;
-	void *libhandle=NULL;
-	void (*drawCircle)(image_t *img,int cx, int cy, int r, float rgb[3])=NULL;
-
 
 	if (objc!=4)
 	{
@@ -95,11 +90,9 @@ int circle_cmd(ClientData clientData, Tcl_Interp *interp,
 	rgb[0]=(float)r;
 	rgb[1]=(float)g;
 	rgb[2]=(float)b;
-	drawCircle=load_symbol(MVTHIMAGELIB,"drawCircle",&libhandle);
-	assert(drawCircle!=NULL);
-	drawCircle(img,x,y,rad,rgb);
-	stamp_image_t(img);
+	assert(DSYM(drawCircle)!=NULL);
+	DSYM(drawCircle)(img,x,y,rad,rgb);
+	DSYM(stamp_image_t)(img);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }

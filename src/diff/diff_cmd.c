@@ -30,11 +30,9 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mmap_handler.h"
 #include "base/mvthimagestate.h"
-#include "base/images_utils.h"
-#include "utils/timestamp.h"
 
 int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -42,9 +40,6 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	int w[3],h[3],bands[3];
 	image_t *img[3]={NULL,NULL,NULL};
 	MvthImage *mimg[3]={NULL,NULL,NULL};
-	void *libhandle=NULL;
-	int (*diff_fltr)(image_t *img1, image_t *img2, image_t *imgD)=NULL;
-	image_t * (*new_image_t)(int w, int h, int bands)=NULL;
 	int i;
 
 	if (objc!=3 && objc!=4)
@@ -77,17 +72,15 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* get the maximum channels */
 	if (bands[1]>bands[0]) bands[1]=bands[0];
 
-	diff_fltr=load_symbol(MVTHIMAGELIB,"diff_fltr",&libhandle);
-	assert(diff_fltr!=NULL);
-	new_image_t=load_symbol(MVTHIMAGELIB,"new_image_t",&libhandle);
-	assert(new_image_t!=NULL);
+	assert(DSYM(diff_fltr)!=NULL);
+	assert(DSYM(new_image_t)!=NULL);
 
 	/* make an image to hold the result */
-	img[2]=new_image_t(w[1],h[1],bands[1]);
+	img[2]=DSYM(new_image_t)(w[1],h[1],bands[1]);
 
 	/* so all that remains is that we do the difference */
 
-	diff_fltr(img[0], img[1], img[2]);
+	DSYM(diff_fltr)(img[0], img[1], img[2]);
 
 	/* where do we place the result? */
 	if (mimg[2]==NULL)
@@ -101,8 +94,7 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		Tcl_SetObjResult(interp,objv[3]);
 	}
 
-	stamp_image_t(img[2]);
+	DSYM(stamp_image_t)(img[2]);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }

@@ -34,10 +34,13 @@
 #include <tk.h>
 #include "base/images_types.h"
 #include "base/mvthimagestate.h"
+#include "dynamic_symbols_mvth.h"
 
 int verbose=0;
 
 /* command function declarations */
+extern int mireload_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int astereo_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int axes_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -56,7 +59,7 @@ extern int diffimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int fillimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
-extern int flushimage_cmd (ClientData clientData, Tcl_Interp *interp,
+extern int draw_hmap_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int gaussian_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
@@ -110,7 +113,13 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 		return TCL_ERROR;
 	}
 	
+	/* dynamically load all of the library functions */
+	unload_all_mvth();
+	load_all_mvth();
+
 	/* Create all of the Tcl commands */
+	Tcl_CreateObjCommand(interp,"mireload",mireload_cmd,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"astereo",astereo_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"axes",axes_cmd,
@@ -127,9 +136,9 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"diffimages",diffimage_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
-	Tcl_CreateObjCommand(interp,"fillimage",fillimage_cmd,
+	Tcl_CreateObjCommand(interp,"drawhmap",draw_hmap_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
-	Tcl_CreateObjCommand(interp,"flushimage",flushimage_cmd,
+	Tcl_CreateObjCommand(interp,"fillimage",fillimage_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"gaussian",gaussian_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);

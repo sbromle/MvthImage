@@ -19,7 +19,7 @@
 #endif
 
 #include <tcl.h>
-#include "base/images_types.h"
+#include "images_types.h"
 
 typedef struct MvthImage {
 	Tcl_Obj *widthPtr; /* original string value for width */

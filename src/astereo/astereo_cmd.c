@@ -32,7 +32,7 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
 #include "../base/stereo_context.h"
 
@@ -45,9 +45,6 @@ int astereo_cmd(ClientData clientData, Tcl_Interp *interp,
 	image_t *imgR; /* right WIMage */
 	MvthImage *mimgL,*mimgR;
 	int range, window, horopter;
-
-	void *libhandle=NULL;
-	void (*astereo_fltr)(image_t *img1, image_t *img2, SContext_t *sc);
 
 	if (objc!=6)
 	{
@@ -91,11 +88,8 @@ int astereo_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* do the filter */
-	astereo_fltr=load_symbol(MVTHIMAGELIB,"astereo_fltr",&libhandle);
-	assert(astereo_fltr!=NULL);
-	astereo_fltr(imgL,imgR,&stereo_context);
-
-	release_handle(&libhandle);
+	assert(DSYM(astereo_fltr)!=NULL);
+	DSYM(astereo_fltr)(imgL,imgR,&stereo_context);
 
 	Tcl_ResetResult(interp);
 	return TCL_OK;

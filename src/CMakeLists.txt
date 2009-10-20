@@ -18,6 +18,7 @@ include_directories(${TCL_INCLUDE_PATH})
 include_directories(${TK_INCLUDE_PATH})
 include_directories(${TCLARGV_INCLUDES})
 include_directories(.)
+include_directories(./base)
 
 ########### next target ###############
 SET (utils_HEADERS
@@ -99,6 +100,7 @@ set (libMvthImage_SRCS
 	stats/stats_fltr.c 
 	roberts/roberts_fltr.c 
 	rgb2grayscale/rgb2grayscale_fltr.c 
+	hmap_shader/hmap_shader_fltr.c
 	hsv/rgb2hsv_fltr.c 
 	rwarp/rwarp_fltr.c 
 	rwarp/rwarp_fltr.h 
@@ -167,8 +169,8 @@ set (viewimage_SRCS
 	viewimage_Init.c
 	dynamic_load.c
 	dynamic_load.h
-	base/images_utils.c
-	base/images_utils.h
+	dynamic_symbols_mvth.c
+	dynamic_symbols_mvth.h
 	base/mvthimagestate.c
 	base/mvthimagestate.h
 	blitimage/blitimage.c
@@ -178,14 +180,10 @@ set (mvthimage_SRCS
 	mvthimage_Init.c 
 	base/mvthimagestate.c 
 	base/mvthimagestate.h 
-	base/images_utils.c 
-	base/images_utils.h 
-	base/readimages.c 
-	base/readimages.h 
 	dynamic_load.c 
 	dynamic_load.h 
-	base/mmap_handler.h 
-	base/mmap_handler.c 
+	dynamic_symbols_mvth.c 
+	dynamic_symbols_mvth.h 
 	base/stereo_context_t.h 
 	base/stereo_context.c 
 	base/stereo_context.h 
@@ -198,8 +196,8 @@ set (mvthimage_SRCS
 	delauney/delauney_cmd.c 
 	diff/diff_cmd.c 
 	fillimage/fillimage_cmd.c 
-	flushimage/flushimage_cmd.c 
 	gaussian/gaussian_cmd.c 
+	hmap_shader/hmap_shader_cmd.c 
 	invert/invert_cmd.c 
 	isometric/isometric_cmd.c 
 	kmeans/kmeans_cmd.c 
@@ -210,8 +208,6 @@ set (mvthimage_SRCS
 	rotate/rotate_cmd.c 
 	hsv/rgb2hsv_cmd.c 
 	text/text_cmd.c 
-	utils/timestamp.c 
-	utils/timestamp.h 
 	v_plotpoly/v_plotpoly_cmd.c 
 	write_image/writeimage_cmd.c
 )
@@ -246,7 +242,9 @@ install(FILES
 	${utils_HEADERS}
 	mvthImage.h
 	base/images_types.h
+	base/stereo_context_t.h
 	base/mvth_colors.h
+	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
 
 install(TARGETS MvthImage DESTINATION lib/${PACKAGE})

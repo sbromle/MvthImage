@@ -30,17 +30,14 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int invertimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *mi=NULL;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	void (*invert_fltr)(image_t *wimg)=NULL;
 
 	if (objc!=2)
 	{
@@ -54,14 +51,12 @@ int invertimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	invert_fltr=load_symbol(MVTHIMAGELIB,"invert_fltr",&libhandle);
-	assert(invert_fltr!=NULL);
+	assert(DSYM(invert_fltr)!=NULL);
 /* do the filter */
-	invert_fltr(mi);
-	stamp_image_t(mi);
+	DSYM(invert_fltr)(mi);
+	DSYM(stamp_image_t)(mi);
 	
 
 	Tcl_ResetResult(interp);
-	release_handle(&libhandle);
 	return TCL_OK;
 }

@@ -32,9 +32,8 @@
 #include <errno.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int flushimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -42,8 +41,6 @@ int flushimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	char *filename=NULL;
 	image_t *img=NULL;
 	MvthImage *mimg=NULL;
-	void *libhandle=NULL;
-	int (*fflush_image_t)(image_t *m, char *filename)=NULL;
 
 	/* make sure we still have an image specified */
 	if (objc!=2 && objc!=3) {
@@ -56,10 +53,8 @@ int flushimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (objc==3) filename=Tcl_GetStringFromObj(objv[2],NULL);
 
-	fflush_image_t=load_symbol(MVTHIMAGELIB,"fflush_image_t",&libhandle);
-	assert(fflush_image_t!=NULL);
-	fflush_image_t(img,filename);
+	assert(DSYM(fflush_image_t)!=NULL);
+	DSYM(fflush_image_t)(img,filename);
 
-	release_handle(&libhandle);
 	return TCL_OK;
 }

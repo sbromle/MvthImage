@@ -32,19 +32,14 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "base/images_utils.h"
-#include "utils/timestamp.h"
-
 
 int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	MvthImage *mimg=NULL;
 	image_t *img=NULL;
-	void *libhandle=NULL;
-	image_t * (*rgb2grayscale_fltr)(image_t *img)=NULL;
 
 	if (objc!=2)
 	{
@@ -64,15 +59,12 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	rgb2grayscale_fltr=load_symbol(MVTHIMAGELIB,"rgb2grayscale_fltr",&libhandle);
-	assert(rgb2grayscale_fltr!=NULL);
-	img=rgb2grayscale_fltr(img);
+	assert(DSYM(rgb2grayscale_fltr)!=NULL);
+	img=DSYM(rgb2grayscale_fltr)(img);
 	//register_image_var(img,name);
-	stamp_image_t(img);
+	DSYM(stamp_image_t)(img);
 
 	mvthImageReplace(img,mimg);
 	
-
-	release_handle(&libhandle);
 	return TCL_OK;
 }

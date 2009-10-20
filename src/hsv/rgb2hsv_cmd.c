@@ -34,19 +34,14 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "base/images_utils.h"
-#include "utils/timestamp.h"
-
 
 int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	MvthImage *mimg=NULL;
 	image_t *img=NULL;
-	void *libhandle=NULL;
-	int (*rgb2hsv_fltr)(image_t *img)=NULL;
 
 	if (objc!=2)
 	{
@@ -66,15 +61,13 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	rgb2hsv_fltr=load_symbol(MVTHIMAGELIB,"rgb2hsv_fltr",&libhandle);
-	assert(rgb2hsv_fltr!=NULL);
-	rgb2hsv_fltr(img);
+	assert(DSYM(rgb2hsv_fltr)!=NULL);
+	DSYM(rgb2hsv_fltr)(img);
 	//register_image_var(img,name);
 	//stamp_image_t(img);
 
 	//mvthImageReplace(img,mimg);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }
 
@@ -86,8 +79,6 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	MvthImage *mimg=NULL;
 	image_t *img=NULL;
-	void *libhandle=NULL;
-	int (*hsv2rgb_fltr)(image_t *img)=NULL;
 
 	if (objc!=2)
 	{
@@ -107,14 +98,12 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	hsv2rgb_fltr=load_symbol(MVTHIMAGELIB,"hsv2rgb_fltr",&libhandle);
-	assert(hsv2rgb_fltr!=NULL);
-	hsv2rgb_fltr(img);
+	assert(DSYM(hsv2rgb_fltr)!=NULL);
+	DSYM(hsv2rgb_fltr)(img);
 	//register_image_var(img,name);
 	//stamp_image_t(img);
 
 	//mvthImageReplace(img,mimg);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }

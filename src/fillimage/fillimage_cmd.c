@@ -31,11 +31,8 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
-#include "fillimage_fltr.h"
-
 
 int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -47,8 +44,6 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	int lobjc=0;
 	Tcl_Obj **lobjv=NULL;
 	double tmp;
-	void *libhandle=NULL;
-	void (*fillimage_fltr)(image_t *img,float val[3])=NULL;
 
 	if (objc!=3)
 	{
@@ -89,12 +84,10 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	h=mi->h;
 	bands=mi->bands;
 
-	fillimage_fltr=load_symbol(MVTHIMAGELIB,"fillimage_fltr",&libhandle);
-	assert(fillimage_fltr!=NULL);
-	fillimage_fltr(mi,val);
-	stamp_image_t(mi);
+	assert(DSYM(fillimage_fltr)!=NULL);
+	DSYM(fillimage_fltr)(mi,val);
+	DSYM(stamp_image_t)(mi);
 	
 	Tcl_ResetResult(interp);
-	release_handle(&libhandle);
 	return TCL_OK;
 }

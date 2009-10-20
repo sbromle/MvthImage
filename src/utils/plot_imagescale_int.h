@@ -12,15 +12,6 @@ typedef int (*InterpDataFunc)(void *datum, int dw, int dh,
 typedef int (*DataConversionFunc)(unsigned char *datum, unsigned char *params,
 		unsigned char *result);
 
-typedef enum PLOT_FLAGS {
-	PFLAG_NONE = 0,
-	PFLAG_LANDSCAPE = 1,
-	PFLAG_CLIP = (1<<1),
-	PFLAG_NOBILINEAR = (1<<2),
-	PFLAG_FLIPY = (1<<3),
-	PFLAG_GRAYSCALE = (1<<4)
-} PLOT_FLAG;
-
 /* lower level plotting routine that doesn't use image_t structure */
 int plot_imagescale_vLL(
 		float *pixels,    /* pointer to beginning of drawable pixels */

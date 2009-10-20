@@ -35,7 +35,7 @@
 #include <tcl.h>
 #include <tclArgv.h>
 #include "base/mvthimagestate.h"
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 
 /* Arguments are:
  * kmeans image ?-nclasses numclasses? ?-channel R|G|B? 
@@ -45,9 +45,6 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	MvthImage *mimg=NULL;
 	image_t *img=NULL;
-	void *libhandle=NULL;
-	int (*kmeans_fltr)(image_t *img, int nmeans, int channel);
-
 	int nclasses=10;
 	int channel=0; /*  0 = red channel
 											1 = green channel
@@ -66,13 +63,13 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (Tcl_ParseArgsObjv(interp,&objc,objv,&remObjv,argTable)!=TCL_OK)
 	{
-		if (remObjv!=NULL) free(remObjv);;
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
 	if (objc!=2) {
 		Tcl_AppendResult(interp,"You must specify an image!\n",NULL);
-		if (remObjv!=NULL) free(remObjv);;
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 	
@@ -89,11 +86,11 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 
   if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
 	{
-		if (remObjv!=NULL) free(remObjv);;
+		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
-	if (remObjv!=NULL) free(remObjv);;
+	if (remObjv!=NULL) free(remObjv);
 	img=mimg->img;
 
 	if (channel>=img->bands) {
@@ -102,12 +99,10 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	/* load any symbols that we may need */
-	kmeans_fltr=load_symbol(MVTHIMAGELIB,"kmeans_fltr",&libhandle);
-	assert(kmeans_fltr!=NULL);
+	assert(DSYM(kmeans_fltr)!=NULL);
 
-	kmeans_fltr(img,nclasses,channel);
+	DSYM(kmeans_fltr)(img,nclasses,channel);
 	/* release the library */
-	release_handle(&libhandle);
 
 	return TCL_OK;
 }

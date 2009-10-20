@@ -31,9 +31,8 @@
 #include <string.h>
 #include <tcl.h>
 #include <assert.h>
-#include "dynamic_load.h"
+#include "dynamic_symbols_mvth.h"
 #include "base/mvthimagestate.h"
-#include "utils/timestamp.h"
 
 int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
@@ -42,8 +41,6 @@ int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 	int namelen;
 	double factor;
 	image_t *img=NULL;
-	void *libhandle=NULL;
-	void (*brighten_fltr)(image_t *wimg,double factor)=NULL;
 	MvthImage *mimg=NULL;
 
 	if (objc!=3)
@@ -62,11 +59,9 @@ int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_undo_var(name);
 
 	/* do the filter */
-	brighten_fltr=load_symbol(MVTHIMAGELIB,"brighten_fltr",&libhandle);
-	assert(brighten_fltr!=NULL);
-	brighten_fltr(img,factor);
-	stamp_image_t(img);
+	assert(DSYM(brighten_fltr)!=NULL);
+	DSYM(brighten_fltr)(img,factor);
+	DSYM(stamp_image_t)(img);
 	
-	release_handle(&libhandle);
 	return TCL_OK;
 }
