@@ -42,7 +42,7 @@ const float mvth_colors[][3]={
 	{1.0,185/255.0,158/255.0}, /* peach */
 };
 
-const int mvth_num_colors=sizeof(mvth_colors)/3;
+const int mvth_num_colors=sizeof(mvth_colors)/(3*sizeof(mvth_colors[0][0]));
 
 const float mvth_grays[][3]={
 	{0.941,0.941,0.941},
@@ -63,4 +63,4 @@ const float mvth_grays[][3]={
 	{0.059,0.059,0.059},
 };
 
-const int mvth_num_grays=sizeof(mvth_grays)/3;
+const int mvth_num_grays=sizeof(mvth_grays)/(3*sizeof(mvth_grays[0][0]));

@@ -244,6 +244,7 @@ install(FILES
 	base/images_types.h
 	base/stereo_context_t.h
 	base/mvth_colors.h
+	base/mvthimagestate.h
 	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
 
