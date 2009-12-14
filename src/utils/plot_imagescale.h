@@ -5,6 +5,16 @@
 #define PLOT_IMAGESCALE_H
 #include "images_types.h"
 
+/* A little simpler interface to plot_imagescale_vLLL */
+extern int plot_imagescale_simple(
+		image_t *img, ViewPort_t *viewport,
+		double *data,             /* data to plot */
+		int dw, int dh,           /* dimensions of region of data to plot */
+		int dpitch,               /* number of doubles in one record */
+		double dx0, double dy0, /* extent of data array in data coords */
+		double dx1, double dy1, 
+		double vmin, double vmax,  /* data range to use for color coding */
+		int flags);
 /* lower level plotting routine that doesn't use image_t structure */
 extern int plot_imagescale_vLLL(
 		float *pixels,    /* pointer to beginning of drawable pixels */

@@ -147,6 +147,52 @@ static int default_colorSpace(void *datum, void *vmin_in, void *vmax_in,
 	return 0;
 }
 
+int plot_imagescale_simple(
+		image_t *img, ViewPort_t *viewport,
+		double *data,             /* data to plot */
+		int dw, int dh,           /* dimensions of region of data to plot */
+		int dpitch,               /* number of doubles in one record */
+		double dx0, double dy0, /* extent of data array in data coords */
+		double dx1, double dy1, 
+		double vmin, double vmax,  /* data range to use for color coding */
+		int flags)
+{
+	float *pixels;
+	int xlow, xhigh, ylow, yhigh;
+	double ix0, ix1, iy0, iy1;
+
+	xlow=viewport->xmin*img->w;
+	xhigh=viewport->xmax*img->w;
+	//ylow=viewport->ymax*img->h-1;
+	//yhigh=viewport->ymin*img->h-1;
+	ylow=(1-viewport->ymax)*img->h;
+	yhigh=(1-viewport->ymin)*img->h;
+	if (xlow<0) xlow=0;
+	if (xhigh<0) xhigh=0;
+	if (xlow>=img->w) xlow=img->w-1;
+	if (xhigh>=img->w) xhigh=img->w-1;
+	if (ylow<0) ylow=0;
+	if (yhigh<0) yhigh=0;
+	if (ylow>=img->h) ylow=img->h-1;
+	if (yhigh>=img->h) yhigh=img->h-1;
+	ix0=viewport->axis[0].min;
+	ix1=viewport->axis[0].max;
+	iy0=viewport->axis[1].min;
+	iy1=viewport->axis[1].max;
+	pixels=img->data+xlow*img->bands+ylow*img->bands*img->w;
+	return plot_imagescale_vLLL(pixels,
+			xhigh-xlow+1,
+			yhigh-ylow+1,
+			img->bands, img->bands*img->w,
+			ix0, iy0,
+			ix1, iy1,
+			data, dw,dh,dpitch,
+			dx0, dy0,
+			dx1, dy1,
+			vmin, vmax, flags);
+}
+
+
 int plot_imagescale_vLLL(
 		float *pixels,    /* pointer to beginning of drawable pixels */
 		int w, int h,             /* width and height of region to draw */
