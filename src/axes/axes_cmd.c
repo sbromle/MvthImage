@@ -65,6 +65,18 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	/* build the options table */
 	Tcl_ArgvInfo argTable[] = {
+	        // ignored variables for compatibility with ::pup::axes
+	        {"-axesopts",TCL_ARGV_IGNORE_ARG,NULL,NULL,
+			"options for drawing both axes"},
+		{"-axesrgb",TCL_ARGV_IGNORE_ARG,NULL,NULL,
+			"rgb-triple for axes color"},
+		{"-box", TCL_ARGV_IGNORE_ARG,NULL,NULL,
+	                "draw a box around the plotting area"},
+	        {"-labelrgb",TCL_ARGV_IGNORE_ARG,NULL,NULL,
+			"rgb-triple for label color"},
+		{"-title",TCL_ARGV_IGNORE_ARG,NULL,NULL,
+			"set title label"},
+	        //end of custom commands
 		{"-xmin",TCL_ARGV_FLOAT,NULL,&axes.axis[0].min,
 			"set minimum x value"},
 		{"-xmax",TCL_ARGV_FLOAT,NULL,&axes.axis[0].max,
