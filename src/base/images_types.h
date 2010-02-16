@@ -76,6 +76,11 @@ typedef double R2Dmatrix_t[4];
 typedef float Tmatrix[12];
 #endif
 
+typedef enum {
+	AXIS_OPTION_NONE     =0x0,
+	AXIS_OPTION_DRAW_ZERO=0x1,
+	AXIS_OPTION_FILL_ZERO=0x2,
+} AXIS_OPTION;
 
 /* viewport data type for drawing axes etc */
 #define AXIS_LINEAR      0
@@ -89,8 +94,8 @@ typedef struct AXES_param_s {
 	char label[256]; /* label for axes */
 	int type; /* set to either AXIS_LINEAR, AXIS_LOGARITHMIC, or AXIS_INVERSE */
 	char opt[32]; /* options string */
-	int drawzero; /* set to 1 if user wishes to draw an axis through zero */
-}AXIS_t;
+	AXIS_OPTION options; /* zero drawing options */
+} AXIS_t;
 
 typedef struct ViewPort_s {
 	AXIS_t axis[3];/*x-,y-,z-axis parameters */
