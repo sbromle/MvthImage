@@ -72,6 +72,19 @@ int Viewimage_Init(Tcl_Interp *interp) {
 			"puts stdout {redistribute it under certain conditions.};",
 			"puts stdout {For details, see the GNU Lesser Public License V.3 <http://www.gnu.org/licenses>.};",
 			NULL);
+	Tcl_VarEval(interp,
+			"proc miexpand {w} {"
+				"foreach {wo ho bo} [mi size $w] break;"
+				"set c [::viewimage::canvasNameFromImg $w];"
+				"set wi [winfo width $c];"
+				"set hi [winfo height $c];"
+				"set wi [expr {$wi-3}];"
+				"set hi [expr {$hi-3}];"
+				"if {$wi<=0} {set wi 10};"
+				"if {$hi<=0} {set hi 10};"
+				"mi size $w [list $wi $hi $bo];"
+				"xblitimage $w;"
+			"}",NULL);
 	/* Declare that we provide the buriedtargets package */
 	Tcl_PkgProvide(interp,"viewimage","1.0");
 	return TCL_OK;
