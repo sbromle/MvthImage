@@ -74,7 +74,7 @@ int Viewimage_Init(Tcl_Interp *interp) {
 			NULL);
 	Tcl_VarEval(interp,
 			"proc miexpand {w} {"
-				"foreach {wo ho bo} [mi size $w] break;"
+				"foreach {wo ho do bo} [mi size $w] break;"
 				"set c [::viewimage::canvasNameFromImg $w];"
 				"set wi [winfo width $c];"
 				"set hi [winfo height $c];"
