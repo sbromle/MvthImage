@@ -24,7 +24,8 @@
 typedef struct MvthImage {
 	Tcl_Obj *widthPtr; /* original string value for width */
 	Tcl_Obj *heightPtr; /* original string value for height */
-	Tcl_Obj *depthPtr; /* original string value for bitdepth */
+	Tcl_Obj *depthPtr; /* original string value for depth */
+	Tcl_Obj *bandsPtr; /* original string value for bitdepth */
 	image_t *img; /* a low-level  mvth image structure */
 } MvthImage;
 
@@ -34,7 +35,7 @@ extern int MvthImageState_Init(Tcl_Interp *interp);
 extern int mvthImageExists(Tcl_Interp *interp, Tcl_Obj *CONST name);
 extern int mvthImageReplace(image_t *img, MvthImage *mimg);
 extern int image_t2MvthImage(image_t *img, MvthImage *mimg);
-extern int updateMvthImageDims(MvthImage *mimg, int w, int h, int d);
+extern int updateMvthImageDims(MvthImage *mimg, int w, int h, int d, int bands);
 
 
 #endif

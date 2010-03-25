@@ -49,6 +49,8 @@ void roberts_fltr(image_t *img)
 	int i,j,m1,m2;
 	int pos,pos2;
 	float *orig;
+	
+	if (img->d!=1) return;
 
 	orig=img->data;
 	w=img->w;

@@ -136,7 +136,15 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	if (remObjv!=NULL) free(remObjv);;
+	if (remObjv!=NULL) free(remObjv);
+
+	/* get the image */
+	img=mimg->img;
+
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"axes_cmd only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	/* set up the rgb colour array */
 	rgb[0]=(float)r;
@@ -193,8 +201,6 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	/* get the ping */
-	img=mimg->img;
 
 	/* register with the undo substructure */
 	//register_image_undo_var(name);

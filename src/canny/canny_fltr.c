@@ -57,9 +57,9 @@ void canny_fltr(image_t *img, float thigh, float tlow)
 	int w,h,bands;
 	int register i;
 
-	if (img->bands!=1)
+	if (img->bands!=1 || img->d!=1)
 	{
-		fprintf(stderr,"canny_fltr: Must be grayscale.\n");
+		fprintf(stderr,"canny_fltr: Image must be 2D grayscale.\n");
 		return;
 	}
 

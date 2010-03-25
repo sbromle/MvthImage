@@ -68,6 +68,7 @@ void radial_fltr(image_t *img, double *params)
 	w=img->w;
 	h=img->h;
 	bands=img->bands;
+	if (img->d!=1) return;
 
 	/* new image */
 	nimg=(float*)calloc(w*h*bands,sizeof(float));

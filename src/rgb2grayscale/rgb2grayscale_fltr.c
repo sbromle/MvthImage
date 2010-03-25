@@ -44,6 +44,10 @@ image_t * rgb2grayscale_fltr(image_t *img)
 	int rowstride;
 
 
+	if (img->d!=1) {
+		fprintf(stderr,"Error: rgb2grayscale only supports 2D images\n\n");
+		return img;
+	}
 	if (img->bands==1)
 	{
 		fprintf(stderr,"Error: Image already grayscale.\n\n");

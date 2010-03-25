@@ -52,6 +52,10 @@ int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"delauny only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	/* test to see if a disparity map exists */
 	if (stereo_context.dmap == NULL)
@@ -70,7 +74,7 @@ int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 	if (img->w!=stereo_context.w || img->h!=stereo_context.h)
 	{
 		DSYM(resize_image_t)(img,stereo_context.w,stereo_context.h,img->bands);
-		updateMvthImageDims(mimg,img->w,img->h,img->bands);
+		updateMvthImageDims(mimg,img->w,img->h,img->d,img->bands);
 	}
 
 	DSYM(delauney_fltr)(img,&stereo_context);

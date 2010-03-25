@@ -47,6 +47,10 @@ int invertimage_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	mi=mimg->img;
+	if (mi->d!=1) {
+		Tcl_AppendResult(interp,"invertimage only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	/* register with the undo substructure */
 	//register_image_undo_var(name);

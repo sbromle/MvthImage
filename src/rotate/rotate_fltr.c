@@ -55,6 +55,7 @@ void rotate_fltr(image_t *img,
 	w=img->w;
 	h=img->h;
 	bands=img->bands;
+	if (img->d!=1) return;
 
 	newimg=(float*)calloc(w*h*bands,sizeof(float));
 
@@ -90,6 +91,7 @@ void rotate_90_fltr(image_t *img, int index)
 	if (index==0) return;
 	if (index<0) index+=4;
 
+	if (img->d!=1) return;
 
 	newimg=(float*)calloc(img->w*img->h*img->bands,sizeof(float));
 	orig=img->data;

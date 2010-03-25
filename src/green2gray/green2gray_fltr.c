@@ -38,9 +38,9 @@ void green2gray_fltr(image_t *img)
 	int j;
 	int h,w;
 
-	if (img->bands!=3)
+	if (img->bands!=3 || img->d!=1)
 	{
-		fprintf(stderr,"Error: WImage already grayscale.\n\n");
+		fprintf(stderr,"Error: WImage not 2D RGB.\n\n");
 		return;
 	}
 

@@ -55,9 +55,9 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	if (img->bands==1)
+	if (img->bands==1 || img->d!=1)
 	{
-		Tcl_AppendResult(interp,"Image is already grayscale.",NULL);
+		Tcl_AppendResult(interp,"Image is not 2D RGB.",NULL);
 		return TCL_ERROR;
 	}
 
@@ -92,9 +92,9 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
 
-	if (img->bands==1)
+	if (img->bands==1 || img->d!=1)
 	{
-		Tcl_AppendResult(interp,"Image is already grayscale.",NULL);
+		Tcl_AppendResult(interp,"Image is not 2D RGB.",NULL);
 		return TCL_ERROR;
 	}
 

@@ -73,6 +73,8 @@ void pyramid_stereo_fltr(image_t *imgL, image_t *imgR,
 	int maxlevels;
 	int range,window=3;
 
+	if (imgL->d!=1 || imgR->d!=1) return;
+
 	/* all error testing now done in astereo_cmd.c */
 
 	w=imgL->w;

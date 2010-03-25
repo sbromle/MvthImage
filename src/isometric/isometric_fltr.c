@@ -46,6 +46,7 @@ void isometric_fltr(image_t *img,double theta)
 	int bands;
 	double **remaptable;
 
+	if (img->d!=1) return;
 	w=img->w;
 	h=img->h;
 	bands=img->bands;

@@ -47,6 +47,10 @@ int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"blah only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	/* load the symbol */
 	assert(DSYM(roberts_fltr)!=NULL);

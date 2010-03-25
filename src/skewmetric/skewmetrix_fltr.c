@@ -49,6 +49,7 @@ void skewmetric_fltr(image_t *img,double theta)
 	w=img->w;
 	h=img->h;
 	bands=img->bands;
+	if (img->d!=1) return;
 
 	newimg=(float*)calloc(w*h*bands,sizeof(float));
 

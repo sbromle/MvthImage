@@ -17,10 +17,11 @@
  */
 typedef struct image_s
 {
-	int w, h, bands; /* width, height, and number of channels */
-	float *data; /* pointer to image data. */
-	unsigned long timestamp; /* timestamp of last modification */
-	char name[128]; /* name of image in image context array */
+	/* support for 3D images */
+	int w, h, d, bands; /**< width, height, depth, and number of channels */
+	float *data; /**< pointer to image data. */
+	unsigned long timestamp; /**< timestamp of last modification */
+	char name[128]; /**< name of image in image context array */
 } image_t;
 
 /* We should really write the filters to use image blocks,
@@ -117,7 +118,5 @@ typedef enum PLOT_FLAGS {
 	PFLAG_FLIPY = (1<<3),
 	PFLAG_GRAYSCALE = (1<<4)
 } PLOT_FLAG;
-
-
 
 #endif

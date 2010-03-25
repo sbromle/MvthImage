@@ -85,9 +85,9 @@ void opticalFlow_fltr(image_t *wimg1, image_t *wimg2, image_t *wimg_dst,
 
 	/* actually, to make things simpler for now,
 	 * insist on having bands==1 */
-	if (bands!=1 || wimg2->bands!=1)
+	if (bands!=1 || wimg2->bands!=1 || wimg1->d!=1 || wimg2->d!=1)
 	{
-		fprintf(stderr,"Sorry, for now we must insist on bands=1.\n");
+		fprintf(stderr,"Sorry, for now we must insist on 2D images with bands=1.\n");
 		return;
 	}
 	img1=wimg1->data;
@@ -97,7 +97,7 @@ void opticalFlow_fltr(image_t *wimg1, image_t *wimg2, image_t *wimg_dst,
 	/* check to make sure we have somewhere to put this thing. */
 	if (wimg_dst!=NULL)
 	{
-		if (wimg_dst->bands!=3 || wimg_dst->w!=w || wimg_dst->h!=h)
+		if (wimg_dst->bands!=3 || wimg_dst->w!=w || wimg_dst->h!=h || wimg_dst->d!=1)
 		{
 			fprintf(stderr,"WImage size mismatch.\n");
 			return;
@@ -242,6 +242,8 @@ static void fill_flow(image_t *wimg, int range)
 	h=wimg->h;
 	bands=wimg->bands; /* must be = 3 */
 	img=wimg->data;
+
+	if (wimg->d!=1) return;
 
 	for (j=0;j<h;j++)
 	{

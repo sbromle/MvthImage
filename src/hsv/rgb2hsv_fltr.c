@@ -41,6 +41,7 @@ int rgb2hsv_fltr(image_t *img)
 	int j;
 	float h,s,v;
 
+	if (img->d!=1) return -1;
 	ptr=img->data;
 	for (j=0;j<img->w*img->h;j++)
 	{
@@ -59,6 +60,8 @@ int hsv2rgb_fltr(image_t *img)
 	float *ptr;
 	int j;
 	float h,s,v;
+
+	if (img->d!=1) return -1;
 
 	ptr=img->data;
 	for (j=0;j<img->w*img->h;j++)

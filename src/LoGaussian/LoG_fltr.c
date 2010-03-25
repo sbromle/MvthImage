@@ -115,6 +115,11 @@ void LoG_fltr(image_t *wimg, float sigma)
 	float fnorm;
 	float **fmask=NULL;
 
+	if (wimg->d!=1) {
+		fprintf(stderr,"Error: Log of Gaussian only defined for 2D grayscale images.\n\n");
+		return;
+	}
+
 	if (wimg->bands!=1)
 	{
 		fprintf(stderr,"Error: Log of Gaussian only defined for grayscale images.\n\n");

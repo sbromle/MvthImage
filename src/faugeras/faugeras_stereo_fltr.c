@@ -56,6 +56,7 @@ void faugeras_stereo_fltr(image_t *img1, image_t *img2,
 	int h,w;
 
 	/* all error testing now done in astereo_cmd.c */
+	if (img1->d!=1 || img2->d!=1) return;
 
 	w=img1->w;
 	h=img1->h;

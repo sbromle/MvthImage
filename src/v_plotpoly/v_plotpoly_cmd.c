@@ -129,6 +129,11 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 
 	/* make sure an image exists at specified location */
 	mi=mimg->img;
+	if (mi->d!=1) {
+		Tcl_AppendResult(interp,"plot_poly only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
+
 
 	/* register with undo substructure */
 	//register_image_undo_var(iname);

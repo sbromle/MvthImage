@@ -48,6 +48,7 @@ extern int (*DSYM(plot_imagescale_vLLL))(
 		double vmin, double vmax,  /* data range to use for color coding */
 		int flags);
 extern image_t * (*DSYM(new_image_t))(int w, int h, int bands);
+extern image_t * (*DSYM(new_3d_image_t))(int w, int h, int d, int bands);
 extern void (*DSYM(paste_with_mask_fltr))(image_t *src, image_t *dst,
 		int xoff, int yoff, unsigned char *mask);
 extern image_t * (*DSYM(text_pango_fltr))(const char *message,
@@ -61,6 +62,7 @@ extern int (*DSYM(print_image_t))(FILE *fp, image_t *img);
 extern image_t * (*DSYM(readimage))(char *filename);
 extern void (*DSYM(resize_image))(float *,int,int,int,float *,float);
 extern int (*DSYM(resize_image_t))(image_t *img, int w, int h, int bands);
+extern int (*DSYM(resize_3d_image_t))(image_t *img, int w, int h, int d, int bands);
 extern int (*DSYM(rgb2hsv_fltr))(image_t *img);
 extern image_t * (*DSYM(rgb2grayscale_fltr))(image_t *img);
 extern void (*DSYM(roberts_fltr))(image_t *img);

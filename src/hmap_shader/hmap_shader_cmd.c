@@ -50,6 +50,11 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	if (getMvthImageFromObj(interp,objv[2],&outimg)!=TCL_OK) return TCL_ERROR;
+	if (mimg->img->d!=1 || outimg->img->d!=1) {
+		Tcl_AppendResult(interp,"draw_hmap only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
+
 	if (objc==4) {
 		double a=30;
 		if (Tcl_GetDoubleFromObj(interp,objv[3],&a)!=TCL_OK) return TCL_ERROR;

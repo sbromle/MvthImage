@@ -47,9 +47,9 @@ int stats_fltr(image_t *img, char *filename)
 {
 	float *orig;
 	int i,j;
-	int k;
+	int k,m;
 	int bands;
-	int h,w;
+	int h,w,d;
 	float pixel;
 	int yoff,xoff;
 	int tmpsum;
@@ -80,14 +80,15 @@ int stats_fltr(image_t *img, char *filename)
 	/* ok, so what are we dealing with here? */
 	w=img->w;
 	h=img->h;
+	d=img->d;
 	bands=img->bands;
 
 	printf("\nImage Stats:\n");
-	printf(" -- [w,h,bands] = [%d,%d,%d]\n",w,h,bands);
+	printf(" -- [w,h,bands] = [%d,%d,%d,%d]\n",w,h,d,bands);
 	if (fp!=NULL)
 	{
 		fprintf(fp,"#Image Stats:\n");
-		fprintf(fp,"# -- [w,h,bands] = [%d,%d,%d]\n",w,h,bands);
+		fprintf(fp,"# -- [w,h,d,bands] = [%d,%d,%d,%d]\n",w,h,d,bands);
 	}
 
 
@@ -110,23 +111,27 @@ int stats_fltr(image_t *img, char *filename)
 
 	/* get an alias for the original image */
 	orig=img->data;
+	unsigned int plane_offset;
 
 	/* sweep through image accumulating stats */
-	for (j=0;j<h;j++)
-	{
-		yoff=j*w*bands;
-		for (i=0;i<w;i++)
+	for (m=0;m<d;m++) {
+		plane_offset=w*h*bands*m;
+		for (j=0;j<h;j++)
 		{
-			xoff=i*bands;
-			for (k=0;k<bands;k++)
+			yoff=j*w*bands;
+			for (i=0;i<w;i++)
 			{
-				pixel=orig[yoff+xoff+k];
-				if (min[k]>pixel) min[k]=pixel;
-				if (max[k]<pixel) max[k]=pixel;
-				avg[k]+=pixel;
-				int index=(int)(255*pixel);
-				if (index>255) index=255;
-				histogram[k][index]++;
+				xoff=i*bands;
+				for (k=0;k<bands;k++)
+				{
+					pixel=orig[plane_offset+yoff+xoff+k];
+					if (min[k]>pixel) min[k]=pixel;
+					if (max[k]<pixel) max[k]=pixel;
+					avg[k]+=pixel;
+					int index=(int)(255*pixel);
+					if (index>255) index=255;
+					histogram[k][index]++;
+				}
 			}
 		}
 	}

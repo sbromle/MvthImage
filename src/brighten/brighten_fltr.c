@@ -39,6 +39,7 @@ void brighten_fltr(image_t *wimg,double factor)
 	int h,w;
 	int bands;
 
+	if (wimg->d!=1) return;
 	w=wimg->w;
 	h=wimg->h;
 	bands=wimg->bands;

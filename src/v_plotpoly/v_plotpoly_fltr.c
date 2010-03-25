@@ -46,6 +46,8 @@ int plotpoly(image_t *img, ViewPort_t *viewport,
 	double xmin;
 	double xscale;
 
+	if (img->d!=1) return -1;
+
 	/* get number of pixels in x direction */
 	len=(int)((img->w)*(viewport->xmax-viewport->xmin));
 	/* get x range */

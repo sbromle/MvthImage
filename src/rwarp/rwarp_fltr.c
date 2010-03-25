@@ -35,7 +35,7 @@
 int rwarp_fltr(image_t *src, image_t *dst, int ycenter)
 {
 	double **addresses=NULL;
-	if (src->bands!=dst->bands) return -1;
+	if (src->bands!=dst->bands || src->d!=1 || dst->d!=1) return -1;
 	addresses=getRadialMap(src->w,src->h,dst->w,dst->h,ycenter);
 	remapImage(src->data,src->w,src->h,
 			dst->data,dst->w,dst->h,

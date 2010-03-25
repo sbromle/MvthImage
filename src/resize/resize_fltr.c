@@ -48,6 +48,8 @@ void resize_fltr(image_t *src, image_t *dst, const float fraction)
 	int h,w;
 	int nh=0,nw=0;
 	int bands;
+	
+	if (src->d!=1 || dst->d!=1) return;
 
 	w=src->w;
 	h=src->h;

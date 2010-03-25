@@ -114,6 +114,11 @@ void gaussian_fltr(image_t *img, float sigma)
 		fprintf(stderr,"Something NULL with img!\n");
 		return;
 	}
+	if (img->d!=1)
+	{
+		fprintf(stderr,"gaussian_fltr only supports 2D images!\n");
+		return;
+	}
 
 #ifdef NO_MULTI_BAND
 	if (wimg->bands!=1)

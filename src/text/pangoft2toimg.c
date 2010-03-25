@@ -231,6 +231,7 @@ text_pango_fltr(const char *message, /* the message to create */
 	textbuf=(image_t*)calloc(1,sizeof(image_t));
 	textbuf->w=width;
 	textbuf->h=height;
+	textbuf->d=1;
 	textbuf->bands=3;
 	textbuf->data=(float*)
 		calloc(width*height*3,sizeof(float));

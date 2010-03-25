@@ -42,6 +42,8 @@ void paste_fltr(image_t *src, image_t *dst,int xoff, int yoff, float RGB[6], flo
 	int w,h,bands;
 	int sw,sh,sbands;
 	float *simg,*dimg;
+	
+	if (src->d!=1 || dst->d!=1) return;
 
 	if (alpha<0) alpha=0;
 	else if (alpha>1.0) alpha=1.0;
@@ -171,6 +173,8 @@ void paste_with_mask_fltr(image_t *src, image_t *dst,int xoff, int yoff, unsigne
 	int w,h,bands;
 	int sw,sh,sbands;
 	float *simg,*dimg;
+
+	if (src->d!=1 || dst->d!=1) return;
 
 	simg=src->data;
 	dimg=dst->data;

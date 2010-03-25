@@ -1,7 +1,7 @@
 /*
  * This file is part of MVTH - the Machine Vision Test Harness.
  *
- * Gaussian filter an image.
+ * Highlight features in an image.
  *
  * Copyright (C) 2003,2004 Samuel P. Bromley <sam@sambromley.com>
  *
@@ -124,10 +124,10 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 	//make sure sgn is set correctly
 	if (sgn != -1) sgn = 1;
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	img=mimg->img;
-	sname=Tcl_GetStringFromObj(objv[1],NULL);
-	dname=Tcl_GetStringFromObj(objv[2],NULL);
+	sname=Tcl_GetStringFromObj(remObjv[1],NULL);
+	dname=Tcl_GetStringFromObj(remObjv[2],NULL);
 	if (strcmp(sname,dname)==0)
 	{
 		resultPtr=Tcl_GetObjResult(interp);

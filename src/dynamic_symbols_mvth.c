@@ -71,6 +71,7 @@ int (*DSYM(plot_imagescale_vLLL))(
 		double vmin, double vmax,  /* data range to use for color coding */
 		int flags)=NULL;
 image_t * (*DSYM(new_image_t))(int w, int h, int bands)=NULL;
+image_t * (*DSYM(new_3d_image_t))(int w, int h, int d,int bands)=NULL;
 void (*DSYM(paste_with_mask_fltr))(image_t *src, image_t *dst,
 		int xoff, int yoff, unsigned char *mask)=NULL;
 int (*DSYM(plotpoly))(image_t *img, ViewPort_t *viewport,
@@ -82,6 +83,7 @@ int (*DSYM(print_image_t))(FILE *fp, image_t *img)=NULL;
 image_t * (*DSYM(readimage))(char *filename)=NULL;
 void (*DSYM(resize_image))(float *,int,int,int,float *,float)=NULL;
 int (*DSYM(resize_image_t))(image_t *img, int w, int h, int bands)=NULL;
+int (*DSYM(resize_3d_image_t))(image_t *img, int w, int h, int d, int bands)=NULL;
 int (*DSYM(rgb2hsv_fltr))(image_t *img)=NULL;
 image_t * (*DSYM(rgb2grayscale_fltr))(image_t *img)=NULL;
 void (*DSYM(roberts_fltr))(image_t *img)=NULL;
@@ -129,6 +131,7 @@ void load_all_mvth() {
 	TRYLOAD(isometric_fltr,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(kmeans_fltr,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(new_image_t,MVTHIMAGELIB,_mvthimage_handle);
+	TRYLOAD(new_3d_image_t,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(paste_fltr,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(paste_with_mask_fltr,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(plot_imagescale_vLLL,MVTHIMAGELIB,_mvthimage_handle);
@@ -137,6 +140,7 @@ void load_all_mvth() {
 	TRYLOAD(print_image_t,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(resize_image,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(resize_image_t,MVTHIMAGELIB,_mvthimage_handle);
+	TRYLOAD(resize_3d_image_t,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(rgb2hsv_fltr,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(rgb2grayscale_fltr,MVTHIMAGELIB,_mvthimage_handle);
 	TRYLOAD(readimage,MVTHIMAGELIB,_mvthimage_handle);
@@ -171,6 +175,7 @@ void unload_all_mvth() {
 	DSYM(isometric_fltr)=NULL;
 	DSYM(kmeans_fltr)=NULL;
 	DSYM(new_image_t)=NULL;
+	DSYM(new_3d_image_t)=NULL;
 	DSYM(paste_fltr)=NULL;
 	DSYM(paste_with_mask_fltr)=NULL;
 	DSYM(plot_imagescale_vLLL)=NULL;
@@ -180,6 +185,7 @@ void unload_all_mvth() {
 	DSYM(readimage)=NULL;
 	DSYM(resize_image)=NULL;
 	DSYM(resize_image_t)=NULL;
+	DSYM(resize_3d_image_t)=NULL;
 	DSYM(rgb2hsv_fltr)=NULL;
 	DSYM(rgb2grayscale_fltr)=NULL;
 	DSYM(roberts_fltr)=NULL;

@@ -78,11 +78,11 @@ int astereo_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 
-	if (imgR->bands != 1 || imgL->bands!=1)
+	if (imgR->bands != 1 || imgL->bands!=1 || imgR->d!=1 || imgL->d!=1)
 	{
 		resultPtr=Tcl_GetObjResult(interp);
 		snprintf(buff,sizeof(buff),
-			"Area-based stereo currently only implemented for grayscale images.\n");
+			"Area-based stereo currently only implemented for 2D grayscale images.\n");
 		Tcl_SetStringObj(resultPtr,buff,strlen(buff)+1);
 		return TCL_ERROR;
 	}

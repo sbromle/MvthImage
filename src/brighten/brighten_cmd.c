@@ -56,6 +56,10 @@ int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"brighten_cmd only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 	//register_image_undo_var(name);
 
 	/* do the filter */

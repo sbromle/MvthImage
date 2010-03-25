@@ -55,13 +55,14 @@ static int get_image_filename_var(char *varname,char *filename,size_t len)
 
 int flush_image_t(image_t *m)
 {
-	int w,h,b;
+	int w,h,d,b;
 	int fd;
 	struct flock lock; /* used to grab a write lock on the file */
 	char filename[1024];
 	mode_t oldmask;
 	w=m->w;
 	h=m->h;
+	d=m->d;
 	b=m->bands;
 	oldmask=umask(0011);
 	get_image_filename_var(m->name,filename,1024);
@@ -74,7 +75,7 @@ int flush_image_t(image_t *m)
 	fcntl(fd,F_SETLKW,&lock);
 	/* ok, do the write */
 	write(fd,m,sizeof(image_t));
-	write(fd,m->data,w*h*b*sizeof(float));
+	write(fd,m->data,w*h*d*b*sizeof(float));
 	/* release the lock */
 	lock.l_type=F_UNLCK;
 	fcntl(fd,F_SETLKW,&lock);
@@ -84,7 +85,7 @@ int flush_image_t(image_t *m)
 
 int fflush_image_t(image_t *m, char *filename)
 {
-	int w,h,b;
+	int w,h,d,b;
 	int fd;
 	struct flock lock; /* used to grab a write lock on the file */
 	mode_t oldmask;
@@ -93,6 +94,7 @@ int fflush_image_t(image_t *m, char *filename)
 
 	w=m->w;
 	h=m->h;
+	d=m->d;
 	b=m->bands;
 	oldmask=umask(0011);
 	fprintf(stderr,"Trying to write image to '%s'\n",filename);
@@ -104,7 +106,7 @@ int fflush_image_t(image_t *m, char *filename)
 	fcntl(fd,F_SETLKW,&lock);
 	/* ok, do the write */
 	write(fd,m,sizeof(image_t));
-	write(fd,m->data,w*h*b*sizeof(float));
+	write(fd,m->data,w*h*d*b*sizeof(float));
 	/* release the lock */
 	lock.l_type=F_UNLCK;
 	fcntl(fd,F_SETLKW,&lock);

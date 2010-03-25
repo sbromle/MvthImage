@@ -58,6 +58,8 @@ void corner_fltr(image_t *img, float thigh, float tlow)
 
 	if (verbose) fprintf(stderr,"Inside corner_fltr()\n");
 
+	if (img->d!=1) return;
+
 	w=img->w;
 	h=img->h;
 	bands=img->bands;

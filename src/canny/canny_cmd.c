@@ -49,6 +49,10 @@ int canny_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"canny_cmd only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	if (Tcl_GetDoubleFromObj(interp,objv[2],&thigh)==TCL_ERROR)
 		return TCL_ERROR;

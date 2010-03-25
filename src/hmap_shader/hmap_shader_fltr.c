@@ -43,6 +43,8 @@ void draw_hmap_fltr(image_t *img,
 	int h,w;
 	int bands;
 
+	if (img->d!=1) return;
+
 	w=img->w;
 	h=img->h;
 	bands=img->bands;

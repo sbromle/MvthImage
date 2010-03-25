@@ -38,7 +38,7 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	float val[4]; /* r,g,b color values */
-	int w,h,bands;
+	int w,h,d,bands;
 	MvthImage *mimg=NULL;
 	image_t *mi=NULL;
 	int lobjc=0;
@@ -76,13 +76,6 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	val[3]=0;
 
 	mi=mimg->img;
-
-	/* register with the undo substructure */
-	//register_image_undo_var(name);
-
-	w=mi->w;
-	h=mi->h;
-	bands=mi->bands;
 
 	assert(DSYM(fillimage_fltr)!=NULL);
 	DSYM(fillimage_fltr)(mi,val);

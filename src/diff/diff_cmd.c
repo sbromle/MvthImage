@@ -52,6 +52,10 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		if (getMvthImageFromObj(interp,objv[i+1],&mimg[i])!=TCL_OK)
 			return TCL_ERROR;
 		img[i]=mimg[i]->img;
+		if (img[i]->d!=1) {
+			Tcl_AppendResult(interp,"diffimage only supports 2D images.\n",NULL);
+			return TCL_ERROR;
+		}
 	}
 	if (objc==4) 
 	{

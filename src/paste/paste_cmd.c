@@ -102,6 +102,12 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	src_img=smimg->img;
 	dst_img=dmimg->img;
 
+	if (src_img->d!=1 || dst_img->d!=1) {
+		Tcl_AppendResult(interp,"pasteimage only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
+
+
 	//register_image_undo_var(dstname);
 
 	assert(DSYM(paste_fltr)!=NULL);

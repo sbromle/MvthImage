@@ -46,6 +46,8 @@ void rectify_fltr(image_t *img, double fargs[9])
 	h=img->h;
 	bands=img->bands;
 
+	if (img->d!=1) return;
+
 	nimg=(float*)calloc(w*h*bands,sizeof(float));
 
 	orig=img->data;

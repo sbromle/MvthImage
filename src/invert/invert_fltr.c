@@ -59,6 +59,7 @@ void invert_fltr(image_t *wimg)
 
 	w=wimg->w;
 	h=wimg->h;
+	if (wimg->d!=1) return;
 	bands=wimg->bands;
 
 	img=wimg->data;

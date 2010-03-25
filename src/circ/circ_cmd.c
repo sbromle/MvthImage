@@ -55,6 +55,10 @@ int circle_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"blah only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	if (Tcl_ListObjGetElements(interp,objv[2],&lobjc,&lobjv)==TCL_ERROR)
 		return TCL_ERROR;

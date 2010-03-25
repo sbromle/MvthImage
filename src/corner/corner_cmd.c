@@ -48,9 +48,9 @@ int detectcorners_cmd(ClientData clientData, Tcl_Interp *interp,
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	img=mimg->img;
 
-	if (img->bands!=1)
+	if (img->bands!=1 || img->d!=1)
 	{
-		Tcl_AppendResult(interp,"Sorry. Corner detection implemented for grayscale images only.",NULL);
+		Tcl_AppendResult(interp,"Sorry. Corner detection implemented for 2D grayscale images only.",NULL);
 		return TCL_ERROR;
 	}
 

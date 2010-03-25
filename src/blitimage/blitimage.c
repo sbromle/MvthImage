@@ -48,6 +48,10 @@ int blitImage(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"blitImage only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	/* get the Tk Photo */
 	str=Tcl_GetStringFromObj(objv[2],NULL);

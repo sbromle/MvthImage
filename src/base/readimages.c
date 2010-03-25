@@ -193,6 +193,7 @@ image_t *readimage(char *filename)
 	ni=(image_t*)malloc(sizeof(image_t));
 	ni->w=w;
 	ni->h=h;
+	ni->d=1;
 	ni->bands=bands;
 	ni->data=(float*)malloc(w*h*bands*sizeof(float));
 	unsigned char *tmpdata=(unsigned char *)malloc(w*h*bands*bpc*sizeof(unsigned char));

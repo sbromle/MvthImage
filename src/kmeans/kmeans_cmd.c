@@ -92,6 +92,10 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (remObjv!=NULL) free(remObjv);
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"kmeans_cmd only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
 
 	if (channel>=img->bands) {
 		Tcl_AppendResult(interp,"Error: No such channel in image.\n",NULL);

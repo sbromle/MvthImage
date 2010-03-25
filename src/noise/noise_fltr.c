@@ -46,6 +46,7 @@ void noise_fltr(image_t *img, double sigma)
 	w=img->w;
 	h=img->h;
 	bands=img->bands;
+	if (img->d!=1) return;
 
 	/* get an alias for the original image */
 	data=img->data;

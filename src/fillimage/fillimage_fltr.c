@@ -46,23 +46,24 @@ void fillimage_fltr0(ImageBlock *b, float rgba[4])
 void fillimage_fltr(image_t *img,float val[4])
 {
 	float *data;
-	int i,j,k;
-	int h,w;
+	int i,j,k,m;
+	int h,w,d;
 	int bands;
 
 	w=img->w;
 	h=img->h;
+	d=img->d;
 	bands=img->bands;
 	data=img->data;
 
 
-	for (j=0;j<h;j++)
-	{
-		for (i=0;i<w;i++)
-		{
-			for (k=0;k<bands;k++)
-			{
-				data[bands*(j*w+i)+k]=val[k];
+	for (j=0;j<h;j++) {
+		for (i=0;i<w;i++) {
+			for (k=0;k<d;k++) {
+				for (m=0;m<bands;m++)
+				{
+					data[m+bands*(i+w*(j+k*h))]=val[m];
+				}
 			}
 		}
 	}
@@ -81,6 +82,7 @@ void fillimage_vp_fltr(image_t *img,float val[4],ViewPort_t viewport)
 	h=img->h;
 	bands=img->bands;
 	data=img->data;
+	if (img->d!=1) return;/* Viewport use only defined for 2D images. */
 
 	int xmin=viewport.xmin*img->w;
 	int xmax=viewport.xmax*img->w;

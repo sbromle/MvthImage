@@ -45,6 +45,7 @@ image_t * zoom_fltr(image_t *img,
 	iw=img->w;
 	ih=img->h;
 	bands=img->bands;
+	if (img->d!=1) return NULL;
 
 	newimg=(image_t*)calloc(1,sizeof(image_t));
 	newimg->data=(float*)calloc(w*h*bands,sizeof(float));

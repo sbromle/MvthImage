@@ -91,6 +91,8 @@ image_t *feature_extract_fltr(image_t *simg, int cr, int cc, int r, int b, int s
 	fprintf(stderr,"Inside feature_extract_fltr\n");
 #endif
 
+	if (simg->d!=1) return NULL;
+
 	w = simg->w;
 	h = simg->h;
 	bands = simg->bands;

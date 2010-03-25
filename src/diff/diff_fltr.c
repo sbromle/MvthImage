@@ -49,6 +49,13 @@ int diff_fltr(image_t *img0, image_t *img1, image_t *img2)
 		return -1;
 	}
 
+	for (i=0;i<3;i++) {
+		if (img[i]->d!=1) {
+			fprintf(stderr,"diff_fltr() only supports 2D images!\n");
+			return -1;
+		}
+	}
+
 	if (img[2]->bands < img[0]->bands || img[2]->bands < img[1]->bands)
 	{
 		fprintf(stderr,"diff_fltr(): Result image needs at least as many colors as src images!\n");

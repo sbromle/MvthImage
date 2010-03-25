@@ -17,6 +17,7 @@
 
 /* get a new image_t structure */
 extern image_t *new_image_t(int w, int h, int bands);
+extern image_t *new_3d_image_t(int w, int h, int d, int bands);
 /* free an image_t structure */
 extern void free_image_t(image_t *img);
 /* copy one */
@@ -25,6 +26,7 @@ extern int copy_image_t(image_t *src, image_t *dst);
 extern void zero_image_t(image_t *img);
 /* resize an image */
 extern int resize_image_t(image_t *img, int w, int h, int bands);
+extern int resize_3d_image_t(image_t *img, int w, int h, int d, int bands);
 /* print one */
 extern int print_image_t(FILE *fp, image_t *img);
 extern int sprint_image_t(char *buff, image_t *img);

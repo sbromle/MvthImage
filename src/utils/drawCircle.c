@@ -47,6 +47,7 @@ void drawCircle(image_t *img,int cx, int cy, int r, float rgb[4])
 	w=img->w;
 	h=img->h;
 	b=img->bands;
+	if (img->d!=1) return;
 	data=img->data;
 
 	/* get the increment we need to not skip any pixels */
@@ -74,6 +75,7 @@ void fillCircle(image_t *img,int cx, int cy, int r, float rgb[4])
 	if (r<=0) return;
 
 	if (img==NULL) return;
+	if (img->d!=1) return;
 
 	w=img->w;
 	h=img->h;

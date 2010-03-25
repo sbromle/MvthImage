@@ -67,6 +67,7 @@ void delauney_fltr(image_t *img,SContext_t *sc)
 	int *vertices=NULL;
 	int nv;
 
+	if (img->d!=1) return;
 
 	/* is the dmap valid ? */
 	if (sc->dmap==NULL)

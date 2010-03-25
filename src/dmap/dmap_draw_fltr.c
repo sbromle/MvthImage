@@ -67,6 +67,11 @@ int dmap_draw_fltr(image_t *wimg, SContext_t *sc, float scale)
 		return 0;
 	}
 
+	if (wimg->d!=1) {
+		fprintf(stderr,"dmap_draw_fltr only supports 2D images.\n");
+		return 0;
+	}
+
 	h=sc->h;
 	w=sc->w;
 	iw=wimg->w;

@@ -50,6 +50,7 @@ void mkpair_fltr(image_t *img1, image_t *img2,
 {
 	image_t spritet;
 	float rgb[6]={0,0,0,0,0,0};
+	if (img1->d!=1 || img2->d!=1) return;
 
 	/* make the object we will draw */
 	spritet=mksprite(ow,oh);
@@ -57,6 +58,7 @@ void mkpair_fltr(image_t *img1, image_t *img2,
 	/* paste the object to the images */
 	paste_fltr(&spritet,img1,x,y,rgb,1.0);
 	paste_fltr(&spritet,img2,x-d,y,rgb,1.0);
+	if (spritet.data!=NULL) free(spritet.data);
 }
 
 image_t mksprite(int ow, int oh)
@@ -78,6 +80,7 @@ image_t mksprite(int ow, int oh)
 
 	spr.w=ow;
 	spr.h=oh;
+	spr.d=1;
 	spr.bands=1;
 
 	return spr;

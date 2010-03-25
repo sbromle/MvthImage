@@ -161,6 +161,8 @@ int plot_imagescale_simple(
 	int xlow, xhigh, ylow, yhigh;
 	double ix0, ix1, iy0, iy1;
 
+	if (img==NULL || img->d!=1) return -1;
+
 	xlow=viewport->xmin*img->w;
 	xhigh=viewport->xmax*img->w;
 	//ylow=viewport->ymax*img->h-1;
@@ -511,6 +513,7 @@ int plot_imagescale_v(
 	int w,h,bands;
 	int rx0,rx1,ry0,ry1; /* actual boundaries within the
 																  * the image.  */
+	if (img==NULL || img->d!=1) return -1;
 	int pitch;
 	w=img->w;
 	h=img->h;
@@ -557,6 +560,7 @@ int plot_imagescale_v2(
 	int rx0,rx1,ry0,ry1; /* actual boundaries within the
 																  * the image.  */
 	int pitch;
+	if (img==NULL || img->d!=1) return -1;
 	w=img->w;
 	h=img->h;
 	bands=img->bands;

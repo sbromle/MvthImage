@@ -55,7 +55,7 @@ void moravec_fltr(image_t *img, int winsize)
 	int h,w;
 	float tmp[4];
 
-	if (img->bands!=1) return;
+	if (img->bands!=1 || img->d!=1) return;
 
 	w=img->w;
 	h=img->h;

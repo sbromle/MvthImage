@@ -45,6 +45,8 @@ void kmeans_fltr(image_t *img, int nclasses, int channel)
 	int c;
 	float smallest;
 
+	if (img->d!=1) return; /* support for 2D images only */
+
 	w=img->w;
 	h=img->h;
 	bands=img->bands;

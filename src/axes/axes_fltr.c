@@ -108,7 +108,7 @@ int axes_fltr(image_t *img,ViewPort_t *viewport, float rgb[4])
 	char exp_s[10] = "";
 	int exp_i;
 
-	if (img==NULL || img->data==NULL || viewport==NULL) return -1;
+	if (img==NULL || img->data==NULL || img->d!=1 || viewport==NULL) return -1;
 
 	/* get local aliases for x and y labels */
 	strncpy(xlabel,viewport->axis[0].label,256);

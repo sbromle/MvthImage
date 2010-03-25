@@ -52,6 +52,8 @@ float * diffdmap_fltr(image_t *img1, image_t *img2, float dthresh)
 
 	/* allocate results */
 	results=(float*)malloc(RSIZE*sizeof(float));
+
+	if (img1->d!=1 || img2->d!=1) return NULL;
 	
 	/* all error testing now done in diffdmap_cmd.c */
 	size=img1->w*img2->h;

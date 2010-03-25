@@ -87,7 +87,13 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"blah only supports 2D images.\n",NULL);
+		if (remObjv!=NULL) free(remObjv);
+		return TCL_ERROR;
+	}
 	mystring=Tcl_GetStringFromObj(remObjv[2],NULL);
+	if (remObjv!=NULL) free(remObjv);
 
 	if (red<0.0) red=0.0;
 	else if (red>1.0) red=1.0;

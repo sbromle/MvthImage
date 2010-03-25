@@ -60,6 +60,11 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	img=mimg->img;
+	if (img->d!=1) {
+		Tcl_AppendResult(interp,"writeimage only supports 2D images.\n",NULL);
+		return TCL_ERROR;
+	}
+
 	assert(DSYM(writeimage)!=NULL);
 	DSYM(writeimage)(img->data, img->w,img->h,img->bands,bpc,filename);
 
