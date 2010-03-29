@@ -17,8 +17,20 @@
 extern int plotxy(float *img, int w, int h, int bands,
 		double x[], double y[], size_t len, float *rgb,
 		ViewPort_t *viewport);
-
 extern int plotxydots(float *img, int w, int h, int bands,
 		double x[], double y[], size_t len, float *rgb,
 		ViewPort_t *viewport);
+extern int plotfillxy(float *img, int w, int h, int bands,
+		double x[], double y[], size_t len, float *rgb,
+		ViewPort_t *viewport, double v);
+extern int plotxyF(float *img, int w, int h, int bands,
+		float x[], float y[], size_t len, float *rgb,
+		ViewPort_t *viewport);
+extern int plotxydotsF(float *img, int w, int h, int bands,
+		float x[], float y[], size_t len, float *rgb,
+		ViewPort_t *viewport);
+extern int plotfillxyF(float *img, int w, int h, int bands,
+		float x[], float y[], size_t len, float *rgb,
+		ViewPort_t *viewport, float v);
+
 #endif
