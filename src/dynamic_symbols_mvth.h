@@ -33,6 +33,10 @@ extern void (*DSYM(isometric_fltr))(image_t *img, double theta);
 extern int (*DSYM(kmeans_fltr))(image_t *img, int nmeans, int channel);
 extern void (*DSYM(paste_fltr))(image_t *src, image_t *dst,int xoff, int yoff,
 		float RGB[6], float alpha);
+extern int (*DSYM(visual_map_1d_fltr))(image_t *dimg, image_t *vimg,
+		ViewPort_t viewport,
+		int w0,int w1,int h0,int h1,int d0,int d1, int t0, int t1,
+		int dir, int *indexoffset, int dots);
 extern int (*DSYM(plot_imagescale_vLLL))(
 		float *pixels,    /* pointer to beginning of drawable pixels */
 		int w, int h,             /* width and height of region to draw */

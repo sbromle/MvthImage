@@ -116,6 +116,7 @@ set (libMvthImage_SRCS
 	pyramid_stereo/pyramid_stereo_fltr.c 
 	moravec/moravec_fltr.c 
 	LoGaussian/LoG_fltr.c 
+	map_to_visual/map_to_visual_fltr.c 
 	invert/invert_fltr.c 
 	invert/invert_fltr.h 
 	kmeans/kmeans_fltr.c 
@@ -201,6 +202,7 @@ set (mvthimage_SRCS
 	invert/invert_cmd.c 
 	isometric/isometric_cmd.c 
 	kmeans/kmeans_cmd.c 
+	map_to_visual/map_to_visual_cmd.c 
 	paste/paste_cmd.c 
 	grayscale2rgb/grayscale2rgb_cmd.c 
 	rgb2grayscale/rgb2grayscale_cmd.c 

@@ -29,7 +29,7 @@
 #include "drawLine.h"
 
 int plotxy(float *img, int w, int h, int bands,
-		double x[], double y[], size_t len, float *rgb,
+		double *x, double *y, size_t len, float *rgb,
 		ViewPort_t *viewport)
 {
 	int *ix=NULL, *iy=NULL;
@@ -94,7 +94,7 @@ int plotxy(float *img, int w, int h, int bands,
 }
 
 int plotxydots(float *img, int w, int h, int bands,
-		double x[], double y[], size_t len, float *rgb,
+		double *x, double *y, size_t len, float *rgb,
 		ViewPort_t *viewport)
 {
 	int *ix=NULL, *iy=NULL;
@@ -158,7 +158,7 @@ int plotxydots(float *img, int w, int h, int bands,
 
 /* Like plotxy, but fill in values above V (from V to value) */
 int plotfillxy(float *img, int w, int h, int bands,
-		double x[], double y[], size_t len, float *rgb,
+		double *x, double *y, size_t len, float *rgb,
 		ViewPort_t *viewport, double v)
 {
 	int *ix=NULL, *iy=NULL;
@@ -223,7 +223,7 @@ int plotfillxy(float *img, int w, int h, int bands,
 }
 
 int plotxyF(float *img, int w, int h, int bands,
-		float x[], float y[], size_t len, float *rgb,
+		float *x, float *y, size_t len, float *rgb,
 		ViewPort_t *viewport)
 {
 	int *ix=NULL, *iy=NULL;
@@ -288,7 +288,7 @@ int plotxyF(float *img, int w, int h, int bands,
 }
 
 int plotxydotsF(float *img, int w, int h, int bands,
-		float x[], float y[], size_t len, float *rgb,
+		float *x, float *y, size_t len, float *rgb,
 		ViewPort_t *viewport)
 {
 	int *ix=NULL, *iy=NULL;
@@ -352,7 +352,7 @@ int plotxydotsF(float *img, int w, int h, int bands,
 
 /* Like plotxy, but fill in values above V (from V to value) */
 int plotfillxyF(float *img, int w, int h, int bands,
-		float x[], float y[], size_t len, float *rgb,
+		float *x, float *y, size_t len, float *rgb,
 		ViewPort_t *viewport, float v)
 {
 	int *ix=NULL, *iy=NULL;

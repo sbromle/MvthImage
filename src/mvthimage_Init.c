@@ -83,6 +83,8 @@ extern int openimage_cmd (ClientData clientData, Tcl_Interp *interp,
 #endif
 extern int pasteimage_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
+extern int visual_map_1d_cmd (ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int rgb_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int roberts_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -159,6 +161,8 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 #endif
 	Tcl_CreateObjCommand(interp,"pasteimage",pasteimage_cmd,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
+	Tcl_CreateObjCommand(interp,"vmap",visual_map_1d_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"plotpoly",plotpoly_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
