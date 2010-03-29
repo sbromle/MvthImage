@@ -24,6 +24,8 @@ typedef struct image_s
 	char name[128]; /**< name of image in image context array */
 } image_t;
 
+#define IMG_T_GET_PTR(IMG,W,H,D) ((IMG)->data+(IMG)->bands*((W)+(IMG)->w*((H)+(IMG)->h*(D))))
+
 /* We should really write the filters to use image blocks,
  * that way we can easily draw to subregions, without needing
  * to use the ranges specified in viewports.
