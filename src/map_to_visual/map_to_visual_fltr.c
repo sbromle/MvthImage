@@ -91,7 +91,7 @@ int visual_map_1d_fltr(PObj1D_t *dimg, image_t *vimg, ViewPort_t viewport,
 		for (h=h0;h<=h1;h++) {
 			for (d=d0;d<=d1;d++) {
 				for (t=t0;t<=t1;t++) {
-					vtmp=IMG_T_GET_VALUE(dimg,w,h,d,t);
+					vtmp=POBJ_3D_GET_VALUE(dimg,w,h,d,t);
 					if (vmin>vtmp) vmin=vtmp;
 					if (vmax<vtmp) vmax=vtmp;
 				}
@@ -133,10 +133,10 @@ int visual_map_1d_fltr(PObj1D_t *dimg, image_t *vimg, ViewPort_t viewport,
 				{
 					if (!dots)
 						plotxyF(vimg->data,vimg->w,vimg->h,vimg->bands,
-								x,IMG_T_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
+								x,POBJ_3D_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
 					else
 						plotxydotsF(vimg->data,vimg->w,vimg->h,vimg->bands,
-								x,IMG_T_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
+								x,POBJ_3D_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
 				} else { /* PLOT VERTICALLY */
 					double tmpx,tmpy;
 					/* swap the p->v x and y axes */
@@ -151,10 +151,10 @@ int visual_map_1d_fltr(PObj1D_t *dimg, image_t *vimg, ViewPort_t viewport,
 					/* plot the line */
 					if (!dots)
 						plotxyF(vimg->data,vimg->w,vimg->h,vimg->bands,
-								x,IMG_T_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
+								x,POBJ_3D_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
 					else
 						plotxydotsF(vimg->data,vimg->w,vimg->h,vimg->bands,
-								x,IMG_T_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
+								x,POBJ_3D_GET_PTR(dimg,w,h,d,0),(size_t)dimg->bands,rgb,&viewport);
 				}
 			}
 		}
