@@ -17,11 +17,9 @@
  * If not, see <http://www.gnu.org/licenses/>.
  *
  * -----
- * Take an image holding plot-able data, and map it
+ * Take a PObj1D_t structure holding plot-able data, and map it
  * to a 2D image for viewing.
- * The data is stored in an image_t structure, similar to
- * regular images, but the depth can be greater than 1,
- * and the number of bands can be much greater than 3.
+ * The data is stored in an PObj1D_t structure.
  *
  * For example, if plotting temperature as a function of
  * time for farmlands in several provinces.
@@ -29,7 +27,8 @@
  *  w = 10 (10 provinces)
  *  h = 5 (5 zones within each province)
  *  d = 4 (one for each season)
- *  bands = 365 (one sample for each day of the year).
+ *  bands = 1 (temperature is a scalar)
+ *  len = 265 (one sample for each day of the year).
  *
  *
  *
@@ -49,10 +48,8 @@
 
 /* Interpret the data image to contain
  * number of samples equal to number of bands
- * (or half if each samples are stored as
- * x,y pairs.)
  */
-int visual_map_1d_fltr(image_t *dimg, image_t *vimg, ViewPort_t viewport,
+int visual_map_1d_fltr(PObj1D_t *dimg, image_t *vimg, ViewPort_t viewport,
 			int w0,int w1,int h0,int h1,int d0,int d1, int t0, int t1,
 			int dir, int *indexoffset, int dots)
 {
@@ -71,7 +68,8 @@ int visual_map_1d_fltr(image_t *dimg, image_t *vimg, ViewPort_t viewport,
 	if (d0<0) d0=0;
 	if (d1>=dimg->d) d1=dimg->d-1;
 	if (t0<0) t0=0;
-	if (t1>=dimg->bands) t1=dimg->bands-1;
+	if (t1>=dimg->len) t1=dimg->len-1;
+	/* for now, just support y-data, can add x-data later */
 
 	fprintf(stderr,"w0=%d w1=%d w=%d\n", w0,w1,dimg->w);
 	fprintf(stderr,"h0=%d h1=%d h=%d\n", h0,h1,dimg->h);

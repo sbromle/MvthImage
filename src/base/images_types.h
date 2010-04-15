@@ -11,8 +11,25 @@
  * the MVTH archive for details.
  */
 
+typedef enum {
+	PO_TYPE_NONE,
+	PO_TYPE_MVTHIMAGE,
+	PO_TYPE_1D,
+	PO_TYPE_2D,
+	PO_TYPE_3D,
+} PObj_Type;
+
+
+/* General data object */
+typedef struct plotable_object_s {
+	PObj_Type type; /**< type of plottable object */
+	double x[3]; /**<  world coord of voxel <0,0,0> */
+	double dx[3]; /**<  spatial interval between voxels */
+	void *obj; /**<  pointer to internal data (for example, an image_t) */
+} PObj_s;
+
 /*
- * Data structures for image types.
+ * Data structures for image types, and plottable data.
  *
  */
 typedef struct image_s
@@ -22,10 +39,37 @@ typedef struct image_s
 	float *data; /**< pointer to image data. */
 	unsigned long timestamp; /**< timestamp of last modification */
 	char name[128]; /**< name of image in image context array */
-} image_t;
+} image_t, /**< images that can be blitted to screen (d must be = 1) */
+	PObj2D_t, /**< Plotable object for 2D data:
+ 	           *  bands -> number of elems making up a set (eg. vel. vector -> 3)
+             *  w,h ->  width and height of each image
+             *  d -> multiple images can be packed into one object.
+             */
+	PObj3D_t; /**< Plotable object for 3D data:
+	            *  bands -> number of elem making up a set (eg. vel. vector -> 3)
+	            *  w,h,d ->  width, height, and depth of image
+	            */
 
-#define IMG_T_GET_PTR(IMG,W,H,D,T) ((IMG)->data+(T)+(IMG)->bands*((W)+(IMG)->w*((H)+(IMG)->h*(D))))
-#define IMG_T_GET_VALUE(IMG,W,H,D,T) (((IMG)->data+(IMG)->bands*((W)+(IMG)->w*((H)+(IMG)->h*(D))))[(T)])
+/* Plotable object for 1D data:
+ *  len -> length of each data set
+ *  bands -> number of ordinates making up a set (eg. xy-data -> 2)
+ *  w,h,d -> convenience indices for packing multiple data sets.
+ */
+typedef struct pobj_1d_s {
+	int w,h,d,bands,len;
+	float *data;
+	unsigned long timestamp;
+	char name[128];
+} PObj1D_t;
+
+#define IMG_T_GET_PTR(IMG,W,H,T) ((IMG)->data+(T)+(IMG)->bands*((W)+(IMG)->w*((H))))
+#define IMG_T_GET_VALUE(IMG,W,H,T) (((IMG)->data+(IMG)->bands*((W)+(IMG)->w*((H))))[(T)])
+#define POBJ_1D_GET_PTR(PO,W,H,D,B,T) ((PO)->data+(T)+(PO)->len*((B)+(PO)->bands*((W)+(PO)->w*((H)+(PO)->h*(D)))))
+#define POBJ_1D_GET_VALUE(PO,W,H,D,B,T) (((PO)->data+(PO)->len*((B)+(PO)->bands*((W)+(PO)->w*((H)+(PO)->h*(D)))))[(T)])
+#define POBJ_2D_GET_PTR(PO,W,H,D,T) ((PO)->data+(T)+(PO)->bands*((W)+(PO)->w*((H)+(PO)->h*(D))))
+#define POBJ_2D_GET_VALUE(PO,W,H,D,T) (((PO)->data+(PO)->bands*((W)+(PO)->w*((H)+(PO)->h*(D))))[(T)])
+#define POBJ_3D_GET_PTR(PO,W,H,D,T) ((PO)->data+(T)+(PO)->bands*((W)+(PO)->w*((H)+(PO)->h*(D))))
+#define POBJ_3D_GET_VALUE(PO,W,H,D,T) (((PO)->data+(PO)->bands*((W)+(PO)->w*((H)+(PO)->h*(D))))[(T)])
 
 /* We should really write the filters to use image blocks,
  * that way we can easily draw to subregions, without needing
