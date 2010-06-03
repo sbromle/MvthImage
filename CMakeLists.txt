@@ -31,6 +31,15 @@ IF(UNIX AND NOT WIN32)
   ENDIF(CMAKE_UNAME)
 ENDIF(UNIX AND NOT WIN32)
 
+#gitnarc
+exec_program(gn ARGS gen-build-info mvthImage -c libMvthImage -c mvthImage -c viewImage --header) # generate build info source files when we configure
+add_custom_target(gitnarc ALL gn gen-build-info mvthImage -c libMvthImage -c mvthImage -c viewImage --header) # generate build info source files every time we build
+# set variables to the build info source files
+set(LIB_MVTH_IMAGE_BUILD_INFO ${PROJECT_BINARY_DIR}/mvthImage_buildinfo_libMvthImage.c)
+set(MVTH_IMAGE_BUILD_INFO ${PROJECT_BINARY_DIR}/mvthImage_buildinfo_mvthImage.c)
+set(VIEW_IMAGE_BUILD_INFO ${PROJECT_BINARY_DIR}/mvthImage_buildinfo_viewImage.c)
+
+
 add_subdirectory(src)
 add_subdirectory(scripts)
 #add_subdirectory(testing)
