@@ -40,7 +40,7 @@ proc viewimage {img} {
 	grid columnconfig $t 0 -weight 1
 	$c config -scrollregion [$c bbox all]
 	$c config -cursor trek
-	return [list $c $i]
+	return $t;
 }
 
 proc xblitimage {args} {
