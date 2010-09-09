@@ -277,7 +277,7 @@ int plot_imagescale_expert(
 	}
 	fprintf(stderr,"Viewport: x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",x0,x1,y0,y1);
 	fprintf(stderr,"Data:     x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xd0,xd1,yd0,yd1);
-	fprintf(stderr,"Intersept:x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xmin,xmax,ymin,ymax);
+	fprintf(stderr,"Intercept:x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xmin,xmax,ymin,ymax);
 
 
 	/* get the minimum and maximum pixel coords within the image; */
