@@ -760,7 +760,7 @@ int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 	return TCL_OK;
 }
 
-int updateMvthImageDims(MvthImage *mimg, int w, int h, int d ,int bands)
+int updateMvthImageDims0(MvthImage *mimg)
 {
 	if (mimg==NULL || mimg->img==NULL || mimg->img->data==NULL)
 		return TCL_ERROR;
@@ -768,16 +768,28 @@ int updateMvthImageDims(MvthImage *mimg, int w, int h, int d ,int bands)
 	Tcl_DecrRefCount(mimg->heightPtr);
 	Tcl_DecrRefCount(mimg->depthPtr);
 	Tcl_DecrRefCount(mimg->bandsPtr);
-	mimg->widthPtr=Tcl_NewIntObj(w);
-	mimg->heightPtr=Tcl_NewIntObj(h);
-	mimg->depthPtr=Tcl_NewIntObj(d);
-	mimg->bandsPtr=Tcl_NewIntObj(bands);
+	mimg->widthPtr=Tcl_NewIntObj(mimg->img->w);
+	mimg->heightPtr=Tcl_NewIntObj(mimg->img->h);
+	mimg->depthPtr=Tcl_NewIntObj(mimg->img->d);
+	mimg->bandsPtr=Tcl_NewIntObj(mimg->img->bands);
 	Tcl_IncrRefCount(mimg->widthPtr);
 	Tcl_IncrRefCount(mimg->heightPtr);
 	Tcl_IncrRefCount(mimg->depthPtr);
 	Tcl_IncrRefCount(mimg->bandsPtr);
 	return TCL_OK;
 }
+
+int updateMvthImageDims(MvthImage *mimg, int w, int h, int d ,int bands)
+{
+	if (mimg==NULL || mimg->img==NULL || mimg->img->data==NULL)
+		return TCL_ERROR;
+	mimg->img->w=w;
+	mimg->img->h=h;
+	mimg->img->d=d;
+	mimg->img->bands=bands;
+	return updateMvthImageDims0(mimg);
+}
+
 
 int mvthImageReplace(image_t *img, MvthImage *mimg)
 {
