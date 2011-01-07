@@ -31,7 +31,7 @@ proc imageNameFromImg {img} {
 
 
 proc __build_world_view_frame {w img} {
-	if {![info exists ::viewimage::vparams]} {
+	if {![info exists ::viewimage::vparams($img,Eaxis,min)]} {
 		set ::viewimage::vparams($img,Eaxis,min) 0;
 		set ::viewimage::vparams($img,Eaxis,width) 1;
 		set ::viewimage::vparams($img,Naxis,min) 0;
