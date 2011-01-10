@@ -74,6 +74,48 @@ proc __build_world_view_frame {w img} {
 	return $wvlf;
 }
 
+proc __build_image_region_frame {w img} {
+	if {![info exists ::viewimage::vparams($img,xaxis,min)]} {
+		set ::viewimage::vparams($img,xaxis,min) 0;
+		set ::viewimage::vparams($img,xaxis,width) 1;
+		set ::viewimage::vparams($img,yaxis,min) 0;
+		set ::viewimage::vparams($img,yaxis,width) 1;
+	}
+	set wvlf [labelframe $w -text "Image Region"];
+	set col 0;
+	set row 1;
+	foreach n {x y} {
+		set l [label ${wvlf}.l$n -text $n -justify right];
+		grid $l -column $col -row $row -sticky news;
+		incr row;
+	}
+	set col 0;
+	set row 1;
+	foreach n {min width} {
+		set l [label ${wvlf}.l$n -text $n];
+		grid $l -row 0 -column $col -sticky n;
+		set row 1;
+		# FIXME: viewimage spinbox should not call out to vprofile command;
+		# FIXME: I'll have to fix this using traces on the vprofile side;
+		# FIXME: Leaving it here for now during development;
+		set s [spinbox ${wvlf}.sx${n} \
+			-from 0 -to 1 -increment 0.02 \
+			-format %.2f -width 4 \
+			-command ::vprofile::update_view_if_live -justify right];
+		$s configure -textvariable ::viewimage::vparams($img,xaxis,$n);
+		grid $s -row $row -column $col -sticky news;
+		incr row;
+		set s [spinbox ${wvlf}.sy${n} \
+			-from 0 -to 1 -increment 0.02 \
+			-format %.2f -width 4 \
+			-command ::vprofile::update_view_if_live -justify right];
+		$s configure -textvariable ::viewimage::vparams($img,yaxis,$n);
+		grid $s -row $row -column $col -sticky news;
+		incr col;
+	}
+	return $wvlf;
+}
+
 proc viewimage {img} {
 	set t [toplevel [toplevelNameFromImg $img]]
 	set pw [panedwindow [panedwindowNameFromImg $img] -orient vertical -showhandle 1];
@@ -92,8 +134,11 @@ proc viewimage {img} {
 	$c config -scrollregion [$c bbox all]
 	$c config -cursor trek
 	label $t.testlabel -text "HI"
+	set ff [frame $t.ff];
 	set wvf [__build_world_view_frame $t.wvlf $img];
-	$pw add $wvf -sticky nw;
+	set ir [__build_image_region_frame $t.irf $img];
+	pack $wvf $ir -in $ff -anchor nw -side left;
+	$pw add $ff -sticky nw;
 	$pw add $tf -minsize 1i -padx 0 -pady 6 -sticky news;
 	pack $pw -expand yes -fill both;
 	return $t;
