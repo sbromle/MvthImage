@@ -6,6 +6,7 @@ include  (FindTclStub)
 option (USE_TCL_STUBS "Enable use of TCL stubs library")
 
 include (FindPkgConfig)
+ADD_DEFINITIONS("`pkg-config --cflags glib-2.0`")
 pkg_check_modules (GLIB2 REQUIRED glib-2.0)
 pkg_check_modules (PANGOFT2 REQUIRED pangoft2)
 
