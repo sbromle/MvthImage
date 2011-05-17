@@ -275,9 +275,9 @@ int plot_imagescale_expert(
 		fprintf(stderr,"Data:     (%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xd0,xd1,yd0,yd1);
 		return 0;
 	}
-	fprintf(stderr,"Viewport: x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",x0,x1,y0,y1);
-	fprintf(stderr,"Data:     x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xd0,xd1,yd0,yd1);
-	fprintf(stderr,"Intercept:x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xmin,xmax,ymin,ymax);
+	//fprintf(stderr,"Viewport: x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",x0,x1,y0,y1);
+	//fprintf(stderr,"Data:     x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xd0,xd1,yd0,yd1);
+	//fprintf(stderr,"Intercept:x(%15.12lg,%15.12lg) y(%15.12lg,%15.12lg)\n",xmin,xmax,ymin,ymax);
 
 
 	/* get the minimum and maximum pixel coords within the image; */
@@ -287,7 +287,7 @@ int plot_imagescale_expert(
 	j0=(int)((ymin-y0)/(y1-y0)*h+wiggle);
 	j1=(int)((ymax-y0)/(y1-y0)*h+wiggle);
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 	int id0,id1,jd0,jd1;
 	/* get the minimum and maximum pixel coords within the data; */
@@ -301,7 +301,7 @@ int plot_imagescale_expert(
 	fprintf(stderr,"Data dim was %dx%d, now %dx%d\n",dw,dh,id1-id0+1,jd1-jd0+1);
 	fprintf(stderr,"Image dim was %dx%d, now %dx%d\n",w,h,i1-i0+1,j1-j0+1);
 #endif
-#undef DEBUG
+//#undef DEBUG
 
 	/* get positively increasing image pixel coords for easy looping */
 	int ii0,ii1,jj0,jj1;
