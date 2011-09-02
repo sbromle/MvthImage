@@ -118,30 +118,6 @@ int varExistsTcl(Tcl_Interp *interp,
 
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
-int mvthImageExists0(Tcl_Interp *interp,
-		MvthImageState *statePtr,
-		char *name)
-{
-	Tcl_HashEntry *entryPtr=NULL;
-	if (name==NULL) return 0;
-	entryPtr=Tcl_FindHashEntry(&statePtr->hash,name);
-	if (entryPtr==NULL) return 0;
-	return 1;
-}
-
-int mvthImageExistsTcl(Tcl_Interp *interp,
-		MvthImageState *statePtr,
-		Tcl_Obj *CONST name)
-{
-	if (mvthImageExists0(interp,statePtr,Tcl_GetString(name)))
-	{
-		Tcl_SetObjResult(interp,Tcl_NewIntObj(1));
-		return TCL_OK;
-	}
-	Tcl_SetObjResult(interp,Tcl_NewIntObj(0));
-	return TCL_OK;
-}
-
 int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 		MvthImage **iPtrPtr)
 {
