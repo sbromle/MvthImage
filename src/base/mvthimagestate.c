@@ -41,6 +41,33 @@ typedef struct MvthImageState {
 	int uid;            /* used to auto-generate names */
 } MvthImageState;
 
+/* generic state management structure. Maps var names to blobs */
+typedef struct StateManager_s {
+	Tcl_HashTable hash; /* list of variables by name */
+	int uid;
+} StateManager_t;
+
+/* function to initialize state for a variable type */
+int InitializeStateManager(Tcl_Interp *interp, const char *key,
+		const char *cmd_name,
+		int (*cmd_func)(ClientData,Tcl_Interp*,int,Tcl_Obj *CONST objv[]),
+		Tcl_CmdDeleteProc *delete_proc)
+{
+	StateManager_t *state=NULL;
+	if (NULL!=Tcl_GetAssocData(interp,key,NULL)) return TCL_OK;
+	/* otherwise, we need to create a new context and associate it with
+	 * the Tcl interpreter.
+	 */
+	state=(StateManager_t*)ckalloc(sizeof(StateManager_t));
+	Tcl_InitHashTable(&state->hash,TCL_STRING_KEYS);
+	Tcl_SetAssocData(interp,key,NULL,(ClientData)state);
+	state->uid=0;
+	Tcl_CreateObjCommand(interp,cmd_name, cmd_func, (ClientData)state,delete_proc);
+	return TCL_OK;
+}
+
+
+
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
 int mvthImageExists0(Tcl_Interp *interp,
@@ -123,21 +150,7 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 
 /* The following routines create, initialize and delete Image_ts */
 int MvthImageState_Init(Tcl_Interp *interp) {
-	MvthImageState *statePtr;
-
-	/* first check to see if we haven't already registered a
-	 * state handler with this interpreter.  */
-	if (NULL!=Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL)) return TCL_OK;
-
-	/* allocate and initialize the hash table. Associate
-	 * the MvthImageState with the command by using the ClientData */
-	statePtr=(MvthImageState*)ckalloc(sizeof(MvthImageState));
-	Tcl_InitHashTable(&statePtr->hash,TCL_STRING_KEYS);
-	/* register the statePtr with this interpreter */
-	Tcl_SetAssocData(interp,MVTHIMAGESTATEKEY,NULL,(ClientData)statePtr);
-	statePtr->uid=0;
-	Tcl_CreateObjCommand(interp,"mi", MvthImageCmd,
-			(ClientData)statePtr,MvthImageCleanup);
+	InitializeStateManager(interp,MVTHIMAGESTATEKEY,"mi",MvthImageCmd,MvthImageCleanup);
 	Tcl_VarEval(interp,
 			"interp alias {} mvthimage {} mi;",
 			"interp alias {} copyimage {} mi copy;",
