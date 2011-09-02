@@ -156,7 +156,7 @@ int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
 void MvthImageDelete(void *ptr);
-int MvthImageNames(Tcl_Interp *interp, StateManager_t *statePtr);
+int varNames(Tcl_Interp *interp, StateManager_t *statePtr);
 int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
 int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
@@ -218,7 +218,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			break;
 		case NamesIx:
 			if (objc>2) goto err;
-			return MvthImageNames(interp,statePtr);
+			return varNames(interp,statePtr);
 			break;
 		case CreateIx:
 			return MvthImageCreate(statePtr,interp,objc-1,objv+1);
@@ -634,7 +634,7 @@ void MvthImageDelete(void *ptr)
 	return;
 }
 
-int MvthImageNames(Tcl_Interp *interp, StateManager_t *statePtr)
+int varNames(Tcl_Interp *interp, StateManager_t *statePtr)
 {
 	Tcl_HashEntry *entryPtr;
 	Tcl_HashSearch search;
