@@ -35,13 +35,8 @@
 #include "images_types.h"
 #include "mvthimagestate.h"
 
-/* the following structure is created once for each Tcl interpretor*/
-typedef struct MvthImageState {
-	Tcl_HashTable hash; /* List of images by name */
-	int uid;            /* used to auto-generate names */
-} MvthImageState;
-
-/* generic state management structure. Maps var names to blobs */
+/* generic state management structure. Maps var names to blobs.
+ * Created once per interpreter */
 typedef struct StateManager_s {
 	Tcl_HashTable hash; /* list of variables by name */
 	int uid;
