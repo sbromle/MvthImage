@@ -141,7 +141,7 @@ int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
 void MvthImageCleanup(ClientData data);
-int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr);
+int MvthImageDelete(MvthImage *iPtr);
 int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr);
 int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
 int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
@@ -162,7 +162,7 @@ int MvthImageState_Init(Tcl_Interp *interp) {
  * The hash table is walked, destroying all MvthImages as
  * you go, and then the HashTable itself is freed */
 void MvthImageCleanup(ClientData data) {
-	MvthImageState *statePtr=(MvthImageState*)data;
+	StateManager_t *statePtr=(StateManager_t*)data;
 	MvthImage *iPtr;
 	Tcl_HashEntry *entryPtr;
 	Tcl_HashSearch search;
@@ -170,7 +170,8 @@ void MvthImageCleanup(ClientData data) {
 	entryPtr=Tcl_FirstHashEntry(&statePtr->hash,&search);
 	while (entryPtr!=NULL) {
 		iPtr=Tcl_GetHashValue(entryPtr);
-		MvthImageDelete(iPtr,entryPtr);
+		MvthImageDelete(iPtr);
+		Tcl_DeleteHashEntry(entryPtr);
 		/* get the first entry again, not the next one, since
 		 * the previous first one is now deleted. */
 		entryPtr=Tcl_FirstHashEntry(&statePtr->hash,&search);
@@ -287,7 +288,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case SizeIx:
 			return MvthImageWHDB(interp,iPtr,valueObjPtr,4);
 		case DeleteIx:
-			return MvthImageDelete(iPtr,entryPtr);
+			MvthImageDelete(iPtr);
+			Tcl_DeleteHashEntry(entryPtr);
+			return TCL_OK;
 	}
 	return TCL_OK;
 
@@ -626,9 +629,8 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 }
 
 /* and delete an MvthImage */
-int MvthImageDelete(MvthImage *iPtr, Tcl_HashEntry *entryPtr)
+int MvthImageDelete(MvthImage *iPtr)
 {
-	Tcl_DeleteHashEntry(entryPtr);
 	if (iPtr->widthPtr!=NULL) {Tcl_DecrRefCount(iPtr->widthPtr);}
 	if (iPtr->heightPtr!=NULL) {Tcl_DecrRefCount(iPtr->heightPtr);}
 	if (iPtr->depthPtr!=NULL) {Tcl_DecrRefCount(iPtr->depthPtr);}
