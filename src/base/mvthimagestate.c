@@ -92,7 +92,29 @@ int InitializeStateManager(Tcl_Interp *interp, const char *key,
 	return TCL_OK;
 }
 
+int varExists0(Tcl_Interp *interp,
+		StateManager_t *statePtr,
+		char *name)
+{
+	Tcl_HashEntry *entryPtr=NULL;
+	if (name==NULL) return 0;
+	entryPtr=Tcl_FindHashEntry(&statePtr->hash,name);
+	if (entryPtr==NULL) return 0;
+	return 1;
+}
 
+int varExistsTcl(Tcl_Interp *interp,
+		StateManager_t *statePtr,
+		Tcl_Obj *CONST name)
+{
+	if (varExists0(interp,statePtr,Tcl_GetString(name)))
+	{
+		Tcl_SetObjResult(interp,Tcl_NewIntObj(1));
+		return TCL_OK;
+	}
+	Tcl_SetObjResult(interp,Tcl_NewIntObj(0));
+	return TCL_OK;
+}
 
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
@@ -105,15 +127,6 @@ int mvthImageExists0(Tcl_Interp *interp,
 	entryPtr=Tcl_FindHashEntry(&statePtr->hash,name);
 	if (entryPtr==NULL) return 0;
 	return 1;
-}
-
-int mvthImageExists(Tcl_Interp *interp, Tcl_Obj *CONST name)
-{
-	MvthImageState *statePtr=NULL;
-	if (name==NULL) return 0;
-	statePtr=(MvthImageState*)Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL);
-
-	return mvthImageExists0(interp,statePtr,Tcl_GetString(name));
 }
 
 int mvthImageExistsTcl(Tcl_Interp *interp,
@@ -132,7 +145,7 @@ int mvthImageExistsTcl(Tcl_Interp *interp,
 int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 		MvthImage **iPtrPtr)
 {
-	MvthImageState *statePtr=NULL;
+	StateManager_t *statePtr=NULL;
 	Tcl_HashEntry *entryPtr=NULL;
 	MvthImage *iPtr=NULL;
 	if (name==NULL) {
@@ -143,7 +156,7 @@ int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 		Tcl_AppendResult(interp,"iPtrPtr was NULL",NULL);
 		return TCL_ERROR;
 	}
-	statePtr=(MvthImageState*)Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL);
+	statePtr=(StateManager_t*)Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL);
 
 	entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(name));
 	if (entryPtr==NULL) {
@@ -167,7 +180,7 @@ int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
 void MvthImageDelete(void *ptr);
-int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr);
+int MvthImageNames(Tcl_Interp *interp, StateManager_t *statePtr);
 int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
 int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
@@ -200,7 +213,7 @@ int MvthImageState_Init(Tcl_Interp *interp) {
  */
 int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]) {
-	MvthImageState *statePtr=(MvthImageState *)data;
+	StateManager_t *statePtr=(StateManager_t *)data;
 	MvthImage *iPtr=NULL;
 	Tcl_HashEntry *entryPtr=NULL;
 	Tcl_Obj *valueObjPtr=NULL;
@@ -225,7 +238,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	switch (index) {
 		case ExistsIx:
 			if (objc!=3) goto err;
-			return mvthImageExistsTcl(interp,statePtr,objv[2]);
+			return varExistsTcl(interp,statePtr,objv[2]);
 			break;
 		case NamesIx:
 			if (objc>2) goto err;
@@ -429,7 +442,7 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 int MvthImageCreate(ClientData data, Tcl_Interp *interp, 
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImageState *statePtr=(MvthImageState *)data;
+	StateManager_t *statePtr=(StateManager_t *)data;
 	Tcl_HashEntry *entryPtr;
 	MvthImage *iPtr;
 	int new;
@@ -459,7 +472,7 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
 			return TCL_ERROR;
 		}
-		if (mvthImageExists0(interp,statePtr,name_ptr)) {
+		if (varExists0(interp,statePtr,name_ptr)) {
 			Tcl_AppendResult(interp,"Image named ",name_ptr," already exists!\n",NULL);
 			return TCL_ERROR;
 		}
@@ -467,7 +480,7 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 		/* generate an MvthImage and put it in the hash table */
 		statePtr->uid++;
 		sprintf(name,"mi#%03d",statePtr->uid);
-		while (mvthImageExists0(interp,statePtr,name)) {
+		while (varExists0(interp,statePtr,name)) {
 			statePtr->uid++;
 			sprintf(name,"mi#%03d",statePtr->uid);
 		}
@@ -491,7 +504,7 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImageState *statePtr=(MvthImageState*)data;
+	StateManager_t *statePtr=(StateManager_t*)data;
 	MvthImage *iSrcPtr;
 
 	Tcl_HashEntry *entryPtr;
@@ -523,7 +536,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
 			return TCL_ERROR;
 		}
-		if (mvthImageExists0(interp,statePtr,dst_name)) {
+		if (varExists0(interp,statePtr,dst_name)) {
 			/* then we really should copy the image */
 			return MvthImageCopy(NULL,interp,3,objv);
 		} 
@@ -531,7 +544,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 		/* generate an MvthImage and put it in the hash table */
 		statePtr->uid++;
 		sprintf(name,"mi#%03d",statePtr->uid);
-		while (mvthImageExists0(interp,statePtr,name)) {
+		while (varExists0(interp,statePtr,name)) {
 			statePtr->uid++;
 			sprintf(name,"mi#%03d",statePtr->uid);
 		}
@@ -559,7 +572,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImageState *statePtr=(MvthImageState*)data;
+	StateManager_t *statePtr=(StateManager_t*)data;
 	Tcl_HashEntry *entryPtr;
 	MvthImage *iPtr=NULL;
 	int new;
@@ -603,7 +616,7 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		if (iname==NULL) {
 			statePtr->uid++;
 			sprintf(name,"mi%03d",statePtr->uid);
-			while (mvthImageExists0(interp,statePtr,name)) {
+			while (varExists0(interp,statePtr,name)) {
 				statePtr->uid++;
 				sprintf(name,"mi#%03d",statePtr->uid);
 			}
@@ -645,7 +658,7 @@ void MvthImageDelete(void *ptr)
 	return;
 }
 
-int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr)
+int MvthImageNames(Tcl_Interp *interp, StateManager_t *statePtr)
 {
 	Tcl_HashEntry *entryPtr;
 	Tcl_HashSearch search;
