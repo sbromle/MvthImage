@@ -45,13 +45,38 @@ typedef struct MvthImageState {
 typedef struct StateManager_s {
 	Tcl_HashTable hash; /* list of variables by name */
 	int uid;
+	void (*deleteProc)(void *ptr);
 } StateManager_t;
+
+/* this is called when the command associated with a state is destroyed.
+ * The hash table is walked, destroying all variables as
+ * you go, and then the HashTable itself is freed */
+void StateManagerDeleteProc(ClientData clientData) {
+	Tcl_HashEntry *entryPtr;
+	Tcl_HashSearch search;
+	void *iPtr=NULL;
+	StateManager_t *state=(StateManager_t *)clientData;
+	if (state==NULL) return;
+	if (state->deleteProc==NULL) return;
+
+	entryPtr=Tcl_FirstHashEntry(&state->hash,&search);
+	while (entryPtr!=NULL) {
+		iPtr=Tcl_GetHashValue(entryPtr);
+		state->deleteProc(iPtr);
+		Tcl_DeleteHashEntry(entryPtr);
+		/* get the first entry again, not the next one, since
+		 * the previous first one is now deleted. */
+		entryPtr=Tcl_FirstHashEntry(&state->hash,&search);
+	}
+	ckfree((char*)state);
+	return;
+}
 
 /* function to initialize state for a variable type */
 int InitializeStateManager(Tcl_Interp *interp, const char *key,
 		const char *cmd_name,
 		int (*cmd_func)(ClientData,Tcl_Interp*,int,Tcl_Obj *CONST objv[]),
-		Tcl_CmdDeleteProc *delete_proc)
+		void (*deleteProc)(void *ptr))
 {
 	StateManager_t *state=NULL;
 	if (NULL!=Tcl_GetAssocData(interp,key,NULL)) return TCL_OK;
@@ -62,7 +87,8 @@ int InitializeStateManager(Tcl_Interp *interp, const char *key,
 	Tcl_InitHashTable(&state->hash,TCL_STRING_KEYS);
 	Tcl_SetAssocData(interp,key,NULL,(ClientData)state);
 	state->uid=0;
-	Tcl_CreateObjCommand(interp,cmd_name, cmd_func, (ClientData)state,delete_proc);
+	state->deleteProc=deleteProc;
+	Tcl_CreateObjCommand(interp,cmd_name, cmd_func, (ClientData)state,StateManagerDeleteProc);
 	return TCL_OK;
 }
 
@@ -140,8 +166,7 @@ int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
 int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
-void MvthImageCleanup(ClientData data);
-int MvthImageDelete(MvthImage *iPtr);
+void MvthImageDelete(void *ptr);
 int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr);
 int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
 int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
@@ -150,33 +175,12 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 
 /* The following routines create, initialize and delete Image_ts */
 int MvthImageState_Init(Tcl_Interp *interp) {
-	InitializeStateManager(interp,MVTHIMAGESTATEKEY,"mi",MvthImageCmd,MvthImageCleanup);
+	InitializeStateManager(interp,MVTHIMAGESTATEKEY,"mi",MvthImageCmd,MvthImageDelete);
 	Tcl_VarEval(interp,
 			"interp alias {} mvthimage {} mi;",
 			"interp alias {} copyimage {} mi copy;",
 			NULL);
 	return TCL_OK;
-}
-
-/* this is called when the MvthImage command is destroyed.
- * The hash table is walked, destroying all MvthImages as
- * you go, and then the HashTable itself is freed */
-void MvthImageCleanup(ClientData data) {
-	StateManager_t *statePtr=(StateManager_t*)data;
-	MvthImage *iPtr;
-	Tcl_HashEntry *entryPtr;
-	Tcl_HashSearch search;
-
-	entryPtr=Tcl_FirstHashEntry(&statePtr->hash,&search);
-	while (entryPtr!=NULL) {
-		iPtr=Tcl_GetHashValue(entryPtr);
-		MvthImageDelete(iPtr);
-		Tcl_DeleteHashEntry(entryPtr);
-		/* get the first entry again, not the next one, since
-		 * the previous first one is now deleted. */
-		entryPtr=Tcl_FirstHashEntry(&statePtr->hash,&search);
-	}
-	ckfree((char*)statePtr);
 }
 
 /* MvthImageCmd --
@@ -629,15 +633,16 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 }
 
 /* and delete an MvthImage */
-int MvthImageDelete(MvthImage *iPtr)
+void MvthImageDelete(void *ptr)
 {
+	MvthImage *iPtr=(MvthImage *)ptr;
 	if (iPtr->widthPtr!=NULL) {Tcl_DecrRefCount(iPtr->widthPtr);}
 	if (iPtr->heightPtr!=NULL) {Tcl_DecrRefCount(iPtr->heightPtr);}
 	if (iPtr->depthPtr!=NULL) {Tcl_DecrRefCount(iPtr->depthPtr);}
 	if (iPtr->bandsPtr!=NULL) {Tcl_DecrRefCount(iPtr->bandsPtr);}
 	if (iPtr->img!=NULL) {DSYM(free_image_t)(iPtr->img);}
 	Tcl_Free((char*)iPtr);
-	return TCL_OK;
+	return;
 }
 
 int MvthImageNames(Tcl_Interp *interp, MvthImageState *statePtr)
