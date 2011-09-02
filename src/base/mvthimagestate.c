@@ -46,6 +46,7 @@ typedef struct StateManager_s {
 	Tcl_HashTable hash; /* list of variables by name */
 	int uid;
 	void (*deleteProc)(void *ptr);
+	int (*unknownCmd)(ClientData, Tcl_Interp *,int,Tcl_Obj *CONST objv[]);
 } StateManager_t;
 
 /* this is called when the command associated with a state is destroyed.
@@ -72,26 +73,6 @@ void StateManagerDeleteProc(ClientData clientData) {
 	return;
 }
 
-/* function to initialize state for a variable type */
-int InitializeStateManager(Tcl_Interp *interp, const char *key,
-		const char *cmd_name,
-		int (*cmd_func)(ClientData,Tcl_Interp*,int,Tcl_Obj *CONST objv[]),
-		void (*deleteProc)(void *ptr))
-{
-	StateManager_t *state=NULL;
-	if (NULL!=Tcl_GetAssocData(interp,key,NULL)) return TCL_OK;
-	/* otherwise, we need to create a new context and associate it with
-	 * the Tcl interpreter.
-	 */
-	state=(StateManager_t*)ckalloc(sizeof(StateManager_t));
-	Tcl_InitHashTable(&state->hash,TCL_STRING_KEYS);
-	Tcl_SetAssocData(interp,key,NULL,(ClientData)state);
-	state->uid=0;
-	state->deleteProc=deleteProc;
-	Tcl_CreateObjCommand(interp,cmd_name, cmd_func, (ClientData)state,StateManagerDeleteProc);
-	return TCL_OK;
-}
-
 int varExists0(Tcl_Interp *interp,
 		StateManager_t *statePtr,
 		char *name)
@@ -115,6 +96,93 @@ int varExistsTcl(Tcl_Interp *interp,
 	Tcl_SetObjResult(interp,Tcl_NewIntObj(0));
 	return TCL_OK;
 }
+
+/* StateManagerCmd --
+ * This implements the StateManager command, which has these subcommands:
+ * 	names ?pattern?
+ * 	exists ?name?
+ * 	delete name
+ *
+ * Results:
+ *  A standard Tcl command result.
+ */
+int StateManagerCmd(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]) {
+	StateManager_t *statePtr=(StateManager_t *)clientData;
+	MvthImage *iPtr=NULL;
+	Tcl_HashEntry *entryPtr=NULL;
+	Tcl_Obj *valueObjPtr=NULL;
+
+	/* the subCmd array defines the allowed values for
+	 * the subcommand.
+	 */
+	CONST char *subCmds[] = {
+		"delete","exists","names",NULL};
+	enum StateCmdIx {
+		DeleteIx, ExistsIx, NamesIx};
+	int index;
+
+	if (objc==1 || objc>=6) {
+		Tcl_WrongNumArgs(interp,1,objv,"option ?arg ...?");
+		return TCL_ERROR;
+	}
+
+	if (Tcl_GetIndexFromObj(interp,objv[1],subCmds,"option",0,&index)!=TCL_OK)
+		return statePtr->unknownCmd(clientData,interp,objc,objv);
+
+	switch (index) {
+		case ExistsIx:
+			if (objc!=3) goto err;
+			return varExistsTcl(interp,statePtr,objv[2]);
+			break;
+		case NamesIx:
+			if (objc>2) goto err;
+			return varNames(interp,statePtr);
+			break;
+		case DeleteIx:
+			if (objc!=3) goto err;
+			entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[2]));
+			if (entryPtr==NULL) {
+				Tcl_AppendResult(interp,"Unknown var: ",
+						Tcl_GetString(objv[2]),NULL);
+				return TCL_ERROR;
+			}
+			iPtr=Tcl_GetHashValue(entryPtr);
+			statePtr->deleteProc(iPtr);
+			Tcl_DeleteHashEntry(entryPtr);
+			return TCL_OK;
+			break;
+		default:
+			return statePtr->unknownCmd(statePtr,interp,objc,objv);
+			break;
+	}
+	return TCL_OK;
+err:
+	Tcl_WrongNumArgs(interp,1,objv,"option ?arg ...?");
+	return TCL_ERROR;
+}
+
+/* function to initialize state for a variable type */
+int InitializeStateManager(Tcl_Interp *interp, const char *key,
+		const char *cmd_name,
+		int (*unknownCmd)(ClientData,Tcl_Interp*,int,Tcl_Obj *CONST objv[]),
+		void (*deleteProc)(void *ptr))
+{
+	StateManager_t *state=NULL;
+	if (NULL!=Tcl_GetAssocData(interp,key,NULL)) return TCL_OK;
+	/* otherwise, we need to create a new context and associate it with
+	 * the Tcl interpreter.
+	 */
+	state=(StateManager_t*)ckalloc(sizeof(StateManager_t));
+	Tcl_InitHashTable(&state->hash,TCL_STRING_KEYS);
+	Tcl_SetAssocData(interp,key,NULL,(ClientData)state);
+	state->uid=0;
+	state->deleteProc=deleteProc;
+	state->unknownCmd=unknownCmd;
+	Tcl_CreateObjCommand(interp,cmd_name, StateManagerCmd, (ClientData)state,StateManagerDeleteProc);
+	return TCL_OK;
+}
+
 
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
@@ -178,11 +246,9 @@ int MvthImageState_Init(Tcl_Interp *interp) {
  * 	duplicate name
  * 	copy srcname dstname
  * 	open filename ?name?
- * 	names ?pattern?
  * 	width name ?value?
  * 	height name ?value?
  * 	depth name ?value?
- * 	delete name
  *
  * Results:
  *  A standard Tcl command result.
@@ -198,9 +264,9 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	 * the subcommand.
 	 */
 	CONST char *subCmds[] = {
-		"create","delete","duplicate","copy","exists","open", "width","height","depth","bands","names","size","scale",NULL};
+		"create","duplicate","copy","open", "width","height","depth","bands","size","scale",NULL};
 	enum MvthImageIx {
-		CreateIx, DeleteIx, DuplicateIx,CopyIx,ExistsIx,OpenIx, WidthIx, HeightIx, DepthIx, BandsIx, NamesIx,SizeIx,ScaleIx};
+		CreateIx, DuplicateIx,CopyIx,OpenIx, WidthIx, HeightIx, DepthIx, BandsIx,SizeIx,ScaleIx};
 	int index;
 
 	if (objc==1 || objc>=6) {
@@ -211,15 +277,10 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	if (Tcl_GetIndexFromObj(interp,objv[1],subCmds,"option",0,&index)!=TCL_OK)
 		return TCL_ERROR;
 
+	/* reset the result so that we don't have the error from StateManagerCmd */
+	Tcl_ResetResult(interp);
+
 	switch (index) {
-		case ExistsIx:
-			if (objc!=3) goto err;
-			return varExistsTcl(interp,statePtr,objv[2]);
-			break;
-		case NamesIx:
-			if (objc>2) goto err;
-			return varNames(interp,statePtr);
-			break;
 		case CreateIx:
 			return MvthImageCreate(statePtr,interp,objc-1,objv+1);
 			break;
@@ -231,9 +292,6 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			if (objc!=3 && objc!=4) goto err;
 			if (objc==3) valueObjPtr=NULL;
 			else valueObjPtr=objv[3];
-			break;
-		case DeleteIx:
-			if (objc!=3) goto err;
 			break;
 		case DuplicateIx:
 			return MvthImageDuplicate((ClientData)statePtr,interp,objc-1,objv+1);
@@ -258,7 +316,6 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case DepthIx:
 		case BandsIx:
 		case SizeIx:
-		case DeleteIx:
 			entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[2]));
 			if (entryPtr==NULL) {
 				Tcl_AppendResult(interp,"Unknown mvthimage: ",
@@ -280,10 +337,6 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 			return MvthImageWHDB(interp,iPtr,valueObjPtr,3);
 		case SizeIx:
 			return MvthImageWHDB(interp,iPtr,valueObjPtr,4);
-		case DeleteIx:
-			MvthImageDelete(iPtr);
-			Tcl_DeleteHashEntry(entryPtr);
-			return TCL_OK;
 	}
 	return TCL_OK;
 
