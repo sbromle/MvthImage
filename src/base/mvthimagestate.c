@@ -33,150 +33,8 @@
 #include <tcl.h>
 #include "dynamic_symbols_mvth.h"
 #include "images_types.h"
+#include "variable_state.h"
 #include "mvthimagestate.h"
-
-/* generic state management structure. Maps var names to blobs.
- * Created once per interpreter */
-typedef struct StateManager_s {
-	Tcl_HashTable hash; /* list of variables by name */
-	int uid;
-	void (*deleteProc)(void *ptr);
-	int (*unknownCmd)(ClientData, Tcl_Interp *,int,Tcl_Obj *CONST objv[]);
-} StateManager_t;
-
-/* this is called when the command associated with a state is destroyed.
- * The hash table is walked, destroying all variables as
- * you go, and then the HashTable itself is freed */
-void StateManagerDeleteProc(ClientData clientData) {
-	Tcl_HashEntry *entryPtr;
-	Tcl_HashSearch search;
-	void *iPtr=NULL;
-	StateManager_t *state=(StateManager_t *)clientData;
-	if (state==NULL) return;
-	if (state->deleteProc==NULL) return;
-
-	entryPtr=Tcl_FirstHashEntry(&state->hash,&search);
-	while (entryPtr!=NULL) {
-		iPtr=Tcl_GetHashValue(entryPtr);
-		state->deleteProc(iPtr);
-		Tcl_DeleteHashEntry(entryPtr);
-		/* get the first entry again, not the next one, since
-		 * the previous first one is now deleted. */
-		entryPtr=Tcl_FirstHashEntry(&state->hash,&search);
-	}
-	ckfree((char*)state);
-	return;
-}
-
-int varExists0(Tcl_Interp *interp,
-		StateManager_t *statePtr,
-		char *name)
-{
-	Tcl_HashEntry *entryPtr=NULL;
-	if (name==NULL) return 0;
-	entryPtr=Tcl_FindHashEntry(&statePtr->hash,name);
-	if (entryPtr==NULL) return 0;
-	return 1;
-}
-
-int varExistsTcl(Tcl_Interp *interp,
-		StateManager_t *statePtr,
-		Tcl_Obj *CONST name)
-{
-	if (varExists0(interp,statePtr,Tcl_GetString(name)))
-	{
-		Tcl_SetObjResult(interp,Tcl_NewIntObj(1));
-		return TCL_OK;
-	}
-	Tcl_SetObjResult(interp,Tcl_NewIntObj(0));
-	return TCL_OK;
-}
-
-/* StateManagerCmd --
- * This implements the StateManager command, which has these subcommands:
- * 	names ?pattern?
- * 	exists ?name?
- * 	delete name
- *
- * Results:
- *  A standard Tcl command result.
- */
-int StateManagerCmd(ClientData clientData, Tcl_Interp *interp,
-		int objc, Tcl_Obj *CONST objv[]) {
-	StateManager_t *statePtr=(StateManager_t *)clientData;
-	MvthImage *iPtr=NULL;
-	Tcl_HashEntry *entryPtr=NULL;
-	Tcl_Obj *valueObjPtr=NULL;
-
-	/* the subCmd array defines the allowed values for
-	 * the subcommand.
-	 */
-	CONST char *subCmds[] = {
-		"delete","exists","names",NULL};
-	enum StateCmdIx {
-		DeleteIx, ExistsIx, NamesIx};
-	int index;
-
-	if (objc==1 || objc>=6) {
-		Tcl_WrongNumArgs(interp,1,objv,"option ?arg ...?");
-		return TCL_ERROR;
-	}
-
-	if (Tcl_GetIndexFromObj(interp,objv[1],subCmds,"option",0,&index)!=TCL_OK)
-		return statePtr->unknownCmd(clientData,interp,objc,objv);
-
-	switch (index) {
-		case ExistsIx:
-			if (objc!=3) goto err;
-			return varExistsTcl(interp,statePtr,objv[2]);
-			break;
-		case NamesIx:
-			if (objc>2) goto err;
-			return varNames(interp,statePtr);
-			break;
-		case DeleteIx:
-			if (objc!=3) goto err;
-			entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[2]));
-			if (entryPtr==NULL) {
-				Tcl_AppendResult(interp,"Unknown var: ",
-						Tcl_GetString(objv[2]),NULL);
-				return TCL_ERROR;
-			}
-			iPtr=Tcl_GetHashValue(entryPtr);
-			statePtr->deleteProc(iPtr);
-			Tcl_DeleteHashEntry(entryPtr);
-			return TCL_OK;
-			break;
-		default:
-			return statePtr->unknownCmd(statePtr,interp,objc,objv);
-			break;
-	}
-	return TCL_OK;
-err:
-	Tcl_WrongNumArgs(interp,1,objv,"option ?arg ...?");
-	return TCL_ERROR;
-}
-
-/* function to initialize state for a variable type */
-int InitializeStateManager(Tcl_Interp *interp, const char *key,
-		const char *cmd_name,
-		int (*unknownCmd)(ClientData,Tcl_Interp*,int,Tcl_Obj *CONST objv[]),
-		void (*deleteProc)(void *ptr))
-{
-	StateManager_t *state=NULL;
-	if (NULL!=Tcl_GetAssocData(interp,key,NULL)) return TCL_OK;
-	/* otherwise, we need to create a new context and associate it with
-	 * the Tcl interpreter.
-	 */
-	state=(StateManager_t*)ckalloc(sizeof(StateManager_t));
-	Tcl_InitHashTable(&state->hash,TCL_STRING_KEYS);
-	Tcl_SetAssocData(interp,key,NULL,(ClientData)state);
-	state->uid=0;
-	state->deleteProc=deleteProc;
-	state->unknownCmd=unknownCmd;
-	Tcl_CreateObjCommand(interp,cmd_name, StateManagerCmd, (ClientData)state,StateManagerDeleteProc);
-	return TCL_OK;
-}
 
 
 #define MVTHIMAGESTATEKEY "mvthimagestate"
@@ -184,27 +42,9 @@ int InitializeStateManager(Tcl_Interp *interp, const char *key,
 int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 		MvthImage **iPtrPtr)
 {
-	StateManager_t *statePtr=NULL;
-	Tcl_HashEntry *entryPtr=NULL;
+	StateManager_t statePtr=NULL;
 	MvthImage *iPtr=NULL;
-	if (name==NULL) {
-		Tcl_AppendResult(interp,"name was NULL",NULL);
-		return TCL_ERROR;
-	}
-	if (iPtrPtr==NULL) {
-		Tcl_AppendResult(interp,"iPtrPtr was NULL",NULL);
-		return TCL_ERROR;
-	}
-	statePtr=(StateManager_t*)Tcl_GetAssocData(interp,MVTHIMAGESTATEKEY,NULL);
-
-	entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(name));
-	if (entryPtr==NULL) {
-		Tcl_AppendResult(interp,"Unknown mvthimage: ", Tcl_GetString(name),NULL);
-		return TCL_ERROR;
-	}
-	iPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
-	*iPtrPtr=iPtr;
-	return TCL_OK;
+	return getVarFromObjKey(MVTHIMAGESTATEKEY,interp,name,(void**)iPtrPtr);
 }
 
 /* forward declarations */
@@ -219,7 +59,6 @@ int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
 void MvthImageDelete(void *ptr);
-int varNames(Tcl_Interp *interp, StateManager_t *statePtr);
 int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
 int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
@@ -250,9 +89,8 @@ int MvthImageState_Init(Tcl_Interp *interp) {
  */
 int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]) {
-	StateManager_t *statePtr=(StateManager_t *)data;
+	StateManager_t statePtr=(StateManager_t)data;
 	MvthImage *iPtr=NULL;
-	Tcl_HashEntry *entryPtr=NULL;
 	Tcl_Obj *valueObjPtr=NULL;
 
 	/* the subCmd array defines the allowed values for
@@ -311,13 +149,8 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case DepthIx:
 		case BandsIx:
 		case SizeIx:
-			entryPtr=Tcl_FindHashEntry(&statePtr->hash,Tcl_GetString(objv[2]));
-			if (entryPtr==NULL) {
-				Tcl_AppendResult(interp,"Unknown mvthimage: ",
-						Tcl_GetString(objv[2]),NULL);
+			if (getVarFromObj((ClientData)statePtr,interp,objv[2],(void**)&iPtr)!=TCL_OK)
 				return TCL_ERROR;
-			}
-			iPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
 			break;
 	}
 
@@ -466,8 +299,7 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 int MvthImageCreate(ClientData data, Tcl_Interp *interp, 
 		int objc, Tcl_Obj *CONST objv[])
 {
-	StateManager_t *statePtr=(StateManager_t *)data;
-	Tcl_HashEntry *entryPtr;
+	StateManager_t statePtr=(StateManager_t)data;
 	MvthImage *iPtr;
 	int new;
 	int len;
@@ -496,30 +328,29 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
 			return TCL_ERROR;
 		}
-		if (varExists0(interp,statePtr,name_ptr)) {
+		if (varExists0(statePtr,name_ptr)) {
 			Tcl_AppendResult(interp,"Image named ",name_ptr," already exists!\n",NULL);
 			return TCL_ERROR;
 		}
 	} else {
-		/* generate an MvthImage and put it in the hash table */
-		statePtr->uid++;
-		sprintf(name,"mi#%03d",statePtr->uid);
-		while (varExists0(interp,statePtr,name)) {
-			statePtr->uid++;
-			sprintf(name,"mi#%03d",statePtr->uid);
+		if (varUniqName(interp,statePtr,name)!=TCL_OK) {
+			return TCL_ERROR;
 		}
 		name_ptr=name;
 	}
+
+	/********** LEFT OFF HERE *****************
+	 * TO DO:
+	 * Add a way to add new entries to the state hash.
+	 * Add a function for autogenerating names from the state manger.
+	 * Modify mvthimage to make use of these new functions.
+	 */
 
 	Tcl_Obj *dObj=Tcl_NewIntObj(1);
 	/* ok, we can now safely make the image and register it */
 	if (newMvthImage(interp,whd[0],whd[1],dObj,whd[2],&iPtr)!=TCL_OK)
 		return TCL_ERROR;
-	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name_ptr,&new);
-	/* you probably should assert the new==1 to confirm
-	 * a new item was added to the hash table */
-	Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
-	/* copy the name to the interpreter result */
+	registerVar(interp,statePtr,(ClientData)iPtr,name_ptr);
 	Tcl_SetStringObj(Tcl_GetObjResult(interp),name_ptr,-1);
 	return TCL_OK;
 }
@@ -528,10 +359,9 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	StateManager_t *statePtr=(StateManager_t*)data;
+	StateManager_t statePtr=(StateManager_t)data;
 	MvthImage *iSrcPtr;
 
-	Tcl_HashEntry *entryPtr;
 	MvthImage *iPtr;
 	int new;
 	char name[20];
@@ -545,9 +375,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 	}
 
 	src_name=Tcl_GetString(objv[1]);
-	entryPtr=Tcl_FindHashEntry(&statePtr->hash,src_name);
-	if (entryPtr==NULL) {
-		Tcl_AppendResult(interp,"Unknown mvthimage: ",src_name,NULL);
+	if (getVarFromObj(data,interp,objv[1],(void**)&iSrcPtr)!=TCL_OK) {
 		return TCL_ERROR;
 	}
 
@@ -560,32 +388,23 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
 			return TCL_ERROR;
 		}
-		if (varExists0(interp,statePtr,dst_name)) {
+		if (varExists0(statePtr,dst_name)) {
 			/* then we really should copy the image */
 			return MvthImageCopy(NULL,interp,3,objv);
 		} 
 	} else {
 		/* generate an MvthImage and put it in the hash table */
-		statePtr->uid++;
-		sprintf(name,"mi#%03d",statePtr->uid);
-		while (varExists0(interp,statePtr,name)) {
-			statePtr->uid++;
-			sprintf(name,"mi#%03d",statePtr->uid);
-		}
+		varUniqName(interp,statePtr,name);
 		dst_name=name;
 	}
 	/* if we get here, dst_name is set and we must create a new image */
 
-	iSrcPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
 	if (newMvthImage(interp,iSrcPtr->widthPtr,iSrcPtr->heightPtr,iSrcPtr->depthPtr,iSrcPtr->bandsPtr, &iPtr)!=TCL_OK)
 		return TCL_ERROR;
 	image_t2MvthImage(iSrcPtr->img,iPtr);
 
 	/* put the new MvthImage in the hash table */
-	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,dst_name,&new);
-	/* you probably should assert the new==1 to confirm
-	 * a new item was added to the hash table */
-	Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
+	registerVar(interp,statePtr,(ClientData)iSrcPtr,dst_name);
 	/* copy the name to the interpreter result */
 	Tcl_SetStringObj(Tcl_GetObjResult(interp),dst_name,-1);
 	return TCL_OK;
@@ -596,8 +415,6 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	StateManager_t *statePtr=(StateManager_t*)data;
-	Tcl_HashEntry *entryPtr;
 	MvthImage *iPtr=NULL;
 	int new;
 	char name[20];
@@ -614,14 +431,7 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 	}
 
 	if (objc==3) { /* get the user supplied name of an mvthimage */
-		int len;
-		iname=Tcl_GetStringFromObj(objv[2],&len);
-		if (len==0 || len>20) {
-			Tcl_AppendResult(interp,"mvthimage varname length must be >0 and <=20 characters.",NULL);
-			return TCL_ERROR;
-		}
-		entryPtr=Tcl_FindHashEntry(&statePtr->hash,iname);
-		if (entryPtr!=NULL) iPtr=(MvthImage*)Tcl_GetHashValue(entryPtr);
+		getVarFromObj(data,interp,objv[2],(void**)&iPtr);
 	} 
 
 	/* get the filename */
@@ -638,15 +448,9 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 	if (iPtr==NULL) {
 		/* need to try to create a new one */
 		if (iname==NULL) {
-			statePtr->uid++;
-			sprintf(name,"mi%03d",statePtr->uid);
-			while (varExists0(interp,statePtr,name)) {
-				statePtr->uid++;
-				sprintf(name,"mi#%03d",statePtr->uid);
-			}
+			varUniqName(interp,(StateManager_t)data,name);
 			iname=name;
 		}
-		entryPtr=Tcl_CreateHashEntry(&statePtr->hash,iname,&new);
 		/* you probably should assert the new==1 to confirm
 	 	* a new item was added to the hash table */
 		iPtr=(MvthImage*)ckalloc(sizeof(MvthImage));
@@ -659,7 +463,7 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		Tcl_IncrRefCount(iPtr->heightPtr);
 		Tcl_IncrRefCount(iPtr->depthPtr);
 		Tcl_IncrRefCount(iPtr->bandsPtr);
-		Tcl_SetHashValue(entryPtr,(ClientData)iPtr);
+		registerVar(interp,(StateManager_t)data,(ClientData)iPtr,iname);
 	} else {
 		mvthImageReplace(img,iPtr);
 	}
@@ -680,25 +484,6 @@ void MvthImageDelete(void *ptr)
 	if (iPtr->img!=NULL) {DSYM(free_image_t)(iPtr->img);}
 	Tcl_Free((char*)iPtr);
 	return;
-}
-
-int varNames(Tcl_Interp *interp, StateManager_t *statePtr)
-{
-	Tcl_HashEntry *entryPtr;
-	Tcl_HashSearch search;
-	Tcl_Obj *listPtr;
-	char *name;
-	/* Walk the hash table and build a list of names */
-	listPtr=Tcl_NewListObj(0,NULL);
-	entryPtr=Tcl_FirstHashEntry(&statePtr->hash,&search);
-	while (entryPtr!=NULL) {
-		name=Tcl_GetHashKey(&statePtr->hash,entryPtr);
-		if (Tcl_ListObjAppendElement(interp,listPtr,
-					Tcl_NewStringObj(name,-1))!=TCL_OK) return TCL_ERROR;
-		entryPtr=Tcl_NextHashEntry(&search);
-	}
-	Tcl_SetObjResult(interp,listPtr);
-	return TCL_OK;
 }
 
 int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)

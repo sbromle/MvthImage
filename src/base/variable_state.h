@@ -43,17 +43,21 @@ extern "C" {
  * Created once per interpreter */
 typedef struct StateManager_s *StateManager_t;
 
-extern int varExists0(Tcl_Interp *interp,
-		StateManager_t statePtr,
-		char *name);
+extern int varExists0(StateManager_t statePtr,char *name);
 
 extern int varExistsTcl(Tcl_Interp *interp,
 		StateManager_t statePtr,
 		Tcl_Obj *CONST name);
 
 extern int varNames(Tcl_Interp *interp, StateManager_t statePtr);
+/* generate a uniqe variable name */
+extern int varUniqName(Tcl_Interp *interp, StateManager_t statePtr, char *name);
 
-int getVarFromObj(ClientData clientData, Tcl_Interp *interp, Tcl_Obj *CONST name,
+/* register data with state manager under name */
+extern int
+	registerVar(Tcl_Interp *interp, StateManager_t statePtr, ClientData data, char *name);
+
+extern int getVarFromObj(ClientData clientData, Tcl_Interp *interp, Tcl_Obj *CONST name,
 		void **iPtrPtr);
 extern int getVarFromObjKey(const char *state_key, Tcl_Interp *interp, Tcl_Obj *CONST name,
 		void **iPtrPtr);

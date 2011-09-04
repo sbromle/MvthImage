@@ -174,6 +174,8 @@ set (viewimage_SRCS
 	dynamic_load.h
 	dynamic_symbols_mvth.c
 	dynamic_symbols_mvth.h
+	base/variable_state.c
+	base/variable_state.h
 	base/mvthimagestate.c
 	base/mvthimagestate.h
 	blitimage/blitimage.c
@@ -182,6 +184,8 @@ set (viewimage_SRCS
 
 set (mvthimage_SRCS
 	mvthimage_Init.c 
+	base/variable_state.c 
+	base/variable_state.h 
 	base/mvthimagestate.c 
 	base/mvthimagestate.h 
 	dynamic_load.c 
@@ -251,6 +255,8 @@ install(FILES
 	base/stereo_context_t.h
 	base/mvth_colors.h
 	base/mvthimagestate.h
+	base/variable_state.h
+	base/state.h
 	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
 

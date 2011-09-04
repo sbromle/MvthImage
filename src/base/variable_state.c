@@ -37,6 +37,7 @@
 typedef struct StateManager_s {
 	Tcl_HashTable hash; /* list of variables by name */
 	int uid;
+	char *prefix;
 	void (*deleteProc)(void *ptr);
 	int (*unknownCmd)(ClientData, Tcl_Interp *,int,Tcl_Obj *CONST objv[]);
 } *StateManager_t;
@@ -65,8 +66,7 @@ void StateManagerDeleteProc(ClientData clientData) {
 	return;
 }
 
-int varExists0(Tcl_Interp *interp,
-		StateManager_t statePtr,
+int varExists0(StateManager_t statePtr,
 		char *name)
 {
 	Tcl_HashEntry *entryPtr=NULL;
@@ -80,7 +80,7 @@ int varExistsTcl(Tcl_Interp *interp,
 		StateManager_t statePtr,
 		Tcl_Obj *CONST name)
 {
-	if (varExists0(interp,statePtr,Tcl_GetString(name)))
+	if (varExists0(statePtr,Tcl_GetString(name)))
 	{
 		Tcl_SetObjResult(interp,Tcl_NewIntObj(1));
 		return TCL_OK;
@@ -105,6 +105,31 @@ int varNames(Tcl_Interp *interp, StateManager_t statePtr)
 		entryPtr=Tcl_NextHashEntry(&search);
 	}
 	Tcl_SetObjResult(interp,listPtr);
+	return TCL_OK;
+}
+
+int varUniqName(Tcl_Interp *interp, StateManager_t statePtr, char *name)
+{
+	char tmp[1024]="";
+	if (statePtr==NULL) return TCL_ERROR;
+	while (1) {
+		sprintf(tmp,statePtr->prefix,statePtr->uid);
+		if (!varExists0(statePtr,tmp)) {
+			strncpy(name,tmp,1024);
+			return TCL_OK;
+		}
+		/* otherwise, increment the uid and try again */
+		statePtr->uid++;
+	};
+	return TCL_ERROR;
+}
+
+int registerVar(Tcl_Interp *interp, StateManager_t statePtr, ClientData data, char *name)
+{
+	int new;
+	Tcl_HashEntry *entryPtr;
+	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name,&new);
+	Tcl_SetHashValue(entryPtr,(ClientData)data);
 	return TCL_OK;
 }
 
@@ -233,6 +258,9 @@ int InitializeStateManager(Tcl_Interp *interp, const char *key,
 	state->deleteProc=deleteProc;
 	state->unknownCmd=unknownCmd;
 	Tcl_CreateObjCommand(interp,cmd_name, StateManagerCmd, (ClientData)state,StateManagerDeleteProc);
+	int len=strlen(cmd_name);
+	state->prefix=(char*)ckalloc(len+6);
+	sprintf(state->prefix,"%s%s",cmd_name,"#%04d");
 	return TCL_OK;
 }
 
