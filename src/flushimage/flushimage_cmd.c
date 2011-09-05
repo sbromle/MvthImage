@@ -40,7 +40,7 @@ int flushimage_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	char *filename=NULL;
 	image_t *img=NULL;
-	MvthImage *mimg=NULL;
+	image_t *mimg=NULL;
 
 	/* make sure we still have an image specified */
 	if (objc!=2 && objc!=3) {

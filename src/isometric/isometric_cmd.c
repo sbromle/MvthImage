@@ -39,7 +39,6 @@ int isometric_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *img; /* must find this */
-	MvthImage *mimg=NULL;
 	double theta=30;
 	Tcl_Obj **remObjv=NULL;
 
@@ -61,8 +60,7 @@ int isometric_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"isometric_cmd only supports 2D images.\n",NULL);
 		return TCL_ERROR;

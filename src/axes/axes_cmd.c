@@ -41,7 +41,6 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *img=NULL;
-	MvthImage *mimg=NULL;
 
 	ViewPort_t axes= {
 		{{1.0,9,0,1.0,"%lg","",AXIS_LINEAR,"a",0},
@@ -135,11 +134,8 @@ int axes_cmd(ClientData clientData, Tcl_Interp *interp,
 		if (remObjv!=NULL) free(remObjv);;
 		return TCL_ERROR;
 	}
-	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,remObjv[1],&img)!=TCL_OK) return TCL_ERROR;
 	if (remObjv!=NULL) free(remObjv);
-
-	/* get the image */
-	img=mimg->img;
 
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"axes_cmd only supports 2D images.\n",NULL);

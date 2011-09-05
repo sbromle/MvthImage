@@ -37,7 +37,6 @@
 int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 
 	if (objc!=2) {
@@ -45,8 +44,7 @@ int roberts_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"blah only supports 2D images.\n",NULL);
 		return TCL_ERROR;

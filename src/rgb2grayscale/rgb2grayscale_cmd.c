@@ -38,7 +38,6 @@
 int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 
 	if (objc!=2)
@@ -47,8 +46,7 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"grayscale only supports 2D images.\n",NULL);
 		return TCL_ERROR;
@@ -69,7 +67,5 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 	//register_image_var(img,name);
 	DSYM(stamp_image_t)(img);
 
-	mvthImageReplace(img,mimg);
-	
 	return TCL_OK;
 }

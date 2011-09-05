@@ -40,10 +40,10 @@
 #define MVTHIMAGESTATEKEY "mvthimagestate"
 
 int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
-		MvthImage **iPtrPtr)
+		image_t **iPtrPtr)
 {
 	StateManager_t statePtr=NULL;
-	MvthImage *iPtr=NULL;
+	image_t *iPtr=NULL;
 	return getVarFromObjKey(MVTHIMAGESTATEKEY,interp,name,(void**)iPtrPtr);
 }
 
@@ -59,7 +59,7 @@ int MvthImageCopy(ClientData data, Tcl_Interp *interp, int objc,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp, int objc,
 		Tcl_Obj *CONST objv[]);
 void MvthImageDelete(void *ptr);
-int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i);
+int MvthImageWHDB(Tcl_Interp *interp, image_t *iPtr, Tcl_Obj *objPtr, int i);
 int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 
@@ -90,7 +90,7 @@ int MvthImageState_Init(Tcl_Interp *interp) {
 int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]) {
 	StateManager_t statePtr=(StateManager_t)data;
-	MvthImage *iPtr=NULL;
+	image_t *iPtr=NULL;
 	Tcl_Obj *valueObjPtr=NULL;
 
 	/* the subCmd array defines the allowed values for
@@ -115,7 +115,7 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 
 	switch (index) {
 		case CreateIx:
-			return MvthImageCreate(statePtr,interp,objc-1,objv+1);
+			return MvthImageCreate(data,interp,objc,objv);
 			break;
 		case WidthIx:
 		case HeightIx:
@@ -175,27 +175,11 @@ err:
 
 
 int newMvthImage(Tcl_Interp *interp,
-	Tcl_Obj *wObjPtr,
-	Tcl_Obj *hObjPtr,
-	Tcl_Obj *dObjPtr,
-	Tcl_Obj *bObjPtr,
-	MvthImage **iPtr_in)
+		int w, int h, int d, int b,
+		image_t **iPtr_in)
 {
-	MvthImage *iPtr;
-	int w,h,d,b;
-
-	/* first try to parse the w, h, and depth objects */
-	if (Tcl_GetIntFromObj(interp,wObjPtr,&w)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_GetIntFromObj(interp,hObjPtr,&h)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_GetIntFromObj(interp,dObjPtr,&d)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_GetIntFromObj(interp,bObjPtr,&b)!=TCL_OK) return TCL_ERROR;
-
-	iPtr=(MvthImage*)ckalloc(sizeof(MvthImage));
-	iPtr->widthPtr=wObjPtr; Tcl_IncrRefCount(wObjPtr);
-	iPtr->heightPtr=hObjPtr; Tcl_IncrRefCount(hObjPtr);
-	iPtr->depthPtr=dObjPtr; Tcl_IncrRefCount(dObjPtr);
-	iPtr->bandsPtr=bObjPtr; Tcl_IncrRefCount(bObjPtr);
-	iPtr->img=DSYM(new_3d_image_t)(w,h,d,b);
+	image_t *iPtr;
+	iPtr=DSYM(new_3d_image_t)(w,h,d,b);
 	*iPtr_in=iPtr;
 	return TCL_OK;
 }
@@ -205,8 +189,6 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 {
 	image_t *simg;
 	image_t *dimg=NULL;
-	MvthImage *smimg=NULL;
-	MvthImage *dmimg=NULL;
 
 	if (objc!=3)
 	{
@@ -214,11 +196,10 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&smimg)!=TCL_OK) return TCL_ERROR;
-	simg=smimg->img;
-	if (getMvthImageFromObj(interp,objv[2],&dmimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&simg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[2],&dimg)!=TCL_OK) return TCL_ERROR;
 
-	if (smimg==dmimg) {
+	if (simg==dimg) {
 		Tcl_AppendResult(interp,"Source and Destination are the same!",NULL);
 		return TCL_ERROR;
 	}
@@ -230,7 +211,6 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	DSYM(copy_image_t)(simg,dimg);
 	//register_image_var(dimg,dstname);
 	//stamp_image_t(dimg);
-	mvthImageReplace(dimg,dmimg);
 
 	Tcl_SetObjResult(interp,objv[2]);
 
@@ -242,7 +222,6 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 {
 	image_t *simg;
 	image_t *dimg=NULL;
-	MvthImage *smimg=NULL;
 	double factor=1.0;
 
 	if (objc!=3)
@@ -251,8 +230,7 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&smimg)!=TCL_OK) return TCL_ERROR;
-	simg=smimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&simg)!=TCL_OK) return TCL_ERROR;
 
 	if (simg->d!=1) {
 		Tcl_AppendResult(interp,"Scaling only supports 2d images.\n",NULL);
@@ -272,7 +250,6 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 	/* make an image to store the result. */
-	simg=smimg->img;
 	int nw,nh;
 	nw=(int)(simg->w*factor+0.5);
 	nh=(int)(simg->h*factor+0.5);
@@ -282,14 +259,14 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	DSYM(resize_image)(simg->data,simg->w,simg->h,simg->bands,dimg->data,factor);
 	DSYM(stamp_image_t)(dimg);
 	//stamp_image_t(dimg);
-	mvthImageReplace(dimg,smimg);
+	mvthImageReplace(dimg,simg);
 
 	/* return the new dimensions of the image */
 	Tcl_Obj *dlist=Tcl_NewListObj(0,NULL);
-	if (Tcl_ListObjAppendElement(interp,dlist,smimg->widthPtr)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_ListObjAppendElement(interp,dlist,smimg->heightPtr)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_ListObjAppendElement(interp,dlist,smimg->depthPtr)!=TCL_OK) return TCL_ERROR;
-	if (Tcl_ListObjAppendElement(interp,dlist,smimg->bandsPtr)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,Tcl_NewIntObj(simg->w))!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,Tcl_NewIntObj(simg->h))!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,Tcl_NewIntObj(simg->d))!=TCL_OK) return TCL_ERROR;
+	if (Tcl_ListObjAppendElement(interp,dlist,Tcl_NewIntObj(simg->bands))!=TCL_OK) return TCL_ERROR;
 	Tcl_SetObjResult(interp,dlist);
 
 	return TCL_OK;
@@ -300,29 +277,33 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	StateManager_t statePtr=(StateManager_t)data;
-	MvthImage *iPtr;
+	image_t *iPtr;
 	int new;
 	int len;
 	char *name_ptr=NULL;
-	char name[20];
+	char name[1024];
 
-	if (objc>3 || objc<2) {
+	if (objc>4 || objc<3) {
 		Tcl_WrongNumArgs(interp,0,NULL,"mi create {w h d} ?name?");
 		return TCL_ERROR;
 	}
 
 	Tcl_Obj **whd=NULL;
-	if (Tcl_ListObjGetElements(interp,objv[1],&len,&whd)!=TCL_OK)
+	if (Tcl_ListObjGetElements(interp,objv[2],&len,&whd)!=TCL_OK)
 		return TCL_ERROR;
 	if (len!=3) {
-		Tcl_AppendResult(interp,"list must contain 3 elements, {w h d}\n",NULL);
+		Tcl_AppendResult(interp,"list must contain 3 elements, {w h bands}\n",NULL);
 		return TCL_ERROR;
 	}
+	int w,h,bands;
+	if (Tcl_GetIntFromObj(interp,whd[0],&w)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_GetIntFromObj(interp,whd[1],&h)!=TCL_OK) return TCL_ERROR;
+	if (Tcl_GetIntFromObj(interp,whd[2],&bands)!=TCL_OK) return TCL_ERROR;
 
 	/* did the user provide a name for this image? */
-	if (objc==3) {
+	if (objc==4) {
 		/* does an image with this name already exist ? */
-		name_ptr=Tcl_GetStringFromObj(objv[2],&len);
+		name_ptr=Tcl_GetStringFromObj(objv[3],&len);
 		/* then we need to get the string */
 		if (len==0 || len>20) {
 			Tcl_AppendResult(interp,"String length must be >0 and <20 characters.\n",NULL);
@@ -339,19 +320,10 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 		name_ptr=name;
 	}
 
-	/********** LEFT OFF HERE *****************
-	 * TO DO:
-	 * Add a way to add new entries to the state hash.
-	 * Add a function for autogenerating names from the state manger.
-	 * Modify mvthimage to make use of these new functions.
-	 */
-
-	Tcl_Obj *dObj=Tcl_NewIntObj(1);
 	/* ok, we can now safely make the image and register it */
-	if (newMvthImage(interp,whd[0],whd[1],dObj,whd[2],&iPtr)!=TCL_OK)
-		return TCL_ERROR;
+	iPtr=DSYM(new_3d_image_t)(w,h,1,bands);
 	registerVar(interp,statePtr,(ClientData)iPtr,name_ptr);
-	Tcl_SetStringObj(Tcl_GetObjResult(interp),name_ptr,-1);
+	Tcl_AppendResult(interp,name_ptr,NULL);
 	return TCL_OK;
 }
 
@@ -360,9 +332,9 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	StateManager_t statePtr=(StateManager_t)data;
-	MvthImage *iSrcPtr;
+	image_t *iSrcPtr;
 
-	MvthImage *iPtr;
+	image_t *iPtr;
 	int new;
 	char name[20];
 	char *src_name=NULL;
@@ -399,9 +371,8 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 	}
 	/* if we get here, dst_name is set and we must create a new image */
 
-	if (newMvthImage(interp,iSrcPtr->widthPtr,iSrcPtr->heightPtr,iSrcPtr->depthPtr,iSrcPtr->bandsPtr, &iPtr)!=TCL_OK)
+	if (newMvthImage(interp,iSrcPtr->w,iSrcPtr->h,iSrcPtr->d,iSrcPtr->bands, &iPtr)!=TCL_OK)
 		return TCL_ERROR;
-	image_t2MvthImage(iSrcPtr->img,iPtr);
 
 	/* put the new MvthImage in the hash table */
 	registerVar(interp,statePtr,(ClientData)iSrcPtr,dst_name);
@@ -415,7 +386,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *iPtr=NULL;
+	image_t *iPtr=NULL;
 	int new;
 	char name[20];
 	image_t *img=NULL;
@@ -453,19 +424,11 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		}
 		/* you probably should assert the new==1 to confirm
 	 	* a new item was added to the hash table */
-		iPtr=(MvthImage*)ckalloc(sizeof(MvthImage));
-		iPtr->widthPtr=Tcl_NewIntObj(img->w);
-		iPtr->heightPtr=Tcl_NewIntObj(img->h);
-		iPtr->depthPtr=Tcl_NewIntObj(img->d);
-		iPtr->bandsPtr=Tcl_NewIntObj(img->bands);
-		iPtr->img=img;
-		Tcl_IncrRefCount(iPtr->widthPtr);
-		Tcl_IncrRefCount(iPtr->heightPtr);
-		Tcl_IncrRefCount(iPtr->depthPtr);
-		Tcl_IncrRefCount(iPtr->bandsPtr);
+		iPtr=(image_t*)ckalloc(sizeof(image_t));
 		registerVar(interp,(StateManager_t)data,(ClientData)iPtr,iname);
 	} else {
 		mvthImageReplace(img,iPtr);
+		free(img);
 	}
 
 	/* copy the name to the interpreter result */
@@ -476,27 +439,25 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 /* and delete an MvthImage */
 void MvthImageDelete(void *ptr)
 {
-	MvthImage *iPtr=(MvthImage *)ptr;
-	if (iPtr->widthPtr!=NULL) {Tcl_DecrRefCount(iPtr->widthPtr);}
-	if (iPtr->heightPtr!=NULL) {Tcl_DecrRefCount(iPtr->heightPtr);}
-	if (iPtr->depthPtr!=NULL) {Tcl_DecrRefCount(iPtr->depthPtr);}
-	if (iPtr->bandsPtr!=NULL) {Tcl_DecrRefCount(iPtr->bandsPtr);}
-	if (iPtr->img!=NULL) {DSYM(free_image_t)(iPtr->img);}
-	Tcl_Free((char*)iPtr);
+	image_t *iPtr=(image_t *)ptr;
+	if (iPtr!=NULL) {
+		if (iPtr->data!=NULL) free(iPtr->data);
+		free((char*)iPtr);
+	}
 	return;
 }
 
-int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
+int MvthImageWHDB(Tcl_Interp *interp, image_t *iPtr, Tcl_Obj *objPtr, int i)
 {
 	int w,h,d,bands;
 	int dim[4];
 	Tcl_Obj *ptr[3]={NULL,NULL,NULL};
 
 	/* what are the current image parameters ? */
-	dim[0]=w=iPtr->img->w;
-	dim[1]=h=iPtr->img->h;
-	dim[2]=d=iPtr->img->d;
-	dim[3]=bands=iPtr->img->bands;
+	dim[0]=w=iPtr->w;
+	dim[1]=h=iPtr->h;
+	dim[2]=d=iPtr->d;
+	dim[3]=bands=iPtr->bands;
 	int len=0;
 	int j;
 
@@ -542,29 +503,7 @@ int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 		/* note that we have re-used dim[2] here for bands */
 		if (newdim[0]!=w || newdim[1]!=h || newdim[2]!=bands) {
 			/* then some dimension has changed */
-			DSYM(free_image_t)(iPtr->img);
-			iPtr->img=DSYM(new_image_t)(newdim[0],newdim[1],newdim[2]);
-		}
-		if (newdim[0]!=w) {
-			if (iPtr->widthPtr!=NULL) {
-				Tcl_DecrRefCount(iPtr->widthPtr);
-			}
-			iPtr->widthPtr=ptr[0];
-			Tcl_IncrRefCount(ptr[0]);
-		}
-		if (newdim[1]!=h) {
-			if (iPtr->heightPtr!=NULL) {
-				Tcl_DecrRefCount(iPtr->heightPtr);
-			}
-			iPtr->heightPtr=ptr[1];
-			Tcl_IncrRefCount(ptr[1]);
-		}
-		if (newdim[2]!=bands) {
-			if (iPtr->bandsPtr!=NULL) {
-				Tcl_DecrRefCount(iPtr->bandsPtr);
-			}
-			iPtr->bandsPtr=ptr[2];
-			Tcl_IncrRefCount(ptr[2]);
+			DSYM(resize_image_t)(iPtr,newdim[0],newdim[3],newdim[2]);
 		}
 	}
 	else  /* if objPtr is NULL, we are just requesting information */
@@ -572,26 +511,30 @@ int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 		Tcl_Obj *result=NULL;
 		switch (i) {
 			case 0:
-				Tcl_SetObjResult(interp,iPtr->widthPtr);
+				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->w));
 				break;
 			case 1:
-				Tcl_SetObjResult(interp,iPtr->heightPtr);
+				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->h));
 				break;
 			case 2:
-				Tcl_SetObjResult(interp,iPtr->depthPtr);
+				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->d));
 				break;
 			case 3:
-				Tcl_SetObjResult(interp,iPtr->bandsPtr);
+				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->bands));
 				break;
 			case 4:
 				result=Tcl_NewListObj(0,NULL);
-				if (Tcl_ListObjAppendElement(interp,result,iPtr->widthPtr)!=TCL_OK)
+				if (Tcl_ListObjAppendElement(interp,result,
+						Tcl_NewIntObj(iPtr->w))!=TCL_OK)
 					return TCL_ERROR;
-				if (Tcl_ListObjAppendElement(interp,result,iPtr->heightPtr)!=TCL_OK)
+				if (Tcl_ListObjAppendElement(interp,result,
+						Tcl_NewIntObj(iPtr->h))!=TCL_OK)
 					return TCL_ERROR;
-				if (Tcl_ListObjAppendElement(interp,result,iPtr->depthPtr)!=TCL_OK)
+				if (Tcl_ListObjAppendElement(interp,result,
+						Tcl_NewIntObj(iPtr->d))!=TCL_OK)
 					return TCL_ERROR;
-				if (Tcl_ListObjAppendElement(interp,result,iPtr->bandsPtr)!=TCL_OK)
+				if (Tcl_ListObjAppendElement(interp,result,
+						Tcl_NewIntObj(iPtr->bands))!=TCL_OK)
 					return TCL_ERROR;
 				Tcl_SetObjResult(interp,result);
 				break;
@@ -602,63 +545,18 @@ int MvthImageWHDB(Tcl_Interp *interp, MvthImage *iPtr, Tcl_Obj *objPtr, int i)
 	return TCL_OK;
 }
 
-int updateMvthImageDims0(MvthImage *mimg)
+int mvthImageReplace(image_t *simg, image_t *dimg)
 {
-	if (mimg==NULL || mimg->img==NULL || mimg->img->data==NULL)
-		return TCL_ERROR;
-	Tcl_DecrRefCount(mimg->widthPtr);
-	Tcl_DecrRefCount(mimg->heightPtr);
-	Tcl_DecrRefCount(mimg->depthPtr);
-	Tcl_DecrRefCount(mimg->bandsPtr);
-	mimg->widthPtr=Tcl_NewIntObj(mimg->img->w);
-	mimg->heightPtr=Tcl_NewIntObj(mimg->img->h);
-	mimg->depthPtr=Tcl_NewIntObj(mimg->img->d);
-	mimg->bandsPtr=Tcl_NewIntObj(mimg->img->bands);
-	Tcl_IncrRefCount(mimg->widthPtr);
-	Tcl_IncrRefCount(mimg->heightPtr);
-	Tcl_IncrRefCount(mimg->depthPtr);
-	Tcl_IncrRefCount(mimg->bandsPtr);
-	return TCL_OK;
-}
-
-int updateMvthImageDims(MvthImage *mimg, int w, int h, int d ,int bands)
-{
-	if (mimg==NULL || mimg->img==NULL || mimg->img->data==NULL)
-		return TCL_ERROR;
-	mimg->img->w=w;
-	mimg->img->h=h;
-	mimg->img->d=d;
-	mimg->img->bands=bands;
-	return updateMvthImageDims0(mimg);
-}
-
-
-int mvthImageReplace(image_t *img, MvthImage *mimg)
-{
-	if (mimg==NULL) return TCL_ERROR;
-	if (mimg->img!=NULL) DSYM(free_image_t)(mimg->img);
-	mimg->img=img;
-	updateMvthImageDims(mimg,img->w,img->h,img->d,img->bands);
-	return TCL_OK;
-}
-
-int image_t2MvthImage(image_t *img, MvthImage *mimg)
-{
-	image_t *dst=mimg->img;
-	if (img==NULL || mimg==NULL || img->data==NULL || mimg->img==NULL) return -1;
-	if (img->w!=dst->w || img->h!=dst->h || img->d!=dst->d
-			|| img->bands!=dst->bands)
-	{
-		/* free the old one and copy the new one */
-		DSYM(free_image_t)(dst);
-		mimg->img=NULL;
-		dst=DSYM(new_3d_image_t)(img->w,img->h,img->d,img->bands);
-	}
-	/* just do a straight copy */
-	memmove(dst->data,img->data,img->w*img->h*img->d*img->bands*sizeof(float));
-	dst->timestamp=img->timestamp;
-	/* update the object */
-	if (mimg->img==NULL) mimg->img=dst;
-	updateMvthImageDims(mimg,img->w,img->h,img->d,img->bands);
+	if (dimg==NULL) return TCL_ERROR;
+	if (dimg==simg) return TCL_ERROR;
+	if (dimg->data==NULL || simg->data==NULL) return TCL_ERROR;
+	free(dimg->data);
+	dimg->data=simg->data;
+	dimg->w=simg->w;
+	dimg->h=simg->h;
+	dimg->d=simg->d;
+	dimg->bands=simg->bands;
+	dimg->timestamp=simg->timestamp;
+	snprintf(dimg->name,sizeof(dimg->name),"%s",simg->name);
 	return TCL_OK;
 }

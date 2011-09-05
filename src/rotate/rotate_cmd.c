@@ -39,7 +39,7 @@
 int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
+	image_t *img=NULL;
 	double alpha=0.0, beta=0.0,gamma=0.0;
 	double x=0.0, y=0.0,z=0.0;
 
@@ -70,7 +70,7 @@ int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 
 	if (alpha==0.0 && beta==0.0 && gamma==0.0) return TCL_OK;
 
-	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
+	if (getMvthImageFromObj(interp,remObjv[1],&img)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
@@ -81,7 +81,7 @@ int rotate_cmd (ClientData clientData, Tcl_Interp *interp,
 	assert(DSYM(rotate_fltr)!=NULL);
 
 	/* do the filter */
-	DSYM(rotate_fltr)(mimg->img,alpha,beta,gamma,x,y,z);
+	DSYM(rotate_fltr)(img,alpha,beta,gamma,x,y,z);
 	
 	return TCL_OK;
 }

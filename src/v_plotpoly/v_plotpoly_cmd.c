@@ -46,7 +46,6 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	int i; 
 	//int cutlen=INT_MAX;
 	image_t *mi=NULL;
-	MvthImage *mimg=NULL;
 	int doErase=0;
 	double r=1.0,g=1.0,b=1.0; /* color to draw in */
 	int order=1; /* default to a line plot */
@@ -96,7 +95,7 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
-	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
+	if (getMvthImageFromObj(interp,remObjv[1],&mi)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
@@ -128,7 +127,6 @@ int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 	if (remObjv!=NULL) free(remObjv);
 
 	/* make sure an image exists at specified location */
-	mi=mimg->img;
 	if (mi->d!=1) {
 		Tcl_AppendResult(interp,"plot_poly only supports 2D images.\n",NULL);
 		return TCL_ERROR;

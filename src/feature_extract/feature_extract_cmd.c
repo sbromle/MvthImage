@@ -43,8 +43,6 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	char *sname;
 	char *dname;
-	MvthImage *smimg=NULL;
-	MvthImage *dmimg=NULL;
 	image_t *simg;
 	image_t *dimg;
 	int procID = 0;		// procID = 0 first call on this image (initialize mem, image gradient, ...)
@@ -124,8 +122,7 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 	//make sure sgn is set correctly
 	if (sgn != -1) sgn = 1;
 
-	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,remObjv[1],&simg)!=TCL_OK) return TCL_ERROR;
 	sname=Tcl_GetStringFromObj(remObjv[1],NULL);
 	dname=Tcl_GetStringFromObj(remObjv[2],NULL);
 	if (strcmp(sname,dname)==0)

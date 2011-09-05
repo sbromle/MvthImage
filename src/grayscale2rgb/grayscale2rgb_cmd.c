@@ -39,7 +39,6 @@ int rgb_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *img=NULL;
-	MvthImage *mimg=NULL;
 
 	if (objc!=2)
 	{
@@ -47,9 +46,7 @@ int rgb_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
@@ -62,7 +59,6 @@ int rgb_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	assert(DSYM(grayscale2rgb_fltr)!=NULL);
 	img=DSYM(grayscale2rgb_fltr)(img);
-	mvthImageReplace(img,mimg);
 	//register_image_var(img,name);
 	//stamp_image_t(img);
 

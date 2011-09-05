@@ -41,16 +41,14 @@ int gaussian_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	double sigma;
 	image_t *img;
-	MvthImage *mimg=NULL;
 
 	if (objc!=3) {
 		Tcl_WrongNumArgs(interp,1,objv,"?img? ?sigma in pixels?");
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"gaussian_cmd only supports 2D images.\n",NULL);
 		return TCL_ERROR;

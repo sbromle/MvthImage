@@ -38,8 +38,8 @@
 int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
-	MvthImage *outimg=NULL;
+	image_t *mimg=NULL;
+	image_t *outimg=NULL;
 	float angle=30.0;
 
 	if (objc!=3 && objc!=4)
@@ -50,7 +50,7 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
 	if (getMvthImageFromObj(interp,objv[2],&outimg)!=TCL_OK) return TCL_ERROR;
-	if (mimg->img->d!=1 || outimg->img->d!=1) {
+	if (mimg->d!=1 || outimg->d!=1) {
 		Tcl_AppendResult(interp,"draw_hmap only supports 2D images.\n",NULL);
 		return TCL_ERROR;
 	}
@@ -63,16 +63,16 @@ int draw_hmap_cmd(ClientData clientData, Tcl_Interp *interp,
 		angle=a;
 	}
 
-	if (mimg->img->bands!=1) {
+	if (mimg->bands!=1) {
 		Tcl_AppendResult(interp,"Input data image must be grayscale.\n",NULL);
 		return TCL_ERROR;
 	}
 
 	assert(DSYM(draw_hmap_fltr)!=NULL);
-	DSYM(draw_hmap_fltr)(outimg->img,
-			mimg->img->data,mimg->img->w,mimg->img->h,
+	DSYM(draw_hmap_fltr)(outimg,
+			mimg->data,mimg->w,mimg->h,
 			angle*M_PI/180);
-	DSYM(stamp_image_t)(outimg->img);
+	DSYM(stamp_image_t)(outimg);
 	
 	Tcl_ResetResult(interp);
 	return TCL_OK;

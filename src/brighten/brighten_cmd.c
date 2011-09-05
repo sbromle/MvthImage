@@ -41,7 +41,6 @@ int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 	int namelen;
 	double factor;
 	image_t *img=NULL;
-	MvthImage *mimg=NULL;
 
 	if (objc!=3)
 	{
@@ -53,9 +52,8 @@ int brighten_cmd(ClientData clientData, Tcl_Interp *interp,
 	if (Tcl_GetDoubleFromObj(interp,objv[2],&factor)==TCL_ERROR)
 		return TCL_ERROR;
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"brighten_cmd only supports 2D images.\n",NULL);
 		return TCL_ERROR;

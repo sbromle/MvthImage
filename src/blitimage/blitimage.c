@@ -35,7 +35,6 @@ int blitImage(ClientData clientData, Tcl_Interp *interp,
 	Tk_PhotoHandle photo;
 	Tk_PhotoImageBlock dst;
 	image_t *img=NULL;
-	MvthImage *mimg=NULL;
 	const char *str;
 
 	if (objc!=3)
@@ -44,10 +43,9 @@ int blitImage(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 	/* get the image variable */
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK)
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK)
 		return TCL_ERROR;
 
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"blitImage only supports 2D images.\n",NULL);
 		return TCL_ERROR;

@@ -43,7 +43,6 @@ int astereo_cmd(ClientData clientData, Tcl_Interp *interp,
 	char buff[1024];
 	image_t *imgL; /* left WImage  */
 	image_t *imgR; /* right WIMage */
-	MvthImage *mimgL,*mimgR;
 	int range, window, horopter;
 
 	if (objc!=6)
@@ -52,10 +51,8 @@ int astereo_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimgL)!=TCL_OK) return TCL_ERROR;
-	if (getMvthImageFromObj(interp,objv[1],&mimgR)!=TCL_OK) return TCL_ERROR;
-	imgL=mimgL->img;
-	imgR=mimgR->img;
+	if (getMvthImageFromObj(interp,objv[1],&imgL)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&imgR)!=TCL_OK) return TCL_ERROR;
 
 	if (Tcl_GetIntFromObj(interp,objv[3],&range)==TCL_ERROR) return TCL_ERROR;
 	if (Tcl_GetIntFromObj(interp,objv[4],&window)==TCL_ERROR) return TCL_ERROR;

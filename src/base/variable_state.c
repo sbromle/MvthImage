@@ -113,9 +113,9 @@ int varUniqName(Tcl_Interp *interp, StateManager_t statePtr, char *name)
 	char tmp[1024]="";
 	if (statePtr==NULL) return TCL_ERROR;
 	while (1) {
-		sprintf(tmp,statePtr->prefix,statePtr->uid);
+		snprintf(tmp,sizeof(tmp),statePtr->prefix,statePtr->uid);
 		if (!varExists0(statePtr,tmp)) {
-			strncpy(name,tmp,1024);
+			strcpy(name,tmp);
 			return TCL_OK;
 		}
 		/* otherwise, increment the uid and try again */

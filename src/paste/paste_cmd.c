@@ -38,8 +38,6 @@
 int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *smimg=NULL;
-	MvthImage *dmimg=NULL;
 	int xoff=0,yoff=0;
 	Tcl_Obj *RGBtranslist=NULL;
 	double alpha=1.0; /* alpha value alpha \in [0,1] for alpha blending */
@@ -69,8 +67,8 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,remObjv[1],&smimg)!=TCL_OK) return TCL_ERROR;
-	if (getMvthImageFromObj(interp,remObjv[2],&dmimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,remObjv[1],&src_img)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,remObjv[2],&dst_img)!=TCL_OK) return TCL_ERROR;
 	if (objc==5) {
 		if (Tcl_GetIntFromObj(interp,remObjv[3],&xoff)==TCL_ERROR) return TCL_ERROR;
 		if (Tcl_GetIntFromObj(interp,remObjv[4],&yoff)==TCL_ERROR) return TCL_ERROR;
@@ -99,14 +97,10 @@ int pasteimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		}
 	}
 
-	src_img=smimg->img;
-	dst_img=dmimg->img;
-
 	if (src_img->d!=1 || dst_img->d!=1) {
 		Tcl_AppendResult(interp,"pasteimage only supports 2D images.\n",NULL);
 		return TCL_ERROR;
 	}
-
 
 	//register_image_undo_var(dstname);
 

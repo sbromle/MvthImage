@@ -44,7 +44,6 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 	float color[4];
 	unsigned char *mask=NULL;
 	char *mystring=NULL;
-	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 	image_t *text=NULL;
 
@@ -81,12 +80,11 @@ int text_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
+	if (getMvthImageFromObj(interp,remObjv[1],&img)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"blah only supports 2D images.\n",NULL);
 		if (remObjv!=NULL) free(remObjv);

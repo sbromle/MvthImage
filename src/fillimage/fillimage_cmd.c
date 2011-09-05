@@ -39,7 +39,6 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	float val[4]; /* r,g,b color values */
 	int w,h,d,bands;
-	MvthImage *mimg=NULL;
 	image_t *mi=NULL;
 	int lobjc=0;
 	Tcl_Obj **lobjv=NULL;
@@ -51,7 +50,7 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&mi)!=TCL_OK) return TCL_ERROR;
 	if (Tcl_ListObjGetElements(interp,objv[2],&lobjc,&lobjv)==TCL_ERROR)
 		return TCL_ERROR;
 
@@ -74,8 +73,6 @@ int fillimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		val[2]=(float)tmp;
 	}
 	val[3]=0;
-
-	mi=mimg->img;
 
 	assert(DSYM(fillimage_fltr)!=NULL);
 	DSYM(fillimage_fltr)(mi,val);

@@ -56,8 +56,6 @@
 int visual_map_1d_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *visual_mimg=NULL;
-	MvthImage *data_mimg=NULL;
 	//int cutlen=INT_MAX;
 	image_t *dimg=NULL;
 	image_t *vimg=NULL;
@@ -129,21 +127,19 @@ int visual_map_1d_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 	
 	/* check to see if we have a bundle loaded in the gname slot */
-	if (getMvthImageFromObj(interp,remObjv[1],&data_mimg)!=TCL_OK)
+	if (getMvthImageFromObj(interp,remObjv[1],&dimg)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,remObjv[2],&visual_mimg)!=TCL_OK)
+	if (getMvthImageFromObj(interp,remObjv[2],&vimg)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 	if (remObjv!=NULL) free(remObjv);
 
-	dimg=data_mimg->img;
-	vimg=visual_mimg->img;
 	if (vimg->d!=1) {
 		Tcl_AppendResult(interp,"visual_map_1d only supports 2D images.\n",NULL);
 		return TCL_ERROR;

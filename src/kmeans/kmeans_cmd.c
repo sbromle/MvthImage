@@ -43,7 +43,6 @@
 int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 	int nclasses=10;
 	int channel=0; /*  0 = red channel
@@ -84,14 +83,13 @@ int kmeans_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-  if (getMvthImageFromObj(interp,remObjv[1],&mimg)!=TCL_OK)
+  if (getMvthImageFromObj(interp,remObjv[1],&img)!=TCL_OK)
 	{
 		if (remObjv!=NULL) free(remObjv);
 		return TCL_ERROR;
 	}
 
 	if (remObjv!=NULL) free(remObjv);
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"kmeans_cmd only supports 2D images.\n",NULL);
 		return TCL_ERROR;

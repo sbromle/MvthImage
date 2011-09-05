@@ -37,7 +37,6 @@ int invertimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
 	image_t *mi=NULL;
-	MvthImage *mimg=NULL;
 
 	if (objc!=2)
 	{
@@ -45,8 +44,7 @@ int invertimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	mi=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&mi)!=TCL_OK) return TCL_ERROR;
 	if (mi->d!=1) {
 		Tcl_AppendResult(interp,"invertimage only supports 2D images.\n",NULL);
 		return TCL_ERROR;

@@ -256,7 +256,6 @@ install(FILES
 	base/mvth_colors.h
 	base/mvthimagestate.h
 	base/variable_state.h
-	base/state.h
 	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
 

@@ -41,7 +41,6 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	char *filename=NULL;
 	image_t *img=NULL;
 	int bpc=1;
-	MvthImage *mimg=NULL;
 
 	if (objc!=3 && objc!=4)
 	{
@@ -49,7 +48,7 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 	filename=Tcl_GetStringFromObj(objv[2],NULL);
 	if (objc==4) {
 		if (Tcl_GetIntFromObj(interp,objv[3],&bpc)!=TCL_OK) return TCL_ERROR;
@@ -59,7 +58,6 @@ int writeimage_cmd(ClientData clientData, Tcl_Interp *interp,
 		}
 	}
 
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"writeimage only supports 2D images.\n",NULL);
 		return TCL_ERROR;

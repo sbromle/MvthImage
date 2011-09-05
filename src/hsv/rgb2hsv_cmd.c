@@ -40,7 +40,6 @@
 int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 
 	if (objc!=2)
@@ -49,8 +48,7 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
@@ -77,7 +75,6 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	MvthImage *mimg=NULL;
 	image_t *img=NULL;
 
 	if (objc!=2)
@@ -86,8 +83,7 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
-	img=mimg->img;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
 	/* register with the undo substructure */
 	//register_image_undo_var(name);

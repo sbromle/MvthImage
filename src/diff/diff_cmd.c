@@ -39,7 +39,7 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 {
 	int w[3],h[3],bands[3];
 	image_t *img[3]={NULL,NULL,NULL};
-	MvthImage *mimg[3]={NULL,NULL,NULL};
+	image_t *dst=NULL;
 	int i;
 
 	if (objc!=3 && objc!=4)
@@ -49,9 +49,8 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	for (i=0;i<2;i++) {
-		if (getMvthImageFromObj(interp,objv[i+1],&mimg[i])!=TCL_OK)
+		if (getMvthImageFromObj(interp,objv[i+1],&img[i])!=TCL_OK)
 			return TCL_ERROR;
-		img[i]=mimg[i]->img;
 		if (img[i]->d!=1) {
 			Tcl_AppendResult(interp,"diffimage only supports 2D images.\n",NULL);
 			return TCL_ERROR;
@@ -59,8 +58,7 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 	if (objc==4) 
 	{
-		if (getMvthImageFromObj(interp,objv[3],&mimg[2])!=TCL_OK)
-			return TCL_ERROR;
+		if (getMvthImageFromObj(interp,objv[3],&dst)!=TCL_OK) Tcl_ResetResult(interp);
 	}
 	
 	for (i=0;i<2;i++)
@@ -87,18 +85,20 @@ int diffimage_cmd(ClientData clientData, Tcl_Interp *interp,
 	DSYM(diff_fltr)(img[0], img[1], img[2]);
 
 	/* where do we place the result? */
-	if (mimg[2]==NULL)
+	if (dst==NULL)
 	{
-		mvthImageReplace(img[2],mimg[1]);
+		mvthImageReplace(img[2],img[1]);
+		DSYM(stamp_image_t)(img[1]);
+		free(img[2]);
 		Tcl_SetObjResult(interp,objv[2]);
 	}
 	else
 	{
-		mvthImageReplace(img[2],mimg[2]);
+		mvthImageReplace(img[2],dst);
+		DSYM(stamp_image_t)(dst);
+		free(img[2]);
 		Tcl_SetObjResult(interp,objv[3]);
 	}
 
-	DSYM(stamp_image_t)(img[2]);
-	
 	return TCL_OK;
 }

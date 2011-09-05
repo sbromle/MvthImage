@@ -40,8 +40,7 @@
 int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[])
 {
-	image_t *img;
-	MvthImage *mimg=NULL;
+	image_t *img=NULL;
 
 	if (objc!=2)
 	{
@@ -49,9 +48,8 @@ int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	if (getMvthImageFromObj(interp,objv[1],&mimg)!=TCL_OK) return TCL_ERROR;
+	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
-	img=mimg->img;
 	if (img->d!=1) {
 		Tcl_AppendResult(interp,"delauny only supports 2D images.\n",NULL);
 		return TCL_ERROR;
@@ -74,7 +72,6 @@ int delauney_cmd(ClientData clientData, Tcl_Interp *interp,
 	if (img->w!=stereo_context.w || img->h!=stereo_context.h)
 	{
 		DSYM(resize_image_t)(img,stereo_context.w,stereo_context.h,img->bands);
-		updateMvthImageDims(mimg,img->w,img->h,img->d,img->bands);
 	}
 
 	DSYM(delauney_fltr)(img,&stereo_context);
