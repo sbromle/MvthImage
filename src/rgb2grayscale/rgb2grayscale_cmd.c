@@ -42,16 +42,11 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (objc!=2)
 	{
-		Tcl_WrongNumArgs(interp,1,objv,"?name?");
+		Tcl_WrongNumArgs(interp,1,objv,"?src?");
 		return TCL_ERROR;
 	}
 
 	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
-	if (img->d!=1) {
-		Tcl_AppendResult(interp,"grayscale only supports 2D images.\n",NULL);
-		return TCL_ERROR;
-	}
-
 
 	/* register with the undo substructure */
 	//register_image_undo_var(name);
@@ -63,7 +58,7 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	assert(DSYM(rgb2grayscale_fltr)!=NULL);
-	img=DSYM(rgb2grayscale_fltr)(img);
+	DSYM(rgb2grayscale_fltr)(img,&img);
 	//register_image_var(img,name);
 	DSYM(stamp_image_t)(img);
 

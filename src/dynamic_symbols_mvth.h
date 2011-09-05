@@ -26,7 +26,7 @@ extern void (*DSYM(fillimage_vp_fltr))(image_t *img, float val[4],
 		ViewPort_t viewport);
 extern void (*DSYM(free_image_t))(image_t *img);
 extern void (*DSYM(gaussian_fltr))(image_t *img, float sigma);
-extern image_t * (*DSYM(grayscale2rgb_fltr))(image_t *src);
+extern int (*DSYM(grayscale2rgb_fltr))(image_t *src,image_t **dst);
 extern int (*DSYM(hsv2rgb_fltr))(image_t *img);
 extern void (*DSYM(invert_fltr))(image_t *wimg);
 extern void (*DSYM(isometric_fltr))(image_t *img, double theta);
@@ -68,7 +68,7 @@ extern void (*DSYM(resize_image))(float *,int,int,int,float *,float);
 extern int (*DSYM(resize_image_t))(image_t *img, int w, int h, int bands);
 extern int (*DSYM(resize_3d_image_t))(image_t *img, int w, int h, int d, int bands);
 extern int (*DSYM(rgb2hsv_fltr))(image_t *img);
-extern image_t * (*DSYM(rgb2grayscale_fltr))(image_t *img);
+extern int (*DSYM(rgb2grayscale_fltr))(image_t *src, image_t **dst);
 extern void (*DSYM(roberts_fltr))(image_t *img);
 extern void (*DSYM(rotate_fltr))(image_t *wimg,
 		const double alpha,

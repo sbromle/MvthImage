@@ -58,7 +58,7 @@ int rgb_cmd(ClientData clientData, Tcl_Interp *interp,
 	}
 
 	assert(DSYM(grayscale2rgb_fltr)!=NULL);
-	img=DSYM(grayscale2rgb_fltr)(img);
+	DSYM(grayscale2rgb_fltr)(img,&img);
 	//register_image_var(img,name);
 	//stamp_image_t(img);
 

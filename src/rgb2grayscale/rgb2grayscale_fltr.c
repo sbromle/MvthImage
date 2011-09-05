@@ -32,51 +32,56 @@
 #include <string.h>
 #include "base/images_utils.h"
 
-image_t * rgb2grayscale_fltr(image_t *img)
+int rgb2grayscale_fltr(image_t *src, image_t **dst_ptr)
 {
-	image_t *ans;
-	float *orig;
-	float *newimg;
-	int i,j,k;
-	int h,w,bands;
-	int offset;
-	int offset2;
-	int rowstride;
+	int j,k;
+	double sum;
+	image_t *dst=NULL;
+	int in_place=0;
 
+	if (dst_ptr==NULL || src==NULL) return -1;
 
-	if (img->d!=1) {
-		fprintf(stderr,"Error: rgb2grayscale only supports 2D images\n\n");
-		return img;
-	}
-	if (img->bands==1)
-	{
-		fprintf(stderr,"Error: Image already grayscale.\n\n");
-		return img;
-	}
-
-	w=img->w;
-	h=img->h;
-	bands=img->bands;
-	rowstride=bands*w;
-
-	ans=new_image_t(w,h,1);
-
-	orig=img->data;
-	newimg=ans->data;
-
-	for (j=0;j<h;j++)
-	{
-		offset=j*w;
-		offset2=j*rowstride;
-		for (i=0;i<w;i++)
-		{
-			double sum=0;
-			for (k=0;k<bands;k++) {
-				sum+=(double)orig[offset2+bands*i+k];
-			}
-			sum/=bands;
-			newimg[offset+i]=(float)sum;
+	if (*dst_ptr==NULL) {
+		/* then we need to allocate a new image */
+		dst=new_3d_image_t(src->w,src->h,src->d,1);
+		*dst_ptr=dst;
+	} else if (*dst_ptr==src) {
+		in_place=1;
+		dst=*dst_ptr;
+	} else {
+		dst = *dst_ptr;
+		if (dst->w*dst->h*dst->d*dst->bands != src->w*src->h*src->d) {
+			/* then we need to realloc dst */
+			dst->data=(float*)malloc(src->w*src->h*src->d*sizeof(float));
 		}
+		dst->w=src->w;
+		dst->h=src->h;
+		dst->d=src->d;
+		dst->bands=1;
 	}
-	return ans;
+
+	if (src->bands==1)
+	{
+		if (!in_place) {
+			/* then just do a straight copy */
+			memcpy(dst->data,src->data,dst->w*dst->h*dst->d*sizeof(float));
+		}
+		/* otherwise, we have a no-op */
+		return 0;
+	}
+	
+	/* otherwise, we need to convert from RGB to grayscale */
+	for (j=0;j<dst->w*dst->h*dst->d;j++) {
+		double sum=0;
+		for (k=0;k<src->bands;k++) {
+			sum+=(double)src->data[j*src->bands+k];
+		}
+		dst->data[j]=sum/src->bands;
+	}
+	if (in_place) {
+		/* then we need to resize the memory allocated for this image */
+		dst->data=(float*)realloc(dst->data,dst->w*dst->h*dst->d*sizeof(float));
+		dst->bands=1;
+	}
+	return 0;
 }

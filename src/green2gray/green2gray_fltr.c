@@ -36,21 +36,17 @@
 void green2gray_fltr(image_t *img)
 {
 	int j;
-	int h,w;
-
-	if (img->bands!=3 || img->d!=1)
-	{
-		fprintf(stderr,"Error: WImage not 2D RGB.\n\n");
-		return;
-	}
+	int h,w,d;
 
 	w=img->w;
 	h=img->h;
+	d=img->d;
 
-	for (j=0;j<w*h;j++)
-	{
-		img->data[3*j]=img->data[3*j+1];
-		img->data[3*j+2]=img->data[3*j+1];
+	if (img->bands>=3) {
+		for (j=0;j<w*h*d;j++) {
+			img->data[img->bands*j]=img->data[img->bands*j+1];
+			img->data[img->bands*j+2]=img->data[img->bands*j+1];
+		}
 	}
 	return;
 }

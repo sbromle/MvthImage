@@ -49,7 +49,7 @@ void (*DSYM(fillimage_fltr))(image_t *img,float val[3])=NULL;
 void (*DSYM(fillimage_vp_fltr))(image_t *img, float val[4],ViewPort_t viewport)=NULL;
 void (*DSYM(free_image_t))(image_t *img)=NULL;
 void (*DSYM(gaussian_fltr))(image_t *img, float sigma)=NULL;
-image_t * (*DSYM(grayscale2rgb_fltr))(image_t *src)=NULL;
+int (*DSYM(grayscale2rgb_fltr))(image_t *src,image_t **dst)=NULL;
 int (*DSYM(hsv2rgb_fltr))(image_t *img)=NULL;
 void (*DSYM(invert_fltr))(image_t *wimg)=NULL;
 void (*DSYM(isometric_fltr))(image_t *img, double theta)=NULL;
@@ -89,7 +89,7 @@ void (*DSYM(resize_image))(float *,int,int,int,float *,float)=NULL;
 int (*DSYM(resize_image_t))(image_t *img, int w, int h, int bands)=NULL;
 int (*DSYM(resize_3d_image_t))(image_t *img, int w, int h, int d, int bands)=NULL;
 int (*DSYM(rgb2hsv_fltr))(image_t *img)=NULL;
-image_t * (*DSYM(rgb2grayscale_fltr))(image_t *img)=NULL;
+int (*DSYM(rgb2grayscale_fltr))(image_t *src, image_t **dst)=NULL;
 void (*DSYM(roberts_fltr))(image_t *img)=NULL;
 void (*DSYM(rotate_fltr))(image_t *wimg,
 		const double alpha,
