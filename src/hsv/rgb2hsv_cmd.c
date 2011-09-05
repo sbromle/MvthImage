@@ -50,9 +50,6 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
-	/* register with the undo substructure */
-	//register_image_undo_var(name);
-
 	if (img->bands==1 || img->d!=1)
 	{
 		Tcl_AppendResult(interp,"Image is not 2D RGB.",NULL);
@@ -61,8 +58,6 @@ int hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	assert(DSYM(rgb2hsv_fltr)!=NULL);
 	DSYM(rgb2hsv_fltr)(img);
-	//register_image_var(img,name);
-	//stamp_image_t(img);
 
 	//mvthImageReplace(img,mimg);
 	
@@ -85,9 +80,6 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
-	/* register with the undo substructure */
-	//register_image_undo_var(name);
-
 	if (img->bands==1 || img->d!=1)
 	{
 		Tcl_AppendResult(interp,"Image is not 2D RGB.",NULL);
@@ -96,10 +88,6 @@ int inverse_hsv_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	assert(DSYM(hsv2rgb_fltr)!=NULL);
 	DSYM(hsv2rgb_fltr)(img);
-	//register_image_var(img,name);
-	//stamp_image_t(img);
-
-	//mvthImageReplace(img,mimg);
 	
 	return TCL_OK;
 }

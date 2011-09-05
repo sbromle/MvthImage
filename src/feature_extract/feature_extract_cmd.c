@@ -181,23 +181,15 @@ int feature_extract_cmd(ClientData clientData, Tcl_Interp *interp,
 		return TCL_ERROR;
 	}
 
-	// register with the undo substructure 
-	//register_image_undo_var(sname);
-	if (dimg != NULL)
-		register_image_undo_var(dname);
-
 	// do the filter 
 	if(b < 6 && count > 0)
 		b += 1;
 	count++;
 	assert(DSYM(feature_extract_fltr) != NULL);
 	dimg = DSYM(feature_extract_fltr)(simg, cj, ci, r, b, sgn, procID);
-	if (procID == 2) 
-		count = 0;
-	else
-	{
-		register_image_var(dimg, dname);
-		DSYM(stamp_image_t)(dimg);
-	}
+	if (procID == 2) count = 0;
+	/* FIXME: do something with dimg.
+	 * This code is currently not compiled into mvthimage.
+	 */
 	return TCL_OK;
 }

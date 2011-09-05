@@ -209,8 +209,6 @@ int MvthImageCopy(ClientData clientData, Tcl_Interp *interp,
 	assert(dimg!=NULL);
 	memcpy(dimg->name,simg->name,sizeof(dimg->name));
 	DSYM(copy_image_t)(simg,dimg);
-	//register_image_var(dimg,dstname);
-	//stamp_image_t(dimg);
 
 	Tcl_SetObjResult(interp,objv[2]);
 

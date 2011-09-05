@@ -48,9 +48,6 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	if (getMvthImageFromObj(interp,objv[1],&img)!=TCL_OK) return TCL_ERROR;
 
-	/* register with the undo substructure */
-	//register_image_undo_var(name);
-
 	if (img->bands==1)
 	{
 		Tcl_AppendResult(interp,"Image is already grayscale.",NULL);
@@ -59,7 +56,6 @@ int grayscale_cmd(ClientData clientData, Tcl_Interp *interp,
 
 	assert(DSYM(rgb2grayscale_fltr)!=NULL);
 	DSYM(rgb2grayscale_fltr)(img,&img);
-	//register_image_var(img,name);
 	DSYM(stamp_image_t)(img);
 
 	return TCL_OK;
