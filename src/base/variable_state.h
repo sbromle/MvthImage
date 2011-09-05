@@ -53,9 +53,13 @@ extern int varNames(Tcl_Interp *interp, StateManager_t statePtr);
 /* generate a uniqe variable name */
 extern int varUniqName(Tcl_Interp *interp, StateManager_t statePtr, char *name);
 
+/* enumeration for registration modes */
+typedef enum {REG_VAR_DELETE_OLD,
+	REG_VAR_IGNORE_OLD} REG_VAR_MODE;
+
 /* register data with state manager under name */
 extern int
-	registerVar(Tcl_Interp *interp, StateManager_t statePtr, ClientData data, char *name);
+	registerVar(Tcl_Interp *interp, StateManager_t statePtr, ClientData data, char *name, REG_VAR_MODE mode);
 
 extern int getVarFromObj(ClientData clientData, Tcl_Interp *interp, Tcl_Obj *CONST name,
 		void **iPtrPtr);

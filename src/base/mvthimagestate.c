@@ -319,7 +319,7 @@ int MvthImageCreate(ClientData data, Tcl_Interp *interp,
 
 	/* ok, we can now safely make the image and register it */
 	iPtr=DSYM(new_3d_image_t)(w,h,1,bands);
-	registerVar(interp,statePtr,(ClientData)iPtr,name_ptr);
+	registerVar(interp,statePtr,(ClientData)iPtr,name_ptr,REG_VAR_DELETE_OLD);
 	Tcl_AppendResult(interp,name_ptr,NULL);
 	return TCL_OK;
 }
@@ -372,7 +372,7 @@ int MvthImageDuplicate(ClientData data, Tcl_Interp *interp,
 		return TCL_ERROR;
 
 	/* put the new MvthImage in the hash table */
-	registerVar(interp,statePtr,(ClientData)iSrcPtr,dst_name);
+	registerVar(interp,statePtr,(ClientData)iSrcPtr,dst_name,REG_VAR_DELETE_OLD);
 	/* copy the name to the interpreter result */
 	Tcl_SetStringObj(Tcl_GetObjResult(interp),dst_name,-1);
 	return TCL_OK;
@@ -422,7 +422,7 @@ int MvthImageOpen(ClientData data, Tcl_Interp *interp,
 		/* you probably should assert the new==1 to confirm
 	 	* a new item was added to the hash table */
 		iPtr=(image_t*)ckalloc(sizeof(image_t));
-		registerVar(interp,(StateManager_t)data,(ClientData)iPtr,iname);
+		registerVar(interp,(StateManager_t)data,(ClientData)iPtr,iname,REG_VAR_DELETE_OLD);
 	} else {
 		mvthImageReplace(img,iPtr);
 		free(img);

@@ -31,16 +31,17 @@
 #include <string.h>
 #include <assert.h>
 #include <tcl.h>
+#include "variable_state.h"
 
 /* generic state management structure. Maps var names to blobs.
  * Created once per interpreter */
-typedef struct StateManager_s {
+struct StateManager_s {
 	Tcl_HashTable hash; /* list of variables by name */
 	int uid;
 	char *prefix;
 	void (*deleteProc)(void *ptr);
 	int (*unknownCmd)(ClientData, Tcl_Interp *,int,Tcl_Obj *CONST objv[]);
-} *StateManager_t;
+};
 
 /* this is called when the command associated with a state is destroyed.
  * The hash table is walked, destroying all variables as
@@ -124,11 +125,17 @@ int varUniqName(Tcl_Interp *interp, StateManager_t statePtr, char *name)
 	return TCL_ERROR;
 }
 
-int registerVar(Tcl_Interp *interp, StateManager_t statePtr, ClientData data, char *name)
+int registerVar(Tcl_Interp *interp, StateManager_t statePtr,
+		ClientData data, char *name,
+		REG_VAR_MODE mode)
 {
 	int new;
 	Tcl_HashEntry *entryPtr;
 	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name,&new);
+	if (new!=1 && mode==REG_VAR_DELETE_OLD) {
+		ClientData old=Tcl_GetHashValue(entryPtr);
+		statePtr->deleteProc(old);
+	}
 	Tcl_SetHashValue(entryPtr,(ClientData)data);
 	return TCL_OK;
 }
