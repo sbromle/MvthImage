@@ -132,9 +132,14 @@ int registerVar(Tcl_Interp *interp, StateManager_t statePtr,
 	int new;
 	Tcl_HashEntry *entryPtr;
 	entryPtr=Tcl_CreateHashEntry(&statePtr->hash,name,&new);
-	if (new!=1 && mode==REG_VAR_DELETE_OLD) {
+	if (new!=1) {
 		ClientData old=Tcl_GetHashValue(entryPtr);
-		statePtr->deleteProc(old);
+		if (old==data) {
+			/* nothing to do! This data is already registered with that name. */
+			return TCL_OK;
+		} else if (mode==REG_VAR_DELETE_OLD) {
+			statePtr->deleteProc(old);
+		}
 	}
 	Tcl_SetHashValue(entryPtr,(ClientData)data);
 	return TCL_OK;
