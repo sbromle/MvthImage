@@ -155,18 +155,18 @@ set (libMvthImage_SRCS
 	${LIB_MVTH_IMAGE_BUILD_INFO}
 )
 
-option (MPEG2_SUPPORT "Build with mpeg2 support.")
-if (MPEG2_SUPPORT)
-	find_package(MPEG2)
-	if (MPEG2_FOUND)
-		set (libMvthImage_SRCS ${libMvthImage_SRCS}
-			video/mpeg_utils2.c
-			video/mpeg_utils2.h
-			video/mpeg_context.h
-		)
-		include_directories(${MPEG2_INCLUDE_DIR})
-	endif (MPEG2_FOUND)
-endif (MPEG2_SUPPORT)
+#option (MPEG2_SUPPORT "Build with mpeg2 support.")
+#if (MPEG2_SUPPORT)
+#find_package(MPEG2)
+#if (MPEG2_FOUND)
+#set (libMvthImage_SRCS ${libMvthImage_SRCS}
+#video/mpeg_utils2.c
+#video/mpeg_utils2.h
+#video/mpeg_context.h
+#)
+#include_directories(${MPEG2_INCLUDE_DIR})
+#endif (MPEG2_FOUND)
+#endif (MPEG2_SUPPORT)
 
 set (viewimage_SRCS
 	viewimage_Init.c
@@ -227,9 +227,9 @@ add_library(mvthimage MODULE ${mvthimage_SRCS})
 add_library(viewimage MODULE ${viewimage_SRCS})
 
 target_link_libraries(MvthImage z fftw3 m pthread ${GLIB2_LIBRARIES} ${PANGOFT2_LIBRARIES})
-if (MPEG2_SUPPORT) 
-	target_link_libraries(MvthImage ${MPEG2_LIBRARIES})
-endif (MPEG2_SUPPORT)
+#if (MPEG2_SUPPORT) 
+#target_link_libraries(MvthImage ${MPEG2_LIBRARIES})
+#endif (MPEG2_SUPPORT)
 
 target_link_libraries(mvthimage m ${GLIB2_LIBRARIES})
 if (USE_TCL_STUBS)
