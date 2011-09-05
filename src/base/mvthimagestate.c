@@ -42,7 +42,6 @@
 int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 		image_t **iPtrPtr)
 {
-	StateManager_t statePtr=NULL;
 	image_t *iPtr=NULL;
 	return getVarFromObjKey(MVTHIMAGESTATEKEY,interp,name,(void**)iPtrPtr);
 }
