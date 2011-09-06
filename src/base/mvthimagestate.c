@@ -112,18 +112,10 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 	/* reset the result so that we don't have the error from StateManagerCmd */
 	Tcl_ResetResult(interp);
 
+	int i=-1;
 	switch (index) {
 		case CreateIx:
 			return MvthImageCreate(data,interp,objc,objv);
-			break;
-		case WidthIx:
-		case HeightIx:
-		case DepthIx:
-		case BandsIx:
-		case SizeIx:
-			if (objc!=3 && objc!=4) goto err;
-			if (objc==3) valueObjPtr=NULL;
-			else valueObjPtr=objv[3];
 			break;
 		case DuplicateIx:
 			return MvthImageDuplicate((ClientData)statePtr,interp,objc-1,objv+1);
@@ -137,33 +129,80 @@ int MvthImageCmd(ClientData data, Tcl_Interp *interp,
 		case ScaleIx:
 			return MvthImageScale((ClientData)statePtr,interp,objc-1,objv+1);
 			break;
-	}
-
-	/* The rest of the commands take an mvthimage name
-	 * or a file name as the third
-	 * argument. Hash from the name to the Mvthimage structure */
-	switch (index) {
-		case WidthIx:
-		case HeightIx:
-		case DepthIx:
+		case DepthIx: 
+			i++; /* fall through */
 		case BandsIx:
+			i++; /* fall through */
+		case HeightIx:
+			i++; /* fall through */
+		case WidthIx:
+			i++; /* fall through */
 		case SizeIx:
-			if (getVarFromObj((ClientData)statePtr,interp,objv[2],(void**)&iPtr)!=TCL_OK)
+			if (objc!=3 && objc!=4) goto err;
+			if (getVarFromObj((ClientData)statePtr,interp,objv[2],
+						(void**)&iPtr)!=TCL_OK)
 				return TCL_ERROR;
+			if (objc==3) valueObjPtr=NULL;
+			else valueObjPtr=objv[3];
 			break;
 	}
 
-	switch (index) {
-		case WidthIx:
-			return MvthImageWHDB(interp,iPtr,valueObjPtr,0);
-		case HeightIx:
-			return MvthImageWHDB(interp,iPtr,valueObjPtr,1);
-		case DepthIx:
-			return MvthImageWHDB(interp,iPtr,valueObjPtr,2);
-		case BandsIx:
-			return MvthImageWHDB(interp,iPtr,valueObjPtr,3);
-		case SizeIx:
-			return MvthImageWHDB(interp,iPtr,valueObjPtr,4);
+
+	/* what are the current image parameters ? */
+	int newdim[4];
+	newdim[0]=iPtr->w;
+	newdim[1]=iPtr->h;
+	newdim[2]=iPtr->bands; 
+	newdim[3]=iPtr->d;
+
+	if (valueObjPtr!=NULL) {
+		if (i==-1) {
+			/* then we Size was pased and we must handle a list */
+			int len=0;
+			if (Tcl_ListObjLength(interp,valueObjPtr,&len)!=TCL_OK) return TCL_ERROR;
+			if (len!=3 && len!=4) {
+				Tcl_AppendResult(interp,"List must contain 3 or 4 elements.\n",NULL);
+				return TCL_ERROR;
+			}
+			int j;
+			for (j=0;j<len;j++) {
+				Tcl_Obj *ptr;
+				if (Tcl_ListObjIndex(interp,valueObjPtr,j,&ptr)!=TCL_OK) return TCL_ERROR;
+				if (Tcl_GetIntFromObj(interp,ptr,&newdim[j])!=TCL_OK) return TCL_ERROR;
+			}
+		} else {
+			/* just get that specific value */
+			if (Tcl_GetIntFromObj(interp,valueObjPtr,&newdim[i])!=TCL_OK)
+				return TCL_ERROR;
+		}
+		if (newdim[0]!=iPtr->w
+				|| newdim[1]!=iPtr->h
+				|| newdim[2]!=iPtr->bands
+				|| newdim[3]!=iPtr->d) {
+			/* then some dimension has changed (Yes, index 3 and 2 are swapped) */
+			DSYM(resize_3d_image_t)(iPtr,newdim[0],newdim[1],newdim[3],newdim[2]);
+		}
+	}
+
+	if (i==-1) {
+		/* return a Tcl list of the new dimensions.
+		 * Order returned is width, height, bands, depth */
+		Tcl_Obj *result=Tcl_NewListObj(0,NULL);
+		if (Tcl_ListObjAppendElement(interp,result,
+				Tcl_NewIntObj(iPtr->w))!=TCL_OK)
+			return TCL_ERROR;
+		if (Tcl_ListObjAppendElement(interp,result,
+				Tcl_NewIntObj(iPtr->h))!=TCL_OK)
+			return TCL_ERROR;
+		if (Tcl_ListObjAppendElement(interp,result,
+				Tcl_NewIntObj(iPtr->bands))!=TCL_OK)
+			return TCL_ERROR;
+		if (Tcl_ListObjAppendElement(interp,result,
+				Tcl_NewIntObj(iPtr->d))!=TCL_OK)
+			return TCL_ERROR;
+		Tcl_SetObjResult(interp,result);
+	} else {
+		Tcl_SetObjResult(interp,Tcl_NewIntObj(newdim[i]));
 	}
 	return TCL_OK;
 
@@ -443,104 +482,6 @@ void MvthImageDelete(void *ptr)
 		free((char*)iPtr);
 	}
 	return;
-}
-
-int MvthImageWHDB(Tcl_Interp *interp, image_t *iPtr, Tcl_Obj *objPtr, int i)
-{
-	int w,h,d,bands;
-	int dim[4];
-	Tcl_Obj *ptr[3]={NULL,NULL,NULL};
-
-	/* what are the current image parameters ? */
-	dim[0]=w=iPtr->w;
-	dim[1]=h=iPtr->h;
-	dim[2]=d=iPtr->d;
-	dim[3]=bands=iPtr->bands;
-	int len=0;
-	int j;
-
-	if (i<0 || i>4) return TCL_ERROR;
-
-	int newdim[3];
-	newdim[0]=dim[0];
-	newdim[1]=dim[1];
-	newdim[2]=dim[3]; /* Yes, 3, since newdim only stores w,h,bands */
-
-	if (objPtr!=NULL) {
-		switch (i) {
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-				/* then objPtr contains only a single value */
-				if (Tcl_GetIntFromObj(interp,objPtr,&newdim[i])!=TCL_OK)
-					return TCL_ERROR;
-				ptr[i]=objPtr;
-				break;
-			case 4:
-				/* otherwise, it should be a list of 3 values */
-				/* can only resize 2D images */
-				if (dim[2]!=1) {
-					Tcl_AppendResult(interp,"Can only resize 2D images.\n",NULL);
-					return TCL_ERROR;
-				}
-				if (Tcl_ListObjLength(interp,objPtr,&len)!=TCL_OK) return TCL_ERROR;
-				if (len!=3) {
-					Tcl_AppendResult(interp,"List must contain 3 elements.\n",NULL);
-					return TCL_ERROR;
-				}
-				for (j=0;j<3;j++) {
-					if (Tcl_ListObjIndex(interp,objPtr,j,&ptr[j])!=TCL_OK) return TCL_ERROR;
-					if (Tcl_GetIntFromObj(interp,ptr[j],&newdim[j])!=TCL_OK) return TCL_ERROR;
-				}
-				break;
-			default:
-				break;
-		}
-
-		/* note that we have re-used dim[2] here for bands */
-		if (newdim[0]!=w || newdim[1]!=h || newdim[2]!=bands) {
-			/* then some dimension has changed */
-			DSYM(resize_image_t)(iPtr,newdim[0],newdim[3],newdim[2]);
-		}
-	}
-	else  /* if objPtr is NULL, we are just requesting information */
-	{
-		Tcl_Obj *result=NULL;
-		switch (i) {
-			case 0:
-				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->w));
-				break;
-			case 1:
-				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->h));
-				break;
-			case 2:
-				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->d));
-				break;
-			case 3:
-				Tcl_SetObjResult(interp,Tcl_NewIntObj(iPtr->bands));
-				break;
-			case 4:
-				result=Tcl_NewListObj(0,NULL);
-				if (Tcl_ListObjAppendElement(interp,result,
-						Tcl_NewIntObj(iPtr->w))!=TCL_OK)
-					return TCL_ERROR;
-				if (Tcl_ListObjAppendElement(interp,result,
-						Tcl_NewIntObj(iPtr->h))!=TCL_OK)
-					return TCL_ERROR;
-				if (Tcl_ListObjAppendElement(interp,result,
-						Tcl_NewIntObj(iPtr->d))!=TCL_OK)
-					return TCL_ERROR;
-				if (Tcl_ListObjAppendElement(interp,result,
-						Tcl_NewIntObj(iPtr->bands))!=TCL_OK)
-					return TCL_ERROR;
-				Tcl_SetObjResult(interp,result);
-				break;
-			default:
-				break;
-		}
-	}
-	return TCL_OK;
 }
 
 int mvthImageReplace(image_t *simg, image_t *dimg)
