@@ -13,11 +13,15 @@ pkg_check_modules (PANGOFT2 REQUIRED pangoft2)
 find_path (TCLARGV_INCLUDES tclArgv.h /usr/local/include/tclargv)
 find_library (TCLARGV_LIBRARY TclParseArgv /usr/local/lib/tclargv)
 
+find_path (STATEMGR_INCLUDES variable_state.h /usr/local/include/statemgr)
+find_library (STATEMGR_LIBRARY statemgr /usr/local/lib/statemgr)
+
 include_directories(${GLIB2_INCLUDE_DIRS})
 include_directories(${PANGOFT2_INCLUDE_DIRS})
 include_directories(${TCL_INCLUDE_PATH})
 include_directories(${TK_INCLUDE_PATH})
 include_directories(${TCLARGV_INCLUDES})
+include_directories(${STATEMGR_INCLUDES})
 include_directories(.)
 include_directories(./base)
 
@@ -174,8 +178,6 @@ set (viewimage_SRCS
 	dynamic_load.h
 	dynamic_symbols_mvth.c
 	dynamic_symbols_mvth.h
-	base/variable_state.c
-	base/variable_state.h
 	base/mvthimagestate.c
 	base/mvthimagestate.h
 	blitimage/blitimage.c
@@ -184,8 +186,6 @@ set (viewimage_SRCS
 
 set (mvthimage_SRCS
 	mvthimage_Init.c 
-	base/variable_state.c 
-	base/variable_state.h 
 	base/mvthimagestate.c 
 	base/mvthimagestate.h 
 	dynamic_load.c 
@@ -231,7 +231,7 @@ target_link_libraries(MvthImage z fftw3 m pthread ${GLIB2_LIBRARIES} ${PANGOFT2_
 #target_link_libraries(MvthImage ${MPEG2_LIBRARIES})
 #endif (MPEG2_SUPPORT)
 
-target_link_libraries(mvthimage m ${GLIB2_LIBRARIES})
+target_link_libraries(mvthimage m ${STATEMGR_LIBRARY} ${GLIB2_LIBRARIES})
 if (USE_TCL_STUBS)
 	target_link_libraries(mvthimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
 	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
@@ -240,8 +240,9 @@ else (USE_TCL_STUBS)
 	target_link_libraries(viewimage ${TCL_LIBRARY} ${TK_LIBRARY} ${TCLARGV_LIBRARY})
 endif (USE_TCL_STUBS)
 
+
 set_target_properties (MvthImage PROPERTIES VERSION 3.0 SOVERSION 3 INSTALL_RPATH_USE_LINK_PATH on)
-set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on)
+set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
 set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on)
 
 
@@ -255,7 +256,6 @@ install(FILES
 	base/stereo_context_t.h
 	base/mvth_colors.h
 	base/mvthimagestate.h
-	base/variable_state.h
 	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
 
