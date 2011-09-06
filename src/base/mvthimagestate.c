@@ -545,16 +545,10 @@ int MvthImageWHDB(Tcl_Interp *interp, image_t *iPtr, Tcl_Obj *objPtr, int i)
 
 int mvthImageReplace(image_t *simg, image_t *dimg)
 {
-	if (dimg==NULL) return TCL_ERROR;
-	if (dimg==simg) return TCL_ERROR;
-	if (dimg->data==NULL || simg->data==NULL) return TCL_ERROR;
+	if (dimg==simg) return TCL_OK;
+	if (simg==NULL || dimg==NULL
+			|| dimg->data==NULL || simg->data==NULL) return TCL_ERROR;
 	free(dimg->data);
-	dimg->data=simg->data;
-	dimg->w=simg->w;
-	dimg->h=simg->h;
-	dimg->d=simg->d;
-	dimg->bands=simg->bands;
-	dimg->timestamp=simg->timestamp;
-	snprintf(dimg->name,sizeof(dimg->name),"%s",simg->name);
+	*dimg=*simg;
 	return TCL_OK;
 }
