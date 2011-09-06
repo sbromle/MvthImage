@@ -257,6 +257,7 @@ int MvthImageScale(ClientData clientData, Tcl_Interp *interp,
 	DSYM(stamp_image_t)(dimg);
 	//stamp_image_t(dimg);
 	mvthImageReplace(dimg,simg);
+	free(dimg);
 
 	/* return the new dimensions of the image */
 	Tcl_Obj *dlist=Tcl_NewListObj(0,NULL);
