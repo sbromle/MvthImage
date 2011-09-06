@@ -107,7 +107,7 @@ extern int plotpoly_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 
 
-
+extern int MvthImageState_Init(Tcl_Interp *interp);
 
 int Mvthimage_Init(Tcl_Interp *interp) {
 	/* initialize the stub table interface */

@@ -23,7 +23,6 @@
 
 extern int getMvthImageFromObj(Tcl_Interp *interp, Tcl_Obj *CONST name,
 		image_t **iPtrPtr);
-extern int MvthImageState_Init(Tcl_Interp *interp);
 extern int mvthImageExists(Tcl_Interp *interp, Tcl_Obj *CONST name);
 extern int mvthImageReplace(image_t *img, image_t *mimg);
 
