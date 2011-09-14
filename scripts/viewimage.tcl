@@ -26,7 +26,7 @@ proc imageNameFromImg {img} {
 }
 
 
-proc viewimage {img} {
+proc viewimage {img {blitcmd blitimage}} {
 	set t [toplevel [toplevelNameFromImg $img]]
 	set c [canvas [canvasNameFromImg $img]]
 	set x [scrollbar [xscrollNameFromImg $img] -ori hori -command [list $c xview]]
@@ -34,7 +34,7 @@ proc viewimage {img} {
 	$c config -xscrollcommand [list $x set] -yscrollcommand [list $y set]
 	set i [image create photo [imageNameFromImg $img]]
 	$c create image 0 0 -image $i -anchor nw -tag img
-	blitimage $img $i
+	$blitcmd $img $i
 	grid $c $y -in $t -sticky news
 	grid $x -in $t -sticky ew
 	grid rowconfig $t 0 -weight 1
@@ -44,14 +44,13 @@ proc viewimage {img} {
 	return $t;
 }
 
-proc xblitimage {args} {
-	if {[llength $args]==1} {
-		::blitimage $args [imageNameFromImg $args]
-		set c [canvasNameFromImg $args]
-		$c config -scrollregion [$c bbox all]
-	} else {
-		::blitimage [lindex $args 0] [lindex $args 1]
+proc xblitimage {img {photo {}} {blitcmd ::blitimage}} {
+	if {[string length $photo]==0} {
+		set photo [imageNameFromImg $img];
 	}
+	$blitcmd $img $photo;
+	set c [canvasNameFromImg $img]
+	$c config -scrollregion [$c bbox all]
 }
 
 namespace export xblitimage viewimage
