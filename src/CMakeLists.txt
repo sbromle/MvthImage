@@ -232,6 +232,7 @@ target_link_libraries(MvthImage z fftw3 m pthread ${GLIB2_LIBRARIES} ${PANGOFT2_
 #endif (MPEG2_SUPPORT)
 
 target_link_libraries(mvthimage m ${STATEMGR_LIBRARY} ${GLIB2_LIBRARIES})
+target_link_libraries(viewimage ${STATEMGR_LIBRARY})
 if (USE_TCL_STUBS)
 	target_link_libraries(mvthimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
 	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
@@ -243,7 +244,7 @@ endif (USE_TCL_STUBS)
 
 set_target_properties (MvthImage PROPERTIES VERSION 3.0 SOVERSION 3 INSTALL_RPATH_USE_LINK_PATH on)
 set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
-set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on)
+set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
 
 
 ########### install files ###############
