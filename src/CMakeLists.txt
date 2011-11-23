@@ -156,7 +156,6 @@ set (libMvthImage_SRCS
 	v_plotpoly/v_plotpoly_fltr.c 
 	v_plotpoly/v_plotpoly_fltr.h 
 	zoom/zoom_fltr.c
-	${LIB_MVTH_IMAGE_BUILD_INFO}
 )
 
 #option (MPEG2_SUPPORT "Build with mpeg2 support.")
@@ -181,7 +180,6 @@ set (viewimage_SRCS
 	base/mvthimagestate.c
 	base/mvthimagestate.h
 	blitimage/blitimage.c
-	${VIEW_IMAGE_BUILD_INFO}
 )
 
 set (mvthimage_SRCS
@@ -219,7 +217,6 @@ set (mvthimage_SRCS
 	text/text_cmd.c 
 	v_plotpoly/v_plotpoly_cmd.c 
 	write_image/writeimage_cmd.c
-	${MVTH_IMAGE_BUILD_INFO}
 )
 
 add_library(MvthImage SHARED ${libMvthImage_SRCS} ${utils_SRCS})
