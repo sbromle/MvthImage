@@ -6,18 +6,21 @@ include  (FindTclStub)
 option (USE_TCL_STUBS "Enable use of TCL stubs library")
 
 include (FindPkgConfig)
-ADD_DEFINITIONS("`pkg-config --cflags glib-2.0`")
-pkg_check_modules (GLIB2 REQUIRED glib-2.0)
-pkg_check_modules (PANGOFT2 REQUIRED pangoft2)
-
-find_path (TCLARGV_INCLUDES tclArgv.h /usr/local/include/tclargv)
-find_library (TCLARGV_LIBRARY TclParseArgv /usr/local/lib/tclargv)
 
 find_path (STATEMGR_INCLUDES variable_state.h /usr/local/include/statemgr)
 find_library (STATEMGR_LIBRARY statemgr /usr/local/lib/statemgr)
 
-include_directories(${GLIB2_INCLUDE_DIRS})
+if(BUILD_MVTHIMAGE)
+ADD_DEFINITIONS("`pkg-config --cflags glib-2.0`")
+pkg_check_modules (GLIB2 REQUIRED glib-2.0)
+pkg_check_modules (PANGOFT2 REQUIRED pangoft2)
 include_directories(${PANGOFT2_INCLUDE_DIRS})
+find_path (TCLARGV_INCLUDES tclArgv.h /usr/local/include/tclargv)
+find_library (TCLARGV_LIBRARY TclParseArgv /usr/local/lib/tclargv)
+endif(BUILD_MVTHIMAGE)
+
+
+include_directories(${GLIB2_INCLUDE_DIRS})
 include_directories(${TCL_INCLUDE_PATH})
 include_directories(${TK_INCLUDE_PATH})
 include_directories(${TCLARGV_INCLUDES})
@@ -219,44 +222,58 @@ set (mvthimage_SRCS
 	write_image/writeimage_cmd.c
 )
 
-add_library(MvthImage SHARED ${libMvthImage_SRCS} ${utils_SRCS})
-add_library(mvthimage MODULE ${mvthimage_SRCS})
-add_library(viewimage MODULE ${viewimage_SRCS})
+if(BUILD_MVTHIMAGE)
+  add_library(MvthImage SHARED ${libMvthImage_SRCS} ${utils_SRCS})
+  add_library(mvthimage MODULE ${mvthimage_SRCS})
+  target_link_libraries(MvthImage z fftw3 m pthread ${GLIB2_LIBRARIES} ${PANGOFT2_LIBRARIES})
+  target_link_libraries(mvthimage m ${STATEMGR_LIBRARY} ${GLIB2_LIBRARIES})
+  if (USE_TCL_STUBS)
+	target_link_libraries(mvthimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
+  else (USE_TCL_STUBS)
+	target_link_libraries(mvthimage ${TCL_LIBRARY} ${TCLARGV_LIBRARY})
+  endif (USE_TCL_STUBS)
+  set_target_properties (MvthImage PROPERTIES VERSION 3.0 SOVERSION 3 INSTALL_RPATH_USE_LINK_PATH on)
+  set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
+endif(BUILD_MVTHIMAGE)
 
-target_link_libraries(MvthImage z fftw3 m pthread ${GLIB2_LIBRARIES} ${PANGOFT2_LIBRARIES})
+if(BUILD_VIEWIMAGE)
+  add_library(viewimage MODULE ${viewimage_SRCS})
+  target_link_libraries(viewimage ${STATEMGR_LIBRARY})
+  if (USE_TCL_STUBS)
+	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
+  else (USE_TCL_STUBS)
+	target_link_libraries(viewimage ${TCL_LIBRARY} ${TK_LIBRARY} ${TCLARGV_LIBRARY})
+  endif (USE_TCL_STUBS)
+  set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
+endif(BUILD_VIEWIMAGE)
+
 #if (MPEG2_SUPPORT) 
 #target_link_libraries(MvthImage ${MPEG2_LIBRARIES})
 #endif (MPEG2_SUPPORT)
 
-target_link_libraries(mvthimage m ${STATEMGR_LIBRARY} ${GLIB2_LIBRARIES})
-target_link_libraries(viewimage ${STATEMGR_LIBRARY})
-if (USE_TCL_STUBS)
-	target_link_libraries(mvthimage ${TCL_STUB_LIBRARY} ${TCLARGV_LIBRARY})
-	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
-else (USE_TCL_STUBS)
-	target_link_libraries(mvthimage ${TCL_LIBRARY} ${TCLARGV_LIBRARY})
-	target_link_libraries(viewimage ${TCL_LIBRARY} ${TK_LIBRARY} ${TCLARGV_LIBRARY})
-endif (USE_TCL_STUBS)
-
-
-set_target_properties (MvthImage PROPERTIES VERSION 3.0 SOVERSION 3 INSTALL_RPATH_USE_LINK_PATH on)
-set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
-set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
 
 
 ########### install files ###############
-
-# Headers 
 install(FILES
-	${utils_HEADERS}
 	mvthImage.h
 	base/images_types.h
-	base/stereo_context_t.h
-	base/mvth_colors.h
 	base/mvthimagestate.h
-	dynamic_symbols_mvth.h
  DESTINATION include/${PACKAGE})
 
-install(TARGETS MvthImage DESTINATION lib/${PACKAGE})
-install(TARGETS mvthimage DESTINATION lib/${PACKAGE})
-install(TARGETS viewimage DESTINATION lib/${PACKAGE})
+# Headers 
+if(BUILD_MVTHIMAGE)
+  install(FILES
+	${utils_HEADERS}
+	base/stereo_context_t.h
+	base/mvth_colors.h
+	dynamic_symbols_mvth.h
+     DESTINATION include/${PACKAGE})
+
+  install(TARGETS MvthImage DESTINATION lib/${PACKAGE})
+  install(TARGETS mvthimage DESTINATION lib/${PACKAGE})
+endif(BUILD_MVTHIMAGE)
+
+if(BUILD_VIEWIMAGE)
+  install(TARGETS viewimage DESTINATION lib/${PACKAGE})
+endif(BUILD_VIEWIMAGE)
+

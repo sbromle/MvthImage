@@ -3,6 +3,8 @@ project (${PACKAGE})
 cmake_minimum_required (VERSION 2.6)
 
 option (BUILD_SHARED_LIB "Build Shared Libraries." ON)
+option (BUILD_MVTHIMAGE "Build MVTHImage Components." ON)
+option (BUILD_VIEWIMAGE "Build ViewImage Components." ON)
 
 # Set up some variables that we can use in our code.
 set (MVTHIMAGE_VERSION 1.6)
