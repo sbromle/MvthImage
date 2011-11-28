@@ -31,10 +31,6 @@
 #include <stdlib.h>
 #include <tcl.h>
 #include <tk.h>
-#include "base/mvthimagestate.h"
-
-extern int blitImage(ClientData clientData, Tcl_Interp *interp,
-		int objc, Tcl_Obj *CONST objv[]);
 
 int verbose=0;
 
@@ -53,10 +49,6 @@ int Viewimage_Init(Tcl_Interp *interp) {
 		return TCL_ERROR;
 	}
 	
-	/* Create all of the Tcl commands */
-	Tcl_CreateObjCommand(interp,"blitimage",blitImage,
-			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
-
 	/* initialize the new, alternative image context handling code */
 	MvthImageState_Init(interp);
 

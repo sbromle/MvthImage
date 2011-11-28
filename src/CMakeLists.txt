@@ -174,17 +174,6 @@ set (libMvthImage_SRCS
 #endif (MPEG2_FOUND)
 #endif (MPEG2_SUPPORT)
 
-set (viewimage_SRCS
-	viewimage_Init.c
-	dynamic_load.c
-	dynamic_load.h
-	dynamic_symbols_mvth.c
-	dynamic_symbols_mvth.h
-	base/mvthimagestate.c
-	base/mvthimagestate.h
-	blitimage/blitimage.c
-)
-
 set (mvthimage_SRCS
 	mvthimage_Init.c 
 	base/mvthimagestate.c 
@@ -198,6 +187,7 @@ set (mvthimage_SRCS
 	base/stereo_context.h 
 	astereo/astereo_cmd.c 
 	axes/axes_cmd.c 
+	blitimage/blitimage.c
 	brighten/brighten_cmd.c 
 	canny/canny_cmd.c 
 	circ/circ_cmd.c 
@@ -236,33 +226,19 @@ if(BUILD_MVTHIMAGE)
   set_target_properties (mvthimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
 endif(BUILD_MVTHIMAGE)
 
-if(BUILD_VIEWIMAGE)
-  add_library(viewimage MODULE ${viewimage_SRCS})
-  target_link_libraries(viewimage ${STATEMGR_LIBRARY})
-  if (USE_TCL_STUBS)
-	target_link_libraries(viewimage ${TCL_STUB_LIBRARY} ${TK_STUB_LIBRARY} ${TCLARGV_LIBRARY})
-  else (USE_TCL_STUBS)
-	target_link_libraries(viewimage ${TCL_LIBRARY} ${TK_LIBRARY} ${TCLARGV_LIBRARY})
-  endif (USE_TCL_STUBS)
-  set_target_properties (viewimage PROPERTIES VERSION 3.0 SOVERSION 3 PREFIX "" INSTALL_RPATH_USE_LINK_PATH on INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/${PACKAGE}")
-endif(BUILD_VIEWIMAGE)
-
 #if (MPEG2_SUPPORT) 
 #target_link_libraries(MvthImage ${MPEG2_LIBRARIES})
 #endif (MPEG2_SUPPORT)
 
 
-
 ########### install files ###############
-install(FILES
+
+if(BUILD_MVTHIMAGE)
+# Headers 
+  install(FILES
 	mvthImage.h
 	base/images_types.h
 	base/mvthimagestate.h
- DESTINATION include/${PACKAGE})
-
-# Headers 
-if(BUILD_MVTHIMAGE)
-  install(FILES
 	${utils_HEADERS}
 	base/stereo_context_t.h
 	base/mvth_colors.h
@@ -272,8 +248,4 @@ if(BUILD_MVTHIMAGE)
   install(TARGETS MvthImage DESTINATION lib/${PACKAGE})
   install(TARGETS mvthimage DESTINATION lib/${PACKAGE})
 endif(BUILD_MVTHIMAGE)
-
-if(BUILD_VIEWIMAGE)
-  install(TARGETS viewimage DESTINATION lib/${PACKAGE})
-endif(BUILD_VIEWIMAGE)
 

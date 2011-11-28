@@ -45,6 +45,8 @@ extern int astereo_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int axes_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
+extern int blitImage(ClientData clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *CONST objv[]);
 extern int brighten_cmd (ClientData clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *CONST objv[]);
 extern int circle_cmd (ClientData clientData, Tcl_Interp *interp,
@@ -126,6 +128,8 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"axes",axes_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
+	Tcl_CreateObjCommand(interp,"blitimage",blitImage,
+			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"brighten",brighten_cmd,
 			(ClientData)NULL,(Tcl_CmdDeleteProc *)NULL);
 	Tcl_CreateObjCommand(interp,"canny",canny_cmd,
@@ -192,6 +196,24 @@ int Mvthimage_Init(Tcl_Interp *interp) {
 			"puts stdout {redistribute it under certain conditions.};",
 			"puts stdout {For details, see the GNU Lesser Public License V.3 <http://www.gnu.org/licenses>.};",
 			NULL);
+
+	/* Add miexpand convenience proc. Note: this command is defined
+         * even if the viewimage package is not loaded...it will just
+         * give an error if that is the case.
+         */
+	Tcl_VarEval(interp,
+			"proc miexpand {w} {"
+				"foreach {wo ho do bo} [mi size $w] break;"
+				"set c [::viewimage::canvasNameFromImg $w];"
+				"set wi [winfo width $c];"
+				"set hi [winfo height $c];"
+				"set wi [expr {$wi-3}];"
+				"set hi [expr {$hi-3}];"
+				"if {$wi<=0} {set wi 10};"
+				"if {$hi<=0} {set hi 10};"
+				"mi size $w [list $wi $hi $bo];"
+				"xblitimage $w;"
+			"}",NULL);
 	/* Declare that we provide the mvthimage package */
 	Tcl_PkgProvide(interp,"mvthimage","1.0");
 	return TCL_OK;

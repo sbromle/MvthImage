@@ -3,6 +3,13 @@
 package provide viewimage 1.0
 package require Tk 8.4
 
+
+puts stdout {viewimage Copyright (C) 2009 Sam Bromley}
+puts stdout {This software comes with ABSOLUTELY NO WARRANTY.}
+puts stdout {This is free software, and you are welcome to}
+puts stdout {redistribute it under certain conditions.}
+puts stdout {For details, see the GNU Lesser Public License V.3 <http://www.gnu.org/licenses>.}
+
 namespace eval ::viewimage {
 
 proc toplevelNameFromImg {img} {
