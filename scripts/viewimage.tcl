@@ -1,7 +1,7 @@
 #!/usr/bin/env wish
 
-#package provide viewimage 1.0
-#package require Tk 8.4
+package provide viewimage 1.0
+package require Tk 8.4
 
 namespace eval ::viewimage {
 

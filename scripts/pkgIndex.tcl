@@ -8,5 +8,5 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded viewimage 1.0 [list load [file join $dir viewimage.so]]
+package ifneeded viewimage 1.0 [list source [file join $dir viewimage.tcl]]
 package ifneeded mvthimage 1.0 [list load [file join $dir mvthimage.so]]
