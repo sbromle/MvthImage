@@ -35,6 +35,7 @@ proc imageNameFromImg {img} {
 
 proc viewimage {img {blitcmd blitimage}} {
 	set t [toplevel [toplevelNameFromImg $img]]
+	set f [frame $t.topframe];
 	set c [canvas [canvasNameFromImg $img]]
 	set x [scrollbar [xscrollNameFromImg $img] -ori hori -command [list $c xview]]
 	set y [scrollbar [yscrollNameFromImg $img] -ori vert -command [list $c yview]]
@@ -42,12 +43,13 @@ proc viewimage {img {blitcmd blitimage}} {
 	set i [image create photo [imageNameFromImg $img]]
 	$c create image 0 0 -image $i -anchor nw -tag img
 	$blitcmd $img $i
-	grid $c $y -in $t -sticky news
-	grid $x -in $t -sticky ew
-	grid rowconfig $t 0 -weight 1
-	grid columnconfig $t 0 -weight 1
+	grid $c $y -in $f -sticky news
+	grid $x -in $f -sticky ew
+	grid rowconfig $f 0 -weight 1
+	grid columnconfig $f 0 -weight 1
 	$c config -scrollregion [$c bbox all]
 	$c config -cursor trek
+	pack $f -in $t -side top -anchor nw -expand 1 -fill both;
 	return $t;
 }
 
