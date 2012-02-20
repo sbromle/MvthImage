@@ -9,4 +9,5 @@
 # full path name of this file's directory.
 
 package ifneeded viewimage 1.0 [list source [file join $dir viewimage.tcl]]
+package ifneeded viewimagesnit 1.0 [list source [file join $dir viewimage_snit.tcl]]
 package ifneeded mvthimage 1.0 [list load [file join $dir mvthimage.so]]

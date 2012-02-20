@@ -1,4 +1,4 @@
 ########### install files ###############
 
-install(FILES pkgIndex.tcl viewimage.tcl DESTINATION lib/${PACKAGE})
+install(FILES pkgIndex.tcl viewimage.tcl viewimage_snit.tcl DESTINATION lib/${PACKAGE})
 
