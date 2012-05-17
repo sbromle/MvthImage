@@ -96,7 +96,7 @@ snit::type ImageViewer {
 		return $f;
 	}
 
-	method viewimage {{img ""} {toplevel_name ""}} {
+	method viewimage {{img ""} {toplevel_name ""} {windowType toplevel}} {
 		if {[string length $img]==0} {
 			set img $options(-image);
 		} else {
@@ -105,10 +105,10 @@ snit::type ImageViewer {
 		if {[string length $toplevel_name]==0} {
 			set toplevel_name [$self toplevelNameFromImg $img];
 		}
-		set t [toplevel $toplevel_name];
-		set f [$self build_frame $t.topframe $img];
-		pack $f -in $t -side top -anchor nw -expand 1 -fill both;
-		return $t;
+		set tl [$windowType $toplevel_name];
+		set f [$self build_frame $tl.topframe $img];
+		pack $f -in $tl -side top -anchor nw -expand 1 -fill both;
+		return $tl;
 	}
 
 	method xblitimage {{img ""} {photo ""} {blitcmd ""}} {
