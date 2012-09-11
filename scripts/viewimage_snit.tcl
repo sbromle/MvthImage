@@ -78,9 +78,13 @@ snit::type ImageViewer {
 		if {[winfo exists $can]} {
 			destroy $can;
 		}
-		set can "[winfo parent $fname].c_$img";
-		set x "[winfo parent $fname].x_$img";
-		set y "[winfo parent $fname].y_$img";
+		set parent [winfo parent $fname];
+		if {$parent == "."} {
+			set parent "";
+		}
+		set can "$parent.c_$img";
+		set x "$parent.x_$img";
+		set y "$parent.y_$img";
 		canvas $can;
 		scrollbar $x -ori hori -command [list $can xview];
 		scrollbar $y -ori vert -command [list $can yview];
