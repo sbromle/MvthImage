@@ -3,6 +3,7 @@
 package provide viewimagesnit 1.0
 package require Tk 8.5
 package require snit;
+package require autoscroll;
 
 puts stdout {viewimage Copyright (C) 2012 Sam Bromley}
 puts stdout {This software comes with ABSOLUTELY NO WARRANTY.}
@@ -91,8 +92,11 @@ snit::type ImageViewer {
 		$can config -xscrollcommand [list $x set] -yscrollcommand [list $y set];
 		set myphoto [image create photo [$self imageNameFromImg $img]]
 		$can create image 0 0 -image $myphoto -anchor nw -tag img
-		grid $can $y -in $f -sticky news
-		grid $x -in $f -sticky ew
+		grid $can -in $f -row 0 -column 0 -sticky news
+		grid $y -in $f -row 0 -column 1 -sticky ns
+		grid $x -in $f -row 1 -column 0 -sticky ew
+		::autoscroll::autoscroll $x;
+		::autoscroll::autoscroll $y;
 		grid rowconfig $f 0 -weight 1
 		grid columnconfig $f 0 -weight 1
 		$can config -scrollregion [$can bbox all]
