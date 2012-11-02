@@ -135,3 +135,11 @@ snit::type ImageViewer {
 		}
 	}
 }
+
+proc ImageViewerGUI {w img args} {
+	set i [ImageViewer create %AUTO% -image $img {*}$args];
+	toplevel $w;
+	$i build_frame $w.f;
+	pack $w.f -expand true -fill both;
+	return $i;
+}
