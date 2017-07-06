@@ -5,3 +5,6 @@ a single test harness for the evaluation
 of machine vision filters and stereo
 algorithms while providing a graphical
 display of the results.
+
+MVTH is licensed under the
+GNU Lesser General Public License v3.0.
